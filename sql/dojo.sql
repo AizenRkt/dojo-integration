@@ -266,6 +266,16 @@ CREATE TABLE tarif_abonnement (
   montant NUMERIC(10,2) NOT NULL
 );
 
+
+CREATE TABLE presence (
+      id_presence SERIAL PRIMARY KEY,
+      id_eleve INTEGER REFERENCES eleve(id_eleve),
+      id_seances INTEGER REFERENCES seances_cours(id_seances),
+      present BOOLEAN,
+      date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      remarque TEXT DEFAULT NULL
+);
+
 -- Index pour optimiser les requêtes de reporting
 CREATE INDEX idx_ecolage_date_paiement ON ecolage(date_paiement);
 CREATE INDEX idx_ecolage_mois_annee ON ecolage(mois, annee);
