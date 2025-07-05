@@ -74,17 +74,14 @@ $router->get('/finance', [ $Controller, 'finance' ]);
 $coursController = new CoursController();
 $seancesController = new SeancesController();
 $calendrierController = new CalendrierController();
-
 $router->get('/formHistorique', [$coursController, 'afficherHistorique']);
 $router->get('/formEmploi', [$coursController, 'genererEmploiDuTemps']);
-
 // Cours
 $router->get('/listeCours',[$coursController,'getAllCours']);
 $router->get('/formCours', [$coursController, 'getFormCours']);
 $router->post('/insertCours', [$coursController, 'insertCours']);
 $router->post('/updateCours', [$coursController, 'updateCours']);
 $router->get('/deleteCours', [$coursController, 'deleteCours']);
-
 // Seances
 $router->get('/formSeance', [$seancesController, 'getFormSeance']);
 $router->post('/insertSeance', [$seancesController, 'insertSeance']);
@@ -92,7 +89,6 @@ $router->post('/updateSeance', [$seancesController, 'updateSeance']);
 $router->get('/deleteSeance', [$seancesController, 'deleteSeance']);
 $router->get('/listeSeances', [$seancesController, 'getAllSeances']);
 $router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
-
 // EDT
 $router->get('/calendrier', [$calendrierController, 'afficherMois']);
 $router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);

@@ -17,7 +17,7 @@
                 <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
 
-            <form method="post" action="<?= !is_null($seance) ? '/updateSeance' : '/insertSeance' ?>">
+            <form method="post" action="<?= Flight::base() ?><?= !is_null($seance) ? '/updateSeance' : '/insertSeance' ?>">
                 <?php if (!is_null($seance)) : ?>
                     <input type="hidden" name="id" value="<?= htmlspecialchars($seance['id_seances']) ?>">
                 <?php endif; ?>
