@@ -65,8 +65,14 @@
                     </a>
                 
                     <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
-                        <li class="submenu-item  ">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/listeCours" class="submenu-link">cours</a>
+                        </li>
+                        <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/calendrier" class="submenu-link">emploi du temps</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/listeSeances" class="submenu-link">séances</a>
                         </li>
                     </ul>
                 </li>  
