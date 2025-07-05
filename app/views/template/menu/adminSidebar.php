@@ -57,7 +57,19 @@
                         <span>finance</span>
                     </a>
                 </li>
+        
+                <li class="sidebar-item  has-sub">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-person-arms-up"></i>
+                        <span>le dojo</span>
+                    </a>
                 
+                    <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
+                        <li class="submenu-item  ">
+                            <a href="<?= Flight::base() ?>/calendrier" class="submenu-link">emploi du temps</a>
+                        </li>
+                    </ul>
+                </li>  
 
                 <li class="sidebar-item  has-sub">
                     <a href="#" class="sidebar-link">
