@@ -1,6 +1,7 @@
 -- Type ENUM
 CREATE TYPE etat AS ENUM ('neuve', 'usee', 'abimee');
 CREATE TYPE paiement_statut AS ENUM ('paye', 'en_retard', 'annule'); --Mbl tsy teo
+CREATE TYPE statut AS ENUM ('cree','modifie','annule');
 
 -- Tables principales
 CREATE TABLE genre (
@@ -88,8 +89,15 @@ CREATE TABLE stock_materiel (
 
 CREATE TYPE etat_suivi AS ENUM ('disponible','endommage');
 
+CREATE TABLE club_groupe (
+     id SERIAL PRIMARY KEY,
+     nom_responsable VARCHAR,
+     contact VARCHAR,
+     nombre INTEGER
+);
 CREATE TABLE suivi_salle (
      id_suivi_salle SERIAL PRIMARY KEY,
+    id_club integer references club_groupe(id),
      id_superviseur   INTEGER NOT NULL
          REFERENCES superviseur(id_superviseur)
              ON DELETE RESTRICT,
@@ -100,7 +108,7 @@ CREATE TABLE suivi_salle (
      description      TEXT,
      etat             etat_suivi NOT NULL DEFAULT 'disponible'
 );
-ALTER TABLE suivi_salle ADD COLUMN id_club INTEGER REFERENCES club_groupe(id); --Dylan modification (29-06-25)
+ --Dylan modification (29-06-25)
 
 CREATE TABLE facture_materiel (
       id_facture SERIAL PRIMARY KEY,
@@ -111,29 +119,6 @@ CREATE TABLE facture_materiel (
 );
 ALTER TABLE facture_materiel ADD COLUMN est_paye BOOLEAN DEFAULT FALSE;
 
-
-SELECT mi.*
-FROM materiel_item mi
-WHERE mi.id_type = 1
-  AND NOT EXISTS (
-    SELECT 1 FROM stock_materiel sm
-    WHERE sm.id_type = 1
-      AND sm.type_mouvement = 'O'
-      AND sm.quantite >= (
-        SELECT COUNT(*) FROM materiel_item
-        WHERE id_type = 1
-    )
-);
-
-SELECT * FROM materiel_item
-WHERE id_type = 1
-  AND etat = 'neuve';
-
-INSERT INTO club_groupe (nom_responsable, contact, nombre)
-VALUES ('Rakoto Jean', '0341234567', 15);
-
-INSERT INTO club_groupe (nom_responsable, contact, nombre)
-VALUES ('Rasolonjatovo Lova', '0339876543', 10);
 
 UPDATE materiel_type
 SET prix = 45000.00
@@ -159,18 +144,41 @@ CREATE TABLE cours (
   label VARCHAR
 );
 
+CREATE TABLE plage_horaire (
+    id SERIAL PRIMARY KEY,
+    heure_debut TIME UNIQUE,
+    heure_fin TIME UNIQUE
+);
+
+INSERT INTO plage_horaire (heure_debut, heure_fin) VALUES
+    ('08:00', '10:00'),
+    ('10:00', '12:00'),
+    ('13:00', '15:00'),
+    ('15:00', '17:00');
+
+CREATE TABLE maximum (
+     nombre_eleve_cours INTEGER,
+     nombre_eleve INTEGER
+);
+
+-- Clubs
+
+
 CREATE TABLE seances_cours (
-  id_seances SERIAL PRIMARY KEY,
-  id_cours INTEGER REFERENCES cours(id_cours),
-  date DATE,
-  heure_debut TIME,
-  heure_fin TIME
+   id_seances SERIAL PRIMARY KEY,
+   id_cours INTEGER REFERENCES cours(id_cours),
+   date DATE,
+   id_plage INTEGER REFERENCES plage_horaire(id),
+   id_prof INTEGER REFERENCES prof(id_prof)
+--    heure_debut TIME,
+--    heure_fin TIME
 );
 
 CREATE TABLE historique_seances (
   id_historique SERIAL PRIMARY KEY,
   id_seances INTEGER REFERENCES seances_cours(id_seances),
-  date DATE
+  date DATE,
+  statut statut
 );
 
 CREATE TABLE ecolage (
@@ -182,13 +190,7 @@ CREATE TABLE ecolage (
   annee INTEGER
 );
 Alter table ecolage add column statut paiement_statut;
--- Clubs
-CREATE TABLE club_groupe (
-  id SERIAL PRIMARY KEY,
-  nom_responsable VARCHAR,
-  contact VARCHAR,
-  nombre INTEGER
-);
+
 
 CREATE TABLE reservation (
   id_reservation SERIAL PRIMARY KEY,
@@ -265,3 +267,29 @@ CREATE TABLE planification_cours (
     groupe INTEGER,
     UNIQUE (id_seance, groupe)
 );
+
+INSERT INTO club_groupe (nom_responsable, contact, nombre)
+VALUES ('Rakoto Jean', '0341234567', 15);
+
+INSERT INTO club_groupe (nom_responsable, contact, nombre)
+VALUES ('Rasolonjatovo Lova', '0339876543', 10);
+
+INSERT INTO genre (label) VALUES ('Homme'), ('Femme');
+
+INSERT INTO prof (nom, prenom, date_naissance, adresse, contact, id_genre) VALUES
+   ('Rakoto', 'Jean', '1980-01-01', 'Antananarivo', '0321123456', 1),
+   ('Rabe', 'Pauline', '1985-06-15', 'Fianarantsoa', '0321987654', 2);
+
+-- 3. Élèves
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, id_genre) VALUES
+    ('Andrianina', 'Sarah', '2010-04-12', 'Antsirabe', '0341122334', 2),
+    ('Ravelo', 'Marc', '2009-08-23', 'Mahajanga', '0334455667', 1),
+    ('Rakotovao', 'Lova', '2011-11-01', 'Toamasina', '0339988776', 1),
+    ('Rasoa', 'Miora', '2010-02-18', 'Toliara', '0322345678', 2);
+
+-- 5. Paiement ecolage pour affectation des groupes (ex. Juin 2025)
+INSERT INTO ecolage (id_eleve, montant, date_paiement, mois, annee) VALUES
+    (1, 30000, '2025-07-01', 7, 2025),
+    (2, 30000, '2025-06-02', 6, 2025),
+    (3, 30000, '2025-06-03', 6, 2025),
+    (4, 30000, '2025-06-03', 6, 2025);
