@@ -12,6 +12,12 @@ use app\controllers\salle\DashboardController;
 use app\controllers\salle\FacturationController;
 use app\controllers\salle\SuiviSalleController;
 use app\controllers\statistique\ReportController;
+
+// tarif
+use app\controllers\TarifAbonnementController\TarifAbonnementController;
+use app\controllers\TarifClubController\TarifClubController;
+use app\controllers\TarifEcolageController\TarifEcolageController;
+use app\models\TarifClubModel\TarifClubModel;
 use flight\Engine;
 use flight\net\Router;
 
@@ -57,6 +63,16 @@ $router->get('/salle', [ $Controller, 'club' ]);
 
 // page gestion
 $router->get('/tarif', [ $Controller, 'tarif' ]);
+
+$ecolage = new TarifEcolageController();
+$abonnement = new TarifAbonnementController();
+$club = new TarifClubController();
+$router->post('/tarif/update/enfant', [ $ecolage, 'updateTarifEnfant' ]);
+$router->post('/tarif/update/adulte', [ $ecolage, 'updateTarifAdulte' ]);
+$router->post('/tarif/update/abonnement', [ $abonnement, 'updateTarifAbonnement' ]);
+$router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
+
+
 $router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 

@@ -3,6 +3,9 @@
 namespace app\controllers;
 
 use app\controllers\statistique\ReportController;
+use app\models\TarifAbonnementModel\TarifAbonnementModel;
+use app\models\TarifClubModel\TarifClubModel;
+use app\models\TarifEcolageModel\TarifEcolageModel;
 
 use Flight;
 
@@ -28,6 +31,7 @@ class Controller {
         Flight::render('statistique/demographie');
     }
 
+    // en utilisation
     public function abonnement() {
         $reportController = new ReportController();
         
@@ -98,8 +102,22 @@ class Controller {
         Flight::render('suivi/club');
     }
 
+    // en utilisation
     public function tarif() {
-        Flight::render('gestion/tarif');
+        $m1 = new TarifAbonnementModel();
+        $m2 = new TarifEcolageModel();
+        $m3 = new TarifClubModel();
+        $tarifAbo = $m1->getCurrentTarif();
+        $tarifEcoEnfant = $m2->getCurrentTarifEnfant();
+        $tarifEcoAdult = $m2->getCurrentTarifAdulte();
+        $tarifClub = $m3->getCurrentTarif();
+
+        Flight::render('gestion/tarif', [
+            'abonnement' => $tarifAbo['montant'],
+            'ecolageEnfant' => $tarifEcoEnfant['montant'],
+            'ecolageAdult' => $tarifEcoAdult['montant'],
+            'club' => $tarifClub['montant_par_heure']
+        ]);
     }
 
     public function edt() {

@@ -10,136 +10,142 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
-    <div id="app">
-        <?= Flight::menuAdmin() ?>
-        <div id="main">
-            <div class="page-heading">
-                <div class="page-title mb-4">
-                    <h3 class="fw-bold">Gestion des Tarifs & Équipements</h3>
-                    <p class="text-subtitle text-muted">Modifiez les tarifs ou ajoutez de nouveaux équipements.</p>
-                </div>
+<div id="app">
+    <?= Flight::menuAdmin() ?>
+    <div id="main">
+        <div class="page-heading">
+            <div class="page-title mb-4">
+                <h3 class="fw-bold">Gestion des Tarifs & Équipements</h3>
+                <p class="text-subtitle text-muted">Modifiez les tarifs ou ajoutez de nouveaux équipements.</p>
+            </div>
 
-                <!-- Tarifs -->
-                <section class="section">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Tarifs</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label>Tarif enfants</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="tarif-enfant" value="100€" readonly>
-                                        <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
-                                    </div>
+            <!-- Tarifs -->
+            <section class="section"> 
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Tarifs</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label>Tarif enfants</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tarif-enfant" value="<?= htmlspecialchars($ecolageEnfant) ?>" readonly>
+                                    <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>Tarif adulte</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="tarif-adulte" value="150€" readonly>
-                                        <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
-                                    </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Tarif adulte</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tarif-adulte" value="<?= htmlspecialchars($ecolageAdult) ?>" readonly>
+                                    <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>Tarif mensuel</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="tarif-mensuel" value="50€" readonly>
-                                        <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
-                                    </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Tarif abonnement</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tarif-mensuel" value="<?= htmlspecialchars($abonnement) ?>" readonly>
+                                    <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>Tarif par heure</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="tarif-heure" value="30€" readonly>
-                                        <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
-                                    </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Tarif club par heure</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tarif-heure" value="<?= htmlspecialchars($club) ?>" readonly>
+                                    <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
+                </div>
+            </section>
+
         </div>
     </div>
+</div>
 
-    <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
-    <script src="<?= Flight::base() ?>/public/assets/extensions/jquery/jquery.min.js"></script>
+<!-- Scripts -->
+<script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
+<script src="<?= Flight::base() ?>/public/assets/extensions/jquery/jquery.min.js"></script>
+<script>const base_url = '<?= Flight::base() ?>' </script>
+<script>
+    // Activer le mode édition
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const parent = button.closest('.input-group');
+            const input = parent.querySelector('input');
+            const validate = parent.querySelector('.validate-btn');
 
-    <script>
-        // Tarifs en mode édition
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const parent = button.closest('.input-group');
-                const input = parent.querySelector('input');
-                const validate = parent.querySelector('.validate-btn');
-                input.dataset.previousValue = input.value; // on sauvegarde l’ancienne valeur
-                input.removeAttribute('readonly');
-                input.focus();
-                button.classList.add('d-none');
-                validate.classList.remove('d-none');
-            });
+            input.dataset.previousValue = input.value;
+            input.removeAttribute('readonly');
+            input.focus();
+            button.classList.add('d-none');
+            validate.classList.remove('d-none');
         });
+    });
 
-        document.querySelectorAll('.validate-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const parent = button.closest('.input-group');
-                const input = parent.querySelector('input');
-                const edit = parent.querySelector('.edit-btn');
+    // Valider et envoyer les modifications
+    document.querySelectorAll('.validate-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const parent = button.closest('.input-group');
+            const input = parent.querySelector('input');
+            const edit = parent.querySelector('.edit-btn');
 
-                const newValue = input.value;
-                const oldValue = input.dataset.previousValue || '';
+            const newValue = input.value.trim();
+            const oldValue = input.dataset.previousValue || '';
+            const montant = parseFloat(newValue.replace(',', '.'));
 
-                if (newValue !== oldValue) {
-                    const confirmed = confirm(`Confirmer le changement de tarif de "${oldValue}" vers "${newValue}" ?`);
-                    if (!confirmed) {
-                        input.value = oldValue;
-                        return; // on ne continue pas
-                    }
+            if (isNaN(montant) || montant < 0) {
+                alert('Veuillez entrer un montant numérique valide.');
+                return;
+            }
+
+            if (newValue !== oldValue) {
+                const confirmed = confirm(`Confirmer le changement de tarif de "${oldValue}" vers "${newValue}" ?`);
+                if (!confirmed) {
+                    input.value = oldValue;
+                    return;
                 }
 
-                input.setAttribute('readonly', true);
-                button.classList.add('d-none');
-                edit.classList.remove('d-none');
-            });
-        });
+                let url = '';
+                switch (input.id) {
+                    case 'tarif-enfant': url = base_url + '/tarif/update/enfant'; break;
+                    case 'tarif-adulte': url = base_url +'/tarif/update/adulte'; break;
+                    case 'tarif-mensuel': url = base_url + '/tarif/update/abonnement'; break;
+                    case 'tarif-heure': url = base_url + '/tarif/update/club'; break;
+                    default:
+                        alert('Champ non reconnu.');
+                        return;
+                }
 
-        // Formulaire équipement
-        document.querySelector('.equipement-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const nom = document.getElementById('equip-nom').value;
-            const quantite = document.getElementById('equip-quantite').value;
-            const date = document.getElementById('equip-date').value;
-            const prix = document.getElementById('equip-prix').value;
-
-            if (nom && quantite && date && prix) {
-                const list = document.querySelector('.equipement-list');
-                const item = document.createElement('div');
-                item.className = 'd-flex justify-content-between align-items-center border p-2 rounded mb-2';
-                item.innerHTML = `
-                    <div>
-                        <strong>${nom}</strong> - ${quantite} pièces - ${date} - <span class="text-primary">${prix} Ar</span>
-                    </div>
-                    <div>
-                        <button class="btn btn-sm btn-outline-warning me-2"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-outline-danger delete-btn"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                list.prepend(item);
-
-                item.querySelector('.delete-btn').addEventListener('click', function() {
-                    if (confirm('Supprimer cet équipement ?')) item.remove();
-                });
-
-                this.reset();
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ montant })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Tarif mis à jour avec succès.');
+                        location.reload()
+                    } else {
+                        alert('Erreur lors de la mise à jour.');
+                        input.value = oldValue;
+                        location.reload()
+                    }
+                })
             }
+
+            input.setAttribute('readonly', true);
+            button.classList.add('d-none');
+            edit.classList.remove('d-none');
         });
-    </script>
+    });
+</script>
 </body>
 </html>
