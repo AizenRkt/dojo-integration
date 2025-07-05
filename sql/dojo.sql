@@ -178,8 +178,6 @@ CREATE TABLE seances_cours (
    date DATE,
    id_plage INTEGER REFERENCES plage_horaire(id),
    id_prof INTEGER REFERENCES prof(id_prof)
---    heure_debut TIME,
---    heure_fin TIME
 );
 
 CREATE TABLE historique_seances (
