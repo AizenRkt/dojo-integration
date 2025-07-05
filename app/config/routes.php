@@ -26,6 +26,11 @@ use app\controllers\controllersCours\CoursController;
 use app\controllers\controllersCours\SeancesController;
 use app\controllers\controllersCours\CalendrierController;
 
+// tarif
+use app\controllers\TarifAbonnementController\TarifAbonnementController;
+use app\controllers\TarifClubController\TarifClubController;
+use app\controllers\TarifEcolageController\TarifEcolageController;
+use app\models\TarifClubModel\TarifClubModel;
 //importation lié flight
 use flight\Engine;
 use flight\net\Router;
@@ -60,6 +65,16 @@ $router->get('/salle', [ $Controller, 'club' ]);
 
 // page gestion
 $router->get('/tarif', [ $Controller, 'tarif' ]);
+
+$ecolage = new TarifEcolageController();
+$abonnement = new TarifAbonnementController();
+$club = new TarifClubController();
+$router->post('/tarif/update/enfant', [ $ecolage, 'updateTarifEnfant' ]);
+$router->post('/tarif/update/adulte', [ $ecolage, 'updateTarifAdulte' ]);
+$router->post('/tarif/update/abonnement', [ $abonnement, 'updateTarifAbonnement' ]);
+$router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
+
+
 $router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 
