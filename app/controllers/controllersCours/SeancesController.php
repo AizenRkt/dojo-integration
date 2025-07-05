@@ -34,7 +34,7 @@ class SeancesController {
             'plages' => $plages,
             'profs' => $profModel->getAll()
         ];
-        Flight::render("seances/insertion", $data);
+        Flight::render("gestion/edt/seances/insertion", $data);
     }
 
     public function insertSeance() {
@@ -52,11 +52,11 @@ class SeancesController {
             $seances = $model->getAll();
 
             $data = ['message' => 'Séance ajoutée avec succès', 'seances' => $seances];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         } catch (Exception $e) {
             $seances = $model->getAll();
             $data = ['message' => $e->getMessage(),'seances' => $seances];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         }
     }
 
@@ -72,11 +72,11 @@ class SeancesController {
             $model->update($id, $id_cours, $date, $id_prof);
             $seances = $model->getAll();
             $data = ['message' => 'Séance modifiée avec succès', 'seances' => $seances];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         } catch (Exception $e) {
             $seances = $model->getAll();
             $data = ['message' => $e->getMessage(), 'seances' => $seances];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         }
     }
 
@@ -88,10 +88,10 @@ class SeancesController {
             $model->delete($id);
             $seances = $model->getAll();
             $data = ['message' => 'Séance supprimée avec succès', 'seances' => $seances];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         } catch (Exception $e) {
             $data = ['message' => $e->getMessage()];
-            Flight::render("seances/liste", $data);
+            Flight::render("gestion/edt/seances/liste", $data);
         }
     }
 
@@ -99,7 +99,7 @@ class SeancesController {
         $model = new SeancesModel(Flight::db());
         $seances = $model->getAll();
         $data = ['seances' => $seances];
-        Flight::render("seances/liste", $data);
+        Flight::render("gestion/edt/seances/liste", $data);
     }
 
     public function historiqueSeances() {
@@ -107,7 +107,7 @@ class SeancesController {
         $historiques = $histModel->getAll();
 
         $data = ['historiques' => $historiques];
-        Flight::render("seances/historique", $data);
+        Flight::render("gestion/edt/seances/historique", $data);
     }
 
 }

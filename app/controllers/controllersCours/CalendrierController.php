@@ -37,7 +37,7 @@ class CalendrierController {
             }
         }
 
-        Flight::render("calendrier/mois", [
+        Flight::render("gestion/edt/calendrier/mois", [
             'mois' => $mois,
             'annee' => $annee,
             'calendrier' => $calendrier
@@ -56,7 +56,7 @@ class CalendrierController {
         $gestionCours = new GestionCoursModel(Flight::db());
         $eleves = $gestionCours->getElevesDuGroupeParDate($groupe, $date);
 
-        Flight::render("calendrier/details", [
+        Flight::render("gestion/edt/calendrier/details", [
             'date' => $date,
             'groupe' => $groupe,
             'eleves' => $eleves

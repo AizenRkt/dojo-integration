@@ -18,7 +18,7 @@ class CoursController {
             $cours = $model->getById($id);
         }
 
-        Flight::render("cours/insertion", ['cours' => $cours]);
+        Flight::render("gestion/edt/cours/insertion", ['cours' => $cours]);
     }
 
 
@@ -32,7 +32,7 @@ class CoursController {
             Flight::render("cours/liste", $data);
         } catch(Exception $e) {
             $data = ['message' => $e->getMessage()];
-            Flight::render("cours/liste", $data);
+            Flight::render("gestion/edt/cours/liste", $data);
         }
     }
 
@@ -44,10 +44,10 @@ class CoursController {
             $model->update($id, $label);
             $cours = $model->getAll();
             $data = ['message' => 'Cours mis à jour avec succès', 'cours' => $cours];
-            Flight::render("cours/liste", $data);
+            Flight::render("gestion/edt/cours/liste", $data);
         } catch(Exception $e) {
             $data = ['message' => $e->getMessage()];
-            Flight::render("cours/liste", $data);
+            Flight::render("gestion/edt/cours/liste", $data);
         }
     }
 
@@ -58,10 +58,10 @@ class CoursController {
             $model->delete($id);
             $cours = $model->getAll();
             $data = ['message' => 'Cours supprimé avec succès', 'cours' => $cours];
-            Flight::render("cours/liste", $data);
+            Flight::render("gestion/edt/cours/liste", $data);
         } catch(Exception $e) {
             $data = ['message' => $e->getMessage()];
-            Flight::render("cours/liste", $data);
+            Flight::render("gestion/edt/cours/liste", $data);
         }
     }
 
@@ -77,6 +77,6 @@ class CoursController {
         $model = new CoursModel(Flight::db());
         $cours = $model->getAll();
         $data = ['cours' => $cours];
-        Flight::render("cours/liste", $data);
+        Flight::render("gestion/edt/cours/liste", $data);
     }
 }

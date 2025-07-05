@@ -14,6 +14,10 @@ use app\controllers\salle\DashboardController;
 // salle rapport
 use app\controllers\statistique\ReportController;
 
+// emploi du temps
+use app\controllers\controllersCours\CoursController;
+use app\controllers\controllersCours\SeancesController;
+use app\controllers\controllersCours\CalendrierController;
 
 //importation lié flight
 use flight\Engine;
@@ -64,6 +68,35 @@ $router->get('/finance', [ $Controller, 'finance' ]);
 // 	$router->get('/users/@id:[0-9]', [ $Api_Example_Controller, 'getUser' ]);
 // 	$router->post('/users/@id:[0-9]', [ $Api_Example_Controller, 'updateUser' ]);
 // });
+
+
+// emploi du temps
+$coursController = new CoursController();
+$seancesController = new SeancesController();
+$calendrierController = new CalendrierController();
+
+$router->get('/formHistorique', [$coursController, 'afficherHistorique']);
+$router->get('/formEmploi', [$coursController, 'genererEmploiDuTemps']);
+
+// Cours
+$router->get('/listeCours',[$coursController,'getAllCours']);
+$router->get('/formCours', [$coursController, 'getFormCours']);
+$router->post('/insertCours', [$coursController, 'insertCours']);
+$router->post('/updateCours', [$coursController, 'updateCours']);
+$router->get('/deleteCours', [$coursController, 'deleteCours']);
+
+// Seances
+$router->get('/formSeance', [$seancesController, 'getFormSeance']);
+$router->post('/insertSeance', [$seancesController, 'insertSeance']);
+$router->post('/updateSeance', [$seancesController, 'updateSeance']);
+$router->get('/deleteSeance', [$seancesController, 'deleteSeance']);
+$router->get('/listeSeances', [$seancesController, 'getAllSeances']);
+$router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
+
+// EDT
+$router->get('/calendrier', [$calendrierController, 'afficherMois']);
+$router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);
+
 
 // abonnement 
 $router->get('/api/reports/inscriptions', [ReportController::class, 'getInscriptions']);
