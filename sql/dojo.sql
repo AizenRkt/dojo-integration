@@ -9,6 +9,8 @@ CREATE TYPE statut_ecolage AS ENUM ( /* Wanda - update 29-06-25 */
   'annule',
   'en attente'
 );
+CREATE TYPE valeur AS ENUM ('demande', 'confirme', 'payee', 'annule');
+
 
 -- Tables principales
 CREATE TABLE genre (
@@ -101,8 +103,10 @@ CREATE TABLE club_groupe (
      id SERIAL PRIMARY KEY,
      nom_responsable VARCHAR,
      contact VARCHAR,
-     nombre INTEGER
+     nombre INTEGER,
+    discipline VARCHAR
 );
+
 CREATE TABLE suivi_salle (
      id_suivi_salle SERIAL PRIMARY KEY,
     id_club integer references club_groupe(id),
@@ -272,6 +276,19 @@ CREATE TABLE presence (
       present BOOLEAN,
       date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       remarque TEXT DEFAULT NULL
+);
+
+CREATE TABLE status (
+    id_status SERIAL PRIMARY KEY,
+    id_reservation INTEGER REFERENCES reservation(id_reservation),
+    valeur valeur
+);
+
+CREATE TABLE horaire (
+     id_horaire SERIAL PRIMARY KEY,
+     jour VARCHAR,
+     debut TIME,
+     fin TIME
 );
 
 -- Index pour optimiser les requêtes de reporting
