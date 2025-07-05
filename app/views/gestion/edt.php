@@ -20,14 +20,14 @@
                 <div class="schedule-dashboard">
                     <div class="schedule-header">
                         <div class="week-navigation">
-                            <button class="nav-btn" id="prevWeek"><i class="fas fa-chevron-left"></i></button>
+                            <button class="nav-btn" id="prevWeek"><i class="bi bi-chevron-left"></i></button>
                             <div class="current-week">
                                 <h2 id="weekTitle">Semaine en cours</h2>
                                 <div class="week-dates">
                                     <span>Du <strong id="startDate">24 Juin 2025</strong> au <strong id="endDate">30 Juin 2025</strong></span>
                                 </div>
                             </div>
-                            <button class="nav-btn" id="nextWeek"><i class="fas fa-chevron-right"></i></button>
+                            <button class="nav-btn" id="nextWeek"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
 

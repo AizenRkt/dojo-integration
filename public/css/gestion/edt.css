@@ -41,7 +41,6 @@ body {
 }
 
 .week-navigation .nav-btn:hover {
-  background-color: var(--bs-primary-dark);
   box-shadow: var(--bs-shadow-lg);
   transform: translateY(-2px);
 }
