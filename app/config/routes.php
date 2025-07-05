@@ -99,7 +99,14 @@ $router->get('/reservation/insert', [ $ReservationController, 'formReservation' 
 $router->post('/reservation/insert', [ $ReservationController, 'InsertReservation' ]);
 $router->post('/reservation/update/@id:[0-9]+', [ $ReservationController, 'UpdateReservation' ]);
 $router->get('/reservation/delete/@id:[0-9]+', [ $ReservationController, 'DeleteReservation' ]);
+// Route pour afficher le suivi des clubs
+$router->get('/suivi/clubs', [$GroupeController, 'showClubTracking']);
 
+// API pour récupérer les détails d'un jour
+$router->get('/api/day/@date', [$GroupeController, 'getDayDetails']);
+
+// API pour récupérer les données mensuelles
+$router->get('/api/month/@year:[0-9]+/@month:[0-9]+', [$GroupeController, 'getMonthlyData']);
 
 
 //presences

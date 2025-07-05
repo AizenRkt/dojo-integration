@@ -211,13 +211,17 @@ CREATE TABLE ecolage (
 );
 
 
+-- Corriger la table reservation
+DROP TABLE IF EXISTS reservation CASCADE;
+
 CREATE TABLE reservation (
-  id_reservation SERIAL PRIMARY KEY,
-  id_club INTEGER REFERENCES club_groupe(id),
-  date_reservation TIMESTAMP,
-  date_reserve TIMESTAMP,
-  heure_debut TIME,
-  heure_fin TIME
+     id_reservation SERIAL PRIMARY KEY,
+     id_club INTEGER REFERENCES club_groupe(id),
+     date_reservation TIMESTAMP DEFAULT NOW(),
+     date_reserve DATE,
+     heure_debut TIME,
+     heure_fin TIME,
+     valeur valeur DEFAULT 'demande'
 );
 
 -- CREATE TABLE paiement (
