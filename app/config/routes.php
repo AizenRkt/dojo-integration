@@ -2,33 +2,30 @@
 
 //importation de controller
 use app\controllers\Controller;
-
-//Groupe&Reservation
-use app\controllers\GroupesControllers\ReservationController;
-use app\controllers\GroupesControllers\GroupeController;
-
-//presence
-use app\controllers\presence\PresenceController;
-
-// salle use
-use app\controllers\salle\FacturationController;
-use app\controllers\salle\HistoriqueGardeController;
-use app\controllers\salle\MaterielTypeController;
-use app\controllers\salle\StockMaterielController;
-use app\controllers\salle\SuiviSalleController;
-use app\controllers\salle\DashboardController;
-
-// salle rapport
-use app\controllers\statistique\ReportController;
-
-// emploi du temps
+use app\controllers\controllersCours\CalendrierController;
 use app\controllers\controllersCours\CoursController;
 use app\controllers\controllersCours\SeancesController;
-use app\controllers\controllersCours\CalendrierController;
-
-//importation lié flight
+use app\controllers\GroupesControllers\GroupeController;
+use app\controllers\GroupesControllers\ReservationController;
+use app\controllers\presence\PresenceController;
+use app\controllers\salle\DashboardController;
+use app\controllers\salle\FacturationController;
+use app\controllers\salle\SuiviSalleController;
+use app\controllers\statistique\ReportController;
 use flight\Engine;
 use flight\net\Router;
+
+//Groupe&Reservation
+
+//presence
+
+// salle use
+
+// salle rapport
+
+// emploi du temps
+
+//importation lié flight
 
 //use Flight;
 
@@ -75,6 +72,8 @@ $router->get('/finance', [ $Controller, 'finance' ]);
 // 	$router->get('/users/@id:[0-9]', [ $Api_Example_Controller, 'getUser' ]);
 // 	$router->post('/users/@id:[0-9]', [ $Api_Example_Controller, 'updateUser' ]);
 // });
+
+// Routes pour la page personnel
 
 //Groupe&Reservation
 $GroupeController = new GroupeController();
@@ -224,4 +223,30 @@ Flight::route('GET /historique-garde/delete/@id', ['app\\controllers\\salle\\His
 
 $dashboardController = new  DashboardController();
 Flight::route('GET /dashboard', [$dashboardController, 'index']);
+
+
+// --- API PROF & SUPERVISEUR ---
+use app\controllers\individu\ProfController;
+use app\controllers\individu\SuperviseurController;
+use app\controllers\individu\GenreController;
+$profController = new ProfController();
+$superviseurController = new SuperviseurController();
+$genreController = new GenreController();
+
+// Professeur
+$router->get('/api/profs', [ $profController, 'getAll' ]);
+$router->get('/api/prof/@id:[0-9]+', [ $profController, 'getById' ]);
+$router->post('/api/prof', [ $profController, 'insert' ]);
+$router->post('/api/prof/update/@id:[0-9]+', [ $profController, 'update' ]);
+$router->post('/api/prof/delete/@id:[0-9]+', [ $profController, 'delete' ]);
+
+// Superviseur
+$router->get('/api/superviseurs', [ $superviseurController, 'getAll' ]);
+$router->get('/api/superviseur/@id:[0-9]+', [ $superviseurController, 'getById' ]);
+$router->post('/api/superviseur', [ $superviseurController, 'insert' ]);
+$router->post('/api/superviseur/update/@id:[0-9]+', [ $superviseurController, 'update' ]);
+$router->post('/api/superviseur/delete/@id:[0-9]+', [ $superviseurController, 'delete' ]);
+
+// Genre
+$router->get('/api/genres', [ $genreController, 'getAll' ]);
 ?>

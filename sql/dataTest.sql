@@ -56,3 +56,21 @@ FROM reservation r
 WHERE r.date_reserve BETWEEN '25-01-01' AND '25-01-31'
   AND r.valeur = 'confirme'
 ORDER BY r.date_reserve, r.heure_debut;
+
+
+-- 1. Insert data into genre
+INSERT INTO genre (label) VALUES
+      ('Masculin'),
+      ('Féminin');
+
+-- 2. Insert data into superviseur
+INSERT INTO superviseur (nom, prenom, date_naissance, adresse, contact, id_genre) VALUES
+      ('Rabe', 'Jean', '1980-04-15 00:00:00', 'Lot 121 Ambatonakanga', '0341234567', 1),
+      ('Andrianina', 'Lova', '1975-09-03 00:00:00', 'Rue de l Universite, Ankatso', '0341122334', 2),
+      ('Randria', 'Michel', '1982-12-12 00:00:00', 'Ampasampito, Antananarivo', '0341987456', 1);
+
+-- 3. Insert data into prof
+INSERT INTO prof (nom, prenom, date_naissance, adresse, contact, id_genre) VALUES
+       ('Rakoto', 'Soa', '1990-06-20 00:00:00', 'Antsakaviro, Tana', '0341789456', 2),
+       ('Ratsimba', 'Tojo', '1985-03-08 00:00:00', 'Tsimbazaza, Antananarivo', '0341678945', 1),
+       ('Andriamihaja', 'Fara', '1992-11-25 00:00:00', 'Isoraka, Antananarivo', '0341239876', 2);

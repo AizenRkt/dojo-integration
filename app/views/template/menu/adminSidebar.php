@@ -3,7 +3,7 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo">
-                    <a href="<?= Flight::base() ?>/"><img style="width: 250px; height:auto" src="<?= Flight::base() ?>/public/img/logo.png" alt="logo" srcset=""></a>
+<!--                    <a href="--><?php //= Flight::base() ?><!--/"><img style="width: 250px; height:auto" src="--><?php //= Flight::base() ?><!--/public/assets/compiled/svg/favicon.svg" alt="logo" srcset=""></a>-->
                 </div>
             </div>
         </div>
