@@ -3,6 +3,9 @@
 //importation de controller
 use app\controllers\Controller;
 
+//presence
+use app\controllers\presence\PresenceController;
+
 // salle use
 use app\controllers\salle\FacturationController;
 use app\controllers\salle\HistoriqueGardeController;
@@ -68,6 +71,33 @@ $router->get('/finance', [ $Controller, 'finance' ]);
 // 	$router->get('/users/@id:[0-9]', [ $Api_Example_Controller, 'getUser' ]);
 // 	$router->post('/users/@id:[0-9]', [ $Api_Example_Controller, 'updateUser' ]);
 // });
+
+//presences
+
+$presenceController = new PresenceController();
+
+$router->get('/presences', [ $presenceController, 'index' ]);
+$router->get('/presence/seance/@id_seances:[0-9]+', [ $presenceController, 'showFeuillePresence' ]);
+$router->post('/presence', function() use ($presenceController) {
+    $data = $_POST;
+    return $presenceController->store($data);
+});
+
+$router->post('/presence/update/@id:[0-9]+', function($id) use ($presenceController) {
+    $data = $_POST;
+    return $presenceController->update($id, $data);
+});
+
+$router->post('/presence/delete/@id:[0-9]+', function($id) use ($presenceController) {
+    return $presenceController->delete($id);
+});
+
+$router->get('/presence/absences/@id_eleve:[0-9]+', [ $presenceController, 'showAbsencesEleve' ]);
+$router->get('/presence/absents/@date_debut:[0-9]{4}-[0-9]{2}-[0-9]{2}/@date_fin:[0-9]{4}-[0-9]{2}-[0-9]{2}', [ $presenceController, 'showAbsentsParDate' ]);
+$router->get('/presence/presents/@date_debut:[0-9]{4}-[0-9]{2}-[0-9]{2}/@date_fin:[0-9]{4}-[0-9]{2}-[0-9]{2}', [ $presenceController, 'showPresentsParDate' ]);
+$router->get('/presence/annulation-possible/@id_seances:[0-9]+', function($id_seances) use ($presenceController) {
+    return $presenceController->annulationPossible($id_seances) ? 'true' : 'false';
+});
 
 
 // emploi du temps

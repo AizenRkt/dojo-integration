@@ -2,6 +2,8 @@
 
 namespace app\models\presence;
 
+use PDO;
+
 class PresenceModel
 {
     private $db;

@@ -11,7 +11,7 @@
 </head>
 <body>
     <div id="app">
-        <?= Flight::menu() ?>
+        <?= Flight::menuAdmin() ?>
         <div id="main">
             <div class="page-heading">
                 <div class="container">
