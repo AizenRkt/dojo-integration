@@ -85,7 +85,7 @@ body {
 
 /* Day header styling */
 .day-header {
-  background-color: var(--bs-light);
+  background-color: var(--bs-white);
   border-radius: 0.75rem;
   padding: 1rem 0.5rem;
   text-align: center;
@@ -129,7 +129,7 @@ body {
 
 /* Time slot card */
 .time-slot {
-  background-color: var(--bs-light);
+  background-color: var(--bs-white);
   padding: 1rem;
   border-radius: 0.5rem;
   border-left: 4px solid var(--bs-primary);
@@ -164,32 +164,32 @@ body {
 /* Différenciation par type - couleurs Mazer */
 .slot-danse {
   border-left-color: var(--bs-danger);
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), var(--bs-white));
 }
 
 .slot-jjb {
   border-left-color: var(--bs-warning);
-  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), var(--bs-white));
 }
 
 .slot-fitness {
   border-left-color: var(--bs-success);
-  background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), var(--bs-white));
 }
 
 .slot-yoga {
   border-left-color: var(--bs-purple);
-  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), var(--bs-white));
 }
 
 .slot-karate {
   border-left-color: var(--bs-danger);
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), var(--bs-white));
 }
 
 .slot-natation {
   border-left-color: var(--bs-info);
-  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), var(--bs-light));
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), var(--bs-white));
 }
 
 /* Tooltip */
