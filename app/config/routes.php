@@ -128,13 +128,10 @@ $router->get('/presence/annulation-possible/@id_seances:[0-9]+', function($id_se
     return $presenceController->annulationPossible($id_seances) ? 'true' : 'false';
 });
 
-
 // emploi du temps
 $coursController = new CoursController();
 $seancesController = new SeancesController();
 $calendrierController = new CalendrierController();
-$router->get('/formHistorique', [$coursController, 'afficherHistorique']);
-$router->get('/formEmploi', [$coursController, 'genererEmploiDuTemps']);
 // Cours
 $router->get('/listeCours',[$coursController,'getAllCours']);
 $router->get('/formCours', [$coursController, 'getFormCours']);
