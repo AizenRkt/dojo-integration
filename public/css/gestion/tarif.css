@@ -1,0 +1,333 @@
+/* Variables Mazer */
+:root {
+  --bs-body-bg: #f8f9fa;
+  --bs-body-color: #212529;
+  --bs-primary: #435ebe;
+  --bs-secondary: #6c757d;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+  --bs-border-color: #dee2e6;
+  --bs-white: #fff;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /* Pas de flex ni overflow ici */
+}
+
+/* Contenu principal */
+.dashboard {
+  padding: 2rem 3rem;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Container principal des tarifs */
+.tarif-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Section individuelle de tarif */
+.tarif-section {
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.tarif-section:hover {
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.1);
+  transform: translateY(-3px);
+}
+
+.tarif-section h2 {
+  color: var(--bs-primary);
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+/* Item tarif */
+.tarif-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tarif-item:last-child {
+  margin-bottom: 0;
+}
+
+.tarif-item label {
+  font-weight: 500;
+  color: var(--bs-dark);
+  font-size: 0.95rem;
+}
+
+.tarif-item input {
+  padding: 0.5rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.tarif-item input[readonly] {
+  background-color: var(--bs-light);
+  cursor: default;
+}
+
+.tarif-item input:focus {
+  outline: none;
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 8px rgb(67 94 190 / 0.4);
+  background-color: var(--bs-white);
+}
+
+/* Boutons dans les tarifs */
+.tarif-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tarif-buttons .edit-btn,
+.tarif-buttons .validate-btn {
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-primary);
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  min-width: 40px;
+}
+
+.tarif-buttons .edit-btn:hover {
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+  border-color: var(--bs-primary);
+}
+
+.tarif-buttons .validate-btn {
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+  border-color: var(--bs-primary);
+}
+
+.tarif-buttons .validate-btn:hover {
+  background-color: #354a9e;
+  border-color: #354a9e;
+}
+
+/* =========================
+   CSS Equipements
+   ========================= */
+
+.equipement-container {
+  background-color: var(--bs-white);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+  margin-top: 2rem;
+}
+
+/* Titre section equipement */
+.equipement-form-section h2,
+.equipement-list-section h2 {
+  color: var(--bs-primary);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Formulaire */
+.equipement-form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: end;
+}
+
+.equipement-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.equipement-form .form-group label {
+  color: var(--bs-dark);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.equipement-form .form-group input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+  color: var(--bs-dark);
+  background-color: var(--bs-light);
+}
+
+.equipement-form .form-group input:focus {
+  outline: none;
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 8px rgb(67 94 190 / 0.4);
+  background-color: var(--bs-white);
+}
+
+/* Bouton valider équipement */
+.equipement-form .btn-valider {
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  justify-self: start;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgb(67 94 190 / 0.3);
+}
+
+.equipement-form .btn-valider:hover {
+  background-color: #354a9e;
+  box-shadow: 0 6px 20px rgb(53 74 158 / 0.5);
+}
+
+.equipement-form .btn-valider:active {
+  background-color: #2c3d7f;
+  box-shadow: 0 4px 15px rgb(44 61 127 / 0.4);
+}
+
+/* Liste des équipements */
+.equipement-list-section {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.equipement-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: var(--bs-white);
+  color: var(--bs-dark);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  cursor: default;
+}
+
+.equipement-item:hover {
+  box-shadow: 0 6px 15px rgb(67 94 190 / 0.3);
+  transform: translateX(1px);
+}
+
+.equipement-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--bs-dark);
+}
+
+.equipement-etat {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--bs-secondary);
+}
+
+/* Boutons actions équipement */
+.equipement-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.equipement-actions .edit-btn,
+.equipement-actions .delete-btn {
+  background-color: var(--bs-white);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-primary);
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.equipement-actions .edit-btn:hover {
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+  transform: translateY(-2px);
+}
+
+.equipement-actions .delete-btn:hover {
+  background-color: #dc3545;
+  color: var(--bs-white);
+  border-color: #dc3545;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .tarif-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .equipement-form {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tarif-container {
+    grid-template-columns: 1fr;
+  }
+  .equipement-form {
+    grid-template-columns: 1fr 1fr;
+  }
+  .equipement-item {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    text-align: left;
+  }
+  .equipement-actions {
+    justify-content: flex-start;
+  }
+}

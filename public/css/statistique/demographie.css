@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+   --primary-bg: #0f2439;
+   --header-bg: #1e3a5f;
+   --text-color: #ffffff;
+   --accent-color-1: #a8e063;
+   --accent-color-2: #4fa8da;
+   --white: #ffffff;
+   --border-color: #2c4a6b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--secondary-bg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.search-bar {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: none;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    padding-right: 40px;
+}
+
+.search-bar i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-color);
+}
+
+.nav-menu {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-menu ul {
+    list-style: none;
+}
+
+.nav-menu li {
+    margin-bottom: 20px;
+}
+
+.nav-menu a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.nav-menu a.active,
+.nav-menu a:hover {
+    background-color: var(--primary-bg);
+}
+
+.nav-menu i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    background-color: var(--header-bg);
+    padding: 10px 30px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.admin-btn {
+    background-color: var(--white);
+    color: #333;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.admin-btn i {
+    margin-right: 8px;
+}
+
+.dashboard {
+    padding: 30px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.chart-container {
+    background-color: var(--secondary-bg);
+    padding: 20px;
+    border-radius: 15px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.total-clients {
+    font-size: 1.2em;
+}
+
+.total-clients span {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--white);
+    display: block;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--primary-bg);
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+.legend {
+    display: flex;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+.chart-area {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Doughnut Chart Page Specific */
+.doughnut-layout {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.doughnut-chart-area {
+    width: 50%;
+    height: 100%;
+    position: relative;
+}
+
+.stats-bars {
+    width: 40%;
+}
+
+.stat-item {
+    margin-bottom: 20px;
+}
+
+.stat-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.stat-item-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: var(--primary-bg);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: var(--accent-color-1);
+    border-radius: 5px;
+}
+
+.chart-switcher {
+    display: flex;
+    background-color: var(--primary-bg);
+    border-radius: 15px;
+    padding: 3px;
+}
+
+.chart-switcher button {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 5px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.chart-switcher button.active {
+    background-color: var(--accent-color-1);
+    color: var(--white);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
