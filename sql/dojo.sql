@@ -2,6 +2,13 @@
 CREATE TYPE etat AS ENUM ('neuve', 'usee', 'abimee');
 CREATE TYPE paiement_statut AS ENUM ('paye', 'en_retard', 'annule'); --Mbl tsy teo
 CREATE TYPE statut AS ENUM ('cree','modifie','annule');
+CREATE TYPE statut_ecolage AS ENUM ( /* Wanda - update 29-06-25 */
+  'non paye',
+  'paye',
+  'en retard',
+  'annule',
+  'en attente'
+);
 
 -- Tables principales
 CREATE TABLE genre (
@@ -36,6 +43,7 @@ CREATE TABLE eleve (
   date_naissance TIMESTAMP,
   adresse VARCHAR,
   contact VARCHAR,
+  date_inscription TIMESTAMP, /* Wanda - update 29-06-25 */
   id_genre INTEGER REFERENCES genre(id_genre)
 );
 
@@ -181,15 +189,24 @@ CREATE TABLE historique_seances (
   statut statut
 );
 
+CREATE TYPE valeur AS ENUM ('demande', 'confirme', 'payee', 'annule');
+
+
+CREATE TABLE status (
+    id_status SERIAL PRIMARY KEY,
+    id_reservation INTEGER REFERENCES reservation(id_reservation),
+    valeur valeur
+);
+
 CREATE TABLE ecolage (
   id_ecolage SERIAL PRIMARY KEY,
   id_eleve INTEGER REFERENCES eleve(id_eleve),
   montant FLOAT,
   date_paiement TIMESTAMP,
   mois INTEGER,
-  annee INTEGER
+  annee INTEGER,
+  statut statut_ecolage DEFAULT 'non_payé' /* Wanda - update 29-06-25 */
 );
-Alter table ecolage add column statut paiement_statut;
 
 
 CREATE TABLE reservation (
@@ -201,9 +218,16 @@ CREATE TABLE reservation (
   heure_fin TIME
 );
 
+-- CREATE TABLE paiement (
+--   id_payement SERIAL PRIMARY KEY, -- Jhoanito id_paiement
+--   id_groupe INTEGER REFERENCES club_groupe(id),
+--   montant FLOAT,
+--   date_paiement TIMESTAMP
+-- );
+
 CREATE TABLE paiement (
-  id_payement SERIAL PRIMARY KEY, -- Jhoanito id_paiement
-  id_groupe INTEGER REFERENCES club_groupe(id),
+  id_payement SERIAL PRIMARY KEY,
+  id_reservation INTEGER REFERENCES reservation(id_reservation), /* Wanda - update 29-06-25 */
   montant FLOAT,
   date_paiement TIMESTAMP
 );
@@ -224,6 +248,7 @@ CREATE TABLE abonnement (
   id_club INTEGER REFERENCES club_groupe(id),
   jour INTEGER,
   mois INTEGER,
+  annee INTEGER,
   actif BOOLEAN
 );
 ALTER table abonnement ADD COLUMN annee INTEGER; -- 03/07/25 modif Jhoanito
