@@ -51,6 +51,13 @@ Flight::route('GET /gestion/finance/salaires', function() {
 });
 
 
+// page professeur
+$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
+$router->get('/evolution', [ $Controller, 'evolution' ]);
+$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
+$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
+$router->get('/compte', [ $Controller, 'compte' ]);
+
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
     $controller = new SalaireController();

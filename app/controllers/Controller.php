@@ -31,6 +31,27 @@ class Controller {
         Flight::render('statistique/demographie');
     }
 
+    //Controller pour les pages des professeurs
+    public function professeurSidebar() {
+        Flight::render('template/menu/professeurSidebar');
+    }
+
+    public function evolution() {
+        Flight::render('professeur/evolution');
+    }
+
+    public function emploi_temps() {
+        Flight::render('professeur/emploi_temps');
+    }
+
+    public function presence_eleve() {
+        Flight::render('professeur/presence_eleve');
+    }
+
+    public function compte() {
+        Flight::render('professeur/compte');
+    }
+
     // en utilisation
     public function abonnement() {
         $reportController = new ReportController();
