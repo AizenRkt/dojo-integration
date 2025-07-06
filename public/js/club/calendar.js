@@ -128,7 +128,7 @@ function selectDay(dateString, date) {
 async function loadDayDetails(dateString, date) {
     try {
         const baseUrl = window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/');
-        const response = await fetch(`${baseUrl}/api/day/${dateString}`);
+        const response = await fetch(`${baseUrl}/api/day-details/${dateString}`);
         const dayData = await response.json();
 
         if (response.ok) {
@@ -143,6 +143,7 @@ async function loadDayDetails(dateString, date) {
     }
 }
 
+// Dans calendar.js, modifiez la fonction updateDayDetails
 function updateDayDetails(dayData, date) {
     const selectedDate = document.getElementById('selectedDate');
     const occupiedSlots = document.getElementById('occupiedSlots');
@@ -154,10 +155,19 @@ function updateDayDetails(dayData, date) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     selectedDate.textContent = date.toLocaleDateString('fr-FR', options);
 
-    if (!dayData || !dayData.slots || dayData.slots.length === 0) {
+    // Vérifier si c'est un jour fermé
+    if (dayData && dayData.status === 'closed') {
         occupiedSlots.parentElement.style.display = 'none';
         availableSlots.style.display = 'none';
         emptyDay.style.display = 'block';
+        emptyDay.innerHTML = '<p class="text-muted">' + (dayData.message || 'Dojo fermé ce jour') + '</p>';
+        return;
+    }
+
+    if (!dayData || !dayData.slots || dayData.slots.length === 0) {
+        occupiedSlots.parentElement.style.display = 'none';
+        emptyDay.style.display = 'block';
+        emptyDay.innerHTML = '<p class="text-muted">Aucune réservation ce jour</p>';
     } else {
         emptyDay.style.display = 'none';
         occupiedSlots.parentElement.style.display = 'block';
@@ -174,22 +184,26 @@ function updateDayDetails(dayData, date) {
             `;
             occupiedSlots.appendChild(slotElement);
         });
+    }
 
-        if (dayData.available && dayData.available.length > 0) {
-            const availableList = document.getElementById('availableList');
-            if (availableList) {
-                availableList.innerHTML = '';
-                dayData.available.forEach(time => {
-                    const timeElement = document.createElement('div');
-                    timeElement.className = 'available-time';
-                    timeElement.textContent = time;
-                    availableList.appendChild(timeElement);
-                });
-                availableSlots.style.display = 'block';
-            }
-        } else {
-            availableSlots.style.display = 'none';
+    // Afficher les créneaux disponibles
+    if (dayData && dayData.available && dayData.available.length > 0) {
+        const availableList = document.getElementById('availableList');
+        if (availableList) {
+            availableList.innerHTML = '';
+            dayData.available.forEach(timeSlot => {
+                const timeElement = document.createElement('div');
+                timeElement.className = 'available-time';
+                timeElement.innerHTML = `
+                    <i class="bi bi-clock text-success"></i>
+                    <span>${timeSlot}</span>
+                `;
+                availableList.appendChild(timeElement);
+            });
+            availableSlots.style.display = 'block';
         }
+    } else {
+        availableSlots.style.display = 'none';
     }
 }
 

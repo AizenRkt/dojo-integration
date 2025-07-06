@@ -10,6 +10,10 @@
 
     <!-- modul css -->    
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/iconly.css">
+    <script>
+        window.BASE_URL = '<?= Flight::base() ?>';
+    </script>
+    <script src="<?= Flight::base() ?>/public/js/finance/sortie.js"></script>
 </head>
 <body>
     <div id="app">
@@ -52,56 +56,239 @@
 
                 <!-- Section Sortie -->
                 <div class="row" id="sectionSortie">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4 class="card-title">Gestion des Sorties d'Argent</h4>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm" id="btnNouvelleDepense">
+                                            <i class="bi bi-plus"></i> Nouvelle Dépense
+                                        </button>
+                                        <select class="form-select form-select-sm" id="filterCategorie" style="width: auto;">
+                                            <option value="">Toutes catégories</option>
+                                            <!-- Options chargées dynamiquement -->
+                                        </select>
+                                        <select class="form-select form-select-sm" id="filterStatut" style="width: auto;">
+                                            <option value="">Tous statuts</option>
+                                            <!-- Options chargées dynamiquement -->
+                                        </select>
+                                        <input type="text" class="form-control form-control-sm" id="searchSortie" placeholder="Recherche..." style="width: 200px;">
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Statistiques rapides -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5 class="text-primary" id="totalDepenses">0 AR</h5>
+                                                    <small class="text-muted">Total Dépenses</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5 class="text-warning" id="enAttenteCount">0</h5>
+                                                    <small class="text-muted">En Attente</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5 class="text-success" id="valideCount">0</h5>
+                                                    <small class="text-muted">Validées</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center">
+                                                    <h5 class="text-danger" id="refuseCount">0</h5>
+                                                    <small class="text-muted">Refusées</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Table des sorties -->
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="tableSorties">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Motif</th>
+                                                    <th>Catégorie</th>
+                                                    <th>Montant</th>
+                                                    <th>Mode Paiement</th>
+                                                    <th>Statut</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="listeSorties">
+                                                <!-- Chargement dynamique via JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <nav aria-label="Pagination sorties">
+                                        <ul class="pagination pagination-sm justify-content-center" id="paginationSorties">
+                                            <!-- Pagination générée dynamiquement -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Nouvelle Dépense -->
+                    <div class="modal fade" id="modalNouvelleDepense" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Nouvelle Dépense</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="formNouvelleDepense">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="depenseCategorie" class="form-label">Catégorie</label>
+                                                    <select class="form-select" id="depenseCategorie" required>
+                                                        <option value="">Sélectionner une catégorie</option>
+                                                        <!-- Options chargées dynamiquement -->
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="depenseMotif" class="form-label">Motif</label>
+                                                    <input type="text" class="form-control" id="depenseMotif" required placeholder="Saisir le motif de la dépense">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="depenseMontant" class="form-label">Montant (AR)</label>
+                                                    <input type="number" class="form-control" id="depenseMontant" required min="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="depenseModePaiement" class="form-label">Mode de Paiement</label>
+                                                    <select class="form-select" id="depenseModePaiement" required>
+                                                        <option value="">Sélectionner un mode</option>
+                                                        <!-- Options chargées dynamiquement -->
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="depenseDescription" class="form-label">Description</label>
+                                                    <textarea class="form-control" id="depenseDescription" rows="4"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="button" class="btn btn-primary" id="btnSauvegarderDepense">Enregistrer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Détails Dépense (manquant) -->
+                <div class="modal fade" id="modalDetailsDepense" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Détails de la Dépense</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="detailsDepenseContent">
+                                <!-- Contenu chargé dynamiquement -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="row" id="sectionPaiement" style="display: none;">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="card-title">Sortie</h4>
+                                <h4 class="card-title">Gestion des Paiements</h4>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" placeholder="Recherche">
+                                    <input type="text" class="form-control" id="searchPaiement" placeholder="Rechercher une réservation...">
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <form id="formSortie">
+                                        <form id="formPaiement">
                                             <div class="mb-3">
-                                                <label for="motifSortie" class="form-label">Motif</label>
-                                                <input type="text" class="form-control" id="motifSortie" required>
+                                                <label for="reservationPaiement" class="form-label">Réservation</label>
+                                                <select class="form-select" id="reservationPaiement" required>
+                                                    <option value="">Sélectionner une réservation</option>
+                                                </select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="montantSortie" class="form-label">Montant</label>
-                                                <input type="number" class="form-control" id="montantSortie" required>
+                                                <label for="montantPaiement" class="form-label">Montant (AR)</label>
+                                                <input type="number" class="form-control" id="montantPaiement" step="0.01" required>
                                             </div>
-                                            <div class="d-grid">
-                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                            <div class="mb-3">
+                                                <label for="datePaiement" class="form-label">Date de paiement</label>
+                                                <input type="datetime-local" class="form-control" id="datePaiement">
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <h6>Détails de la réservation</h6>
+                                                        <div id="reservationDetails">
+                                                            <p class="text-muted">Sélectionnez une réservation pour voir les détails</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                                    <i class="bi bi-check-circle"></i> Enregistrer Paiement
+                                                </button>
+                                                <button type="reset" class="btn btn-secondary flex-grow-1">
+                                                    <i class="bi bi-x-circle"></i> Annuler
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
                                     <div class="col-md-8">
-                                        <h5>Liste des sorties</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5>Liste des réservations et paiements</h5>
+                                            <button class="btn btn-outline-primary btn-sm" id="btnRefreshPaiements">
+                                                <i class="bi bi-arrow-clockwise"></i> Actualiser
+                                            </button>
+                                        </div>
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
-                                                    <tr>
-                                                        <th>Motif</th>
-                                                        <th>Montant</th>
-                                                        <th>Date</th>
-                                                        <th>Statut</th>
-                                                    </tr>
+                                                <tr>
+                                                    <th>Réservation</th>
+                                                    <th>Club/Groupe</th>
+                                                    <th>Date & Heure</th>
+                                                    <th>Montant</th>
+                                                    <th>Statut</th>
+                                                    <th>Actions</th>
+                                                </tr>
                                                 </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Réparation Mur</td>
-                                                        <td>150 000 AR</td>
-                                                        <td>02/07/2025</td>
-                                                        <td><span class="badge bg-success">VALIDÉ</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Salaire</td>
-                                                        <td>500 000 AR</td>
-                                                        <td>01/07/2025</td>
-                                                        <td><span class="badge bg-danger">REFUSÉ</span></td>
-                                                    </tr>
+                                                <tbody id="tablePaiements">
+                                                <tr>
+                                                    <td colspan="6" class="text-center">
+                                                        <div class="spinner-border" role="status">
+                                                            <span class="visually-hidden">Chargement...</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -111,250 +298,166 @@
                         </div>
                     </div>
                 </div>
-
-
-    <div class="row" id="sectionPaiement" style="display: none;">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">Paiement</h4>
-                <div class="d-flex">
-                    <input type="text" class="form-control" placeholder="Recherche">
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <form id="formPaiement">
-                            <div class="mb-3">
-                                <label class="form-label">Type</label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="typePaiement" id="typePaiementEntree" checked>
-                                    <label class="btn btn-outline-primary" for="typePaiementEntree">Entrée</label>
-                                    <input type="radio" class="btn-check" name="typePaiement" id="typePaiementSortie">
-                                    <label class="btn btn-outline-primary" for="typePaiementSortie">Sortie</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="reservationPaiement" class="form-label">Réservation</label>
-                                <select class="form-select" id="reservationPaiement">
-                                    <option value="">Sélectionner une réservation</option>
-                                    <option value="1">Réservation #125</option>
-                                    <option value="2">Réservation #126</option>
-                                    <option value="3">Réservation #127</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="clubPaiement" class="form-label">Nom clubs/groupes</label>
-                                <select class="form-select" id="clubPaiement">
-                                    <option value="">Sélectionner un club</option>
-                                    <option value="1">Club Judo</option>
-                                    <option value="2">Club Karaté</option>
-                                    <option value="3">Groupe Aikido</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="datePaiement" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="datePaiement">
-                            </div>
-                            <div class="mb-3">
-                                <label for="heurePaiement" class="form-label">Heure</label>
-                                <input type="time" class="form-control" id="heurePaiement">
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary flex-grow-1">Valider</button>
-                                <button type="reset" class="btn btn-secondary flex-grow-1">Annuler</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-md-8">
-                        <h5>Liste des paiements</h5>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Réservation</th>
-                                        <th>Club/Groupe</th>
-                                        <th>Date</th>
-                                        <th>Montant</th>
-                                        <th>Statut</th>
-                                        <th>Payé</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Réservation #125</td>
-                                        <td>Club Judo</td>
-                                        <td>03/07/2025 14:00</td>
-                                        <td>50 000 AR</td>
-                                        <td><span class="badge bg-warning">En attente</span></td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="paiementStatus1">
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Réservation #126</td>
-                                        <td>Club Karaté</td>
-                                        <td>04/07/2025 10:30</td>
-                                        <td>75 000 AR</td>
-                                        <td><span class="badge bg-success">Confirmé</span></td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="paiementStatus2" checked>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Réservation #127</td>
-                                        <td>Groupe Aikido</td>
-                                        <td>05/07/2025 16:00</td>
-                                        <td>35 000 AR</td>
-                                        <td><span class="badge bg-danger">Annulé</span></td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="paiementStatus3" disabled>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
                 <div class="row" id="sectionSalaire" style="display: none;">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4 class="card-title">Gestion des Salaires</h4>
-                                <div class="d-flex">
-                                    <input type="text" class="form-control" placeholder="Recherche personnel">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm" id="btnConfigSalaires">
+                                        <i class="bi bi-gear"></i> Configuration
+                                    </button>
+                                    <input type="text" class="form-control" id="searchPersonnel" placeholder="Recherche personnel...">
                                 </div>
                             </div>
                             <div class="card-body">
+                                <!-- Configuration des salaires (masquée par défaut) -->
+                                <div class="row mb-4" id="configSalaires" style="display: none;">
+                                    <div class="col-md-12">
+                                        <div class="card border-info">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">Configuration des salaires par type</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Salaire Professeur</label>
+                                                        <div class="input-group">
+                                                            <input type="number" class="form-control" id="salaireProf" value="450000">
+                                                            <span class="input-group-text">AR</span>
+                                                            <button class="btn btn-outline-primary" onclick="modifierSalaireType('prof')">
+                                                                <i class="bi bi-save"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label">Salaire Superviseur</label>
+                                                        <div class="input-group">
+                                                            <input type="number" class="form-control" id="salaireSuperviseur" value="500000">
+                                                            <span class="input-group-text">AR</span>
+                                                            <button class="btn btn-outline-primary" onclick="modifierSalaireType('superviseur')">
+                                                                <i class="bi bi-save"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <!-- Liste du personnel (Gauche) -->
                                     <div class="col-md-4">
-                                        <h5>Liste du personnel</h5>
-                                        <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-action active" id="personnel-1">
-                                                Rakoto Paul
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action" id="personnel-2">
-                                                Nicola Pierrot
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action" id="personnel-3">
-                                                Andrianavalona Jean
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action" id="personnel-4">
-                                                Rakotozafy Marie
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action" id="personnel-5">
-                                                Rakotonirina Michel
-                                            </a>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5>Liste du personnel</h5>
+                                            <button class="btn btn-sm btn-outline-primary" id="btnRefreshEmployes">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="list-group" id="listePersonnel">
+                                            <!-- Chargement dynamique via JavaScript -->
                                         </div>
                                     </div>
-                                    
-                                    <!-- Détails du personnel et formulaire de paiement (Droite) -->
+
+                                    <!-- Détails et paiement -->
                                     <div class="col-md-8">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center mb-4">
-                                                    <div class="avatar avatar-xl me-3">
-                                                        <img src="<?= Flight::base() ?>/public/assets/compiled/jpg/1.jpg" alt="Avatar">
-                                                    </div>
-                                                    <div>
-                                                        <h4 class="mb-0">Rakoto Paul</h4>
-                                                        <p class="text-muted">Profession: Professeur / Superviseur</p>
+                                        <!-- Message quand aucun employé sélectionné -->
+                                        <div id="noEmployeSelected" class="text-center text-muted py-5">
+                                            <i class="bi bi-person-plus fs-1"></i>
+                                            <h5>Sélectionnez un employé</h5>
+                                            <p>Choisissez un employé dans la liste pour gérer son salaire</p>
+                                        </div>
+
+                                        <!-- Détails de l'employé -->
+                                        <div id="detailsEmploye" style="display: none;">
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <h5 class="mb-0" id="nomEmploye"></h5>
+                                                    <small class="text-muted" id="typeEmploye"></small>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>ID:</strong> <span id="idEmploye"></span></p>
+                                                            <p><strong>Date d'embauche:</strong> <span id="dateEmbauche"></span></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Salaire mensuel:</strong> <span id="salaireMensuel"></span></p>
+                                                            <p><strong>Dernier paiement:</strong> <span id="dernierPaiement"></span></p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <ul class="list-group">
-                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <span>ID Personnel:</span>
-                                                                <span class="fw-bold">P-001</span>
-                                                            </li>
-                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <span>Date d'embauche:</span>
-                                                                <span class="fw-bold">15/03/2023</span>
-                                                            </li>
-                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <span>Salaire mensuel:</span>
-                                                                <span class="fw-bold">450 000 AR</span>
-                                                            </li>
-                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <span>Dernier paiement:</span>
-                                                                <span class="fw-bold">31/05/2025</span>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <form id="formSalaire">
-                                                            <div class="mb-3">
-                                                                <label for="salaireMontant" class="form-label">Salaire à payer</label>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="form-control" id="salaireMontant" value="450000" required>
-                                                                    <span class="input-group-text">AR</span>
+                                            </div>
+
+                                            <!-- Formulaire de paiement -->
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <h6>Nouveau paiement</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="formSalaire">
+                                                        <input type="hidden" id="currentEmployeId">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="salaireMois" class="form-label">Mois à payer</label>
+                                                                    <select class="form-select" id="salaireMois" required>
+                                                                        <!-- Options générées dynamiquement -->
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="salaireMontant" class="form-label">Montant (AR)</label>
+                                                                    <input type="number" class="form-control" id="salaireMontant" required>
                                                                 </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label for="salaireMois" class="form-label">Mois à payer</label>
-                                                                <select class="form-select" id="salaireMois" required>
-                                                                    <option value="6-2025" selected>Juin 2025</option>
-                                                                    <option value="7-2025">Juillet 2025</option>
-                                                                    <option value="8-2025">Août 2025</option>
-                                                                </select>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="modePaiement" class="form-label">Mode de paiement</label>
+                                                                    <select class="form-select" id="modePaiement" required>
+                                                                        <option value="espece">Espèce</option>
+                                                                        <option value="virement">Virement</option>
+                                                                        <option value="cheque">Chèque</option>
+                                                                        <option value="mobile_money">Mobile Money</option>
+                                                                        <option value="carte">Carte</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="remarquesPaiement" class="form-label">Remarques</label>
+                                                                    <textarea class="form-control" id="remarquesPaiement" rows="2"></textarea>
+                                                                </div>
                                                             </div>
-                                                            <div class="d-grid mt-4">
-                                                                <button type="submit" class="btn btn-primary btn-lg">
-                                                                    <i class="bi bi-cash"></i> Payer
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
+                                                        </div>
+                                                        <div class="d-grid">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="bi bi-cash-stack"></i> Enregistrer le paiement
+                                                            </button>
+                                                        </div>
+                                                    </form>
                                                 </div>
-                                                
-                                                <h5 class="mt-4">Historique des paiements</h5>
-                                                <div class="table-responsive">
-                                                    <table class="table table-hover">
-                                                        <thead>
+                                            </div>
+
+                                            <!-- Historique des paiements -->
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6>Historique des paiements</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm">
+                                                            <thead>
                                                             <tr>
                                                                 <th>Date</th>
                                                                 <th>Période</th>
                                                                 <th>Montant</th>
-                                                                <th>Statut</th>
+                                                                <th>Mode</th>
+                                                                <th>Remarques</th>
                                                             </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>31/05/2025</td>
-                                                                <td>Mai 2025</td>
-                                                                <td>450 000 AR</td>
-                                                                <td><span class="badge bg-success">Payé</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>30/04/2025</td>
-                                                                <td>Avril 2025</td>
-                                                                <td>450 000 AR</td>
-                                                                <td><span class="badge bg-success">Payé</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>31/03/2025</td>
-                                                                <td>Mars 2025</td>
-                                                                <td>450 000 AR</td>
-                                                                <td><span class="badge bg-success">Payé</span></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+                                                            </thead>
+                                                            <tbody id="historiquePaiements">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -364,13 +467,551 @@
                         </div>
                     </div>
                 </div>
+
 
             </div>
         </div>
     </div>
     <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
     <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
-    
+
+    <script>
+        // Gestion des paiements
+        document.addEventListener('DOMContentLoaded', function() {
+            let reservations = [];
+
+            // Charger les réservations
+            function loadReservations() {
+                fetch('<?= Flight::base() ?>/api/reservations')
+                    .then(response => response.json())
+                    .then(data => {
+                        reservations = data;
+                        updateReservationSelect();
+                        updatePaiementsTable();
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Mettre à jour le select des réservations
+            function updateReservationSelect() {
+                const select = document.getElementById('reservationPaiement');
+                select.innerHTML = '<option value="">Sélectionner une réservation</option>';
+
+                reservations.filter(r => !r.est_paye).forEach(reservation => {
+                    const option = document.createElement('option');
+                    option.value = reservation.id_reservation;
+                    option.textContent = `#${reservation.id_reservation} - ${reservation.club_nom} (${reservation.date_reserve})`;
+                    select.appendChild(option);
+                });
+            }
+
+            // Mettre à jour le tableau des paiements
+            function updatePaiementsTable() {
+                const tbody = document.getElementById('tablePaiements');
+                tbody.innerHTML = '';
+
+                reservations.forEach(reservation => {
+                    const row = document.createElement('tr');
+                    const montant = reservation.montant_paye || reservation.montant_calcule || 0;
+                    const statut = getStatutBadge(reservation);
+
+                    row.innerHTML = `
+                <td>#${reservation.id_reservation}</td>
+                <td>${reservation.club_nom}</td>
+                <td>${formatDateTime(reservation.date_reserve, reservation.heure_debut, reservation.heure_fin)}</td>
+                <td>${formatMontant(montant)}</td>
+                <td>${statut}</td>
+                <td>
+                    ${reservation.est_paye ?
+                        `<button class="btn btn-sm btn-outline-danger" onclick="supprimerPaiement(${reservation.id_reservation})">
+                            <i class="bi bi-trash"></i>
+                        </button>` :
+                        `<button class="btn btn-sm btn-outline-primary" onclick="selectionnerReservation(${reservation.id_reservation})">
+                            <i class="bi bi-credit-card"></i> Payer
+                        </button>`
+                    }
+                </td>
+            `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Sélectionner une réservation pour paiement
+            window.selectionnerReservation = function(id_reservation) {
+                const reservation = reservations.find(r => r.id_reservation == id_reservation);
+                if (reservation) {
+                    document.getElementById('reservationPaiement').value = id_reservation;
+                    document.getElementById('montantPaiement').value = reservation.montant_calcule || 0;
+                    showReservationDetails(reservation);
+                }
+            };
+
+            // Afficher les détails de la réservation
+            function showReservationDetails(reservation) {
+                const detailsDiv = document.getElementById('reservationDetails');
+                detailsDiv.innerHTML = `
+            <p><strong>Club:</strong> ${reservation.club_nom}</p>
+            <p><strong>Date:</strong> ${reservation.date_reserve}</p>
+            <p><strong>Horaire:</strong> ${reservation.heure_debut} - ${reservation.heure_fin}</p>
+            <p><strong>Discipline:</strong> ${reservation.discipline}</p>
+            <p><strong>Montant calculé:</strong> ${formatMontant(reservation.montant_calcule || 0)}</p>
+        `;
+            }
+
+            // Gestionnaire de changement de réservation
+            document.getElementById('reservationPaiement').addEventListener('change', function() {
+                const id_reservation = this.value;
+                if (id_reservation) {
+                    fetch(`<?= Flight::base() ?>/api/reservations/${id_reservation}`)
+                        .then(response => response.json())
+                        .then(reservation => {
+                            document.getElementById('montantPaiement').value = reservation.montant_calcule || 0;
+                            showReservationDetails(reservation);
+                        })
+                        .catch(error => console.error('Erreur:', error));
+                } else {
+                    document.getElementById('reservationDetails').innerHTML =
+                        '<p class="text-muted">Sélectionnez une réservation pour voir les détails</p>';
+                }
+            });
+
+            // Soumettre le formulaire de paiement
+            document.getElementById('formPaiement').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    id_reservation: document.getElementById('reservationPaiement').value,
+                    montant: document.getElementById('montantPaiement').value,
+                    date_paiement: document.getElementById('datePaiement').value
+                };
+
+                fetch('<?= Flight::base() ?>/api/paiements', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Paiement enregistré avec succès!');
+                            this.reset();
+                            document.getElementById('reservationDetails').innerHTML =
+                                '<p class="text-muted">Sélectionnez une réservation pour voir les détails</p>';
+                            loadReservations();
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors de l\'enregistrement du paiement');
+                    });
+            });
+
+            // Supprimer un paiement
+            window.supprimerPaiement = function(id_reservation) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce paiement?')) {
+                    fetch(`<?= Flight::base() ?>/api/paiements/${id_reservation}`, {
+                        method: 'DELETE'
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Paiement supprimé avec succès!');
+                                loadReservations();
+                            } else {
+                                alert('Erreur: ' + data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur:', error);
+                            alert('Erreur lors de la suppression du paiement');
+                        });
+                }
+            };
+
+            // Fonctions utilitaires
+            function getStatutBadge(reservation) {
+                if (reservation.est_paye) {
+                    return '<span class="badge bg-success">Payé</span>';
+                }
+
+                switch (reservation.statut_reservation) {
+                    case 'demande':
+                        return '<span class="badge bg-warning">En attente</span>';
+                    case 'confirme':
+                        return '<span class="badge bg-info">Confirmé</span>';
+                    case 'annule':
+                        return '<span class="badge bg-danger">Annulé</span>';
+                    default:
+                        return '<span class="badge bg-secondary">Inconnu</span>';
+                }
+            }
+
+            function formatDateTime(date, heureDebut, heureFin) {
+                return `${date}<br><small>${heureDebut} - ${heureFin}</small>`;
+            }
+
+            function formatMontant(montant) {
+                return new Intl.NumberFormat('fr-FR').format(montant) + ' AR';
+            }
+
+            // Recherche
+            document.getElementById('searchPaiement').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#tablePaiements tr');
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Actualiser
+            document.getElementById('btnRefreshPaiements').addEventListener('click', loadReservations);
+
+            // Initialiser
+            loadReservations();
+        });
+    </script>
+    <script>
+        // Nouvelles fonctions JavaScript
+        function modifierSalaireType(type) {
+            const inputId = type === 'prof' ? 'salaireProf' : 'salaireSuperviseur';
+            const montant = document.getElementById(inputId).value;
+
+            fetch('<?= Flight::base() ?>/api/salaires/config', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type_employe: type,
+                    nouveau_montant: montant
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Salaire modifié avec succès');
+                        loadEmployes(); // Recharger la liste
+                    } else {
+                        alert('Erreur: ' + data.error);
+                    }
+                });
+        }
+
+        // Afficher/masquer la configuration
+        document.getElementById('btnConfigSalaires').addEventListener('click', function() {
+            const config = document.getElementById('configSalaires');
+            config.style.display = config.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+    <script>
+        // Gestion des salaires
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSalairesConfig();
+            let employes = [];
+            let employeSelectionne = null;
+
+            // Charger la liste des employés
+            function loadEmployes() {
+                fetch('<?= Flight::base() ?>/api/employes')
+                    .then(response => response.json())
+                    .then(data => {
+                        employes = data;
+                        updateEmployesList();
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Mettre à jour la liste des employés
+            function updateEmployesList() {
+                const liste = document.getElementById('listePersonnel');
+                liste.innerHTML = '';
+
+                employes.forEach((employe, index) => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action';
+                    item.dataset.employeId = employe.id_employe;
+
+                    item.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${employe.nom} ${employe.prenom}</h6>
+                                        <small class="text-muted">${employe.type_employe}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="fw-bold">${formatMontant(employe.montant_mensuel || 0)}</small>
+                                    </div>
+                                </div>
+                            `;
+
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectionnerEmploye(employe.id_employe);
+                    });
+
+                    liste.appendChild(item);
+                });
+            }
+
+            // Sélectionner un employé
+            function selectionnerEmploye(id_employe) {
+                // Mettre à jour l'apparence de la liste
+                document.querySelectorAll('#listePersonnel .list-group-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-employe-id="${id_employe}"]`).classList.add('active');
+
+                // Charger les détails de l'employé
+                fetch(`<?= Flight::base() ?>/api/employes/${id_employe}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        employeSelectionne = data.employe;
+                        afficherDetailsEmploye(data.employe, data.historique);
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Afficher les détails de l'employé
+            function afficherDetailsEmploye(employe, historique) {
+                document.getElementById('noEmployeSelected').style.display = 'none';
+                document.getElementById('detailsEmploye').style.display = 'block';
+
+                // Informations de base
+                document.getElementById('nomEmploye').textContent = `${employe.nom} ${employe.prenom}`;
+                document.getElementById('typeEmploye').textContent = `Profession: ${capitalizeFirst(employe.type_employe)}`;
+                document.getElementById('idEmploye').textContent = `E-${employe.id_employe.toString().padStart(3, '0')}`;
+                document.getElementById('dateEmbauche').textContent = formatDate(employe.date_embauche);
+                document.getElementById('salaireMensuel').textContent = formatMontant(employe.montant_mensuel || 0);
+                document.getElementById('dernierPaiement').textContent = employe.dernier_paiement ?
+                    formatDate(employe.dernier_paiement) : 'Aucun';
+
+                // Formulaire
+                document.getElementById('currentEmployeId').value = employe.id_employe;
+                document.getElementById('salaireMontant').value = employe.montant_mensuel || 0;
+
+                // Générer les options de mois
+                generateMoisOptions();
+
+                // Historique des paiements
+                updateHistoriquePaiements(historique);
+            }
+
+            // Générer les options de mois
+            function generateMoisOptions() {
+                const select = document.getElementById('salaireMois');
+                select.innerHTML = '';
+
+                const moisNoms = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth() + 1;
+
+                // Ajouter les 3 prochains mois à partir du mois courant
+                for (let i = 0; i < 6; i++) {
+                    let month = currentMonth + i;
+                    let year = currentYear;
+
+                    if (month > 12) {
+                        month -= 12;
+                        year += 1;
+                    }
+
+                    const option = document.createElement('option');
+                    option.value = `${month}-${year}`;
+                    option.textContent = `${moisNoms[month - 1]} ${year}`;
+
+                    if (i === 0) option.selected = true; // Sélectionner le mois courant par défaut
+
+                    select.appendChild(option);
+                }
+            }
+
+            // Mettre à jour l'historique des paiements
+            function updateHistoriquePaiements(historique) {
+                const tbody = document.getElementById('historiquePaiements');
+                tbody.innerHTML = '';
+
+                if (!historique || historique.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Aucun paiement enregistré</td></tr>';
+                    return;
+                }
+
+                historique.forEach(paiement => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                <td>${formatDate(paiement.date_paiement)}</td>
+                                <td>${getMoisNom(paiement.mois_a_payer)} ${paiement.annee_a_payer}</td>
+                                <td>${formatMontant(paiement.montant)}</td>
+                                <td><span class="badge bg-info">${capitalizeFirst(paiement.mode_paiement)}</span></td>
+                                <td>${paiement.remarques || '-'}</td>
+                            `;
+                    tbody.appendChild(row);
+                });
+            }// Charger les configurations de salaires au chargement de la page
+            function loadSalairesConfig() {
+                fetch('<?= Flight::base() ?>/api/salaires/config')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(config => {
+                            if (config.type_employe === 'prof') {
+                                document.getElementById('salaireProf').value = config.montant_mensuel;
+                            } else if (config.type_employe === 'superviseur') {
+                                document.getElementById('salaireSuperviseur').value = config.montant_mensuel;
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Erreur lors du chargement des configurations:', error));
+            }
+
+            // Modifier la fonction modifierSalaireType
+            function modifierSalaireType(type) {
+                const inputId = type === 'prof' ? 'salaireProf' : 'salaireSuperviseur';
+                const montant = document.getElementById(inputId).value;
+
+                fetch('<?= Flight::base() ?>/api/salaires/config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type_employe: type,
+                        nouveau_montant: montant
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Salaire modifié avec succès');
+                            loadSalairesConfig(); // Recharger les configurations
+                            if (typeof loadEmployes === 'function') {
+                                loadEmployes(); // Recharger la liste des employés si disponible
+                            }
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                    });
+            }
+
+            // Soumettre le formulaire de paiement
+            document.getElementById('formSalaire').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const [mois, annee] = document.getElementById('salaireMois').value.split('-');
+
+                const formData = {
+                    id_employe: document.getElementById('currentEmployeId').value,
+                    montant: document.getElementById('salaireMontant').value,
+                    mois: parseInt(mois),
+                    annee: parseInt(annee),
+                    mode_paiement: document.getElementById('modePaiement').value,
+                    remarques: document.getElementById('remarquesPaiement').value
+                };
+
+                fetch('<?= Flight::base() ?>/api/salaires/payer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Salaire payé avec succès!');
+                            document.getElementById('remarquesPaiement').value = '';
+                            // Recharger les détails pour mettre à jour l'historique
+                            selectionnerEmploye(employeSelectionne.id_employe);
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors du paiement du salaire');
+                    });
+            });
+
+            // Recherche d'employés
+            document.getElementById('searchPersonnel').addEventListener('input', function() {
+                const terme = this.value.toLowerCase();
+
+                if (terme.length === 0) {
+                    updateEmployesList();
+                    return;
+                }
+
+                if (terme.length < 2) return;
+
+                const employesFiltres = employes.filter(employe =>
+                    employe.nom.toLowerCase().includes(terme) ||
+                    employe.prenom.toLowerCase().includes(terme) ||
+                    employe.contact?.toLowerCase().includes(terme)
+                );
+
+                const liste = document.getElementById('listePersonnel');
+                liste.innerHTML = '';
+
+                employesFiltres.forEach(employe => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action';
+                    item.dataset.employeId = employe.id_employe;
+
+                    item.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${employe.nom} ${employe.prenom}</h6>
+                                        <small class="text-muted">${employe.type_employe}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="fw-bold">${formatMontant(employe.montant_mensuel || 0)}</small>
+                                    </div>
+                                </div>
+                            `;
+
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectionnerEmploye(employe.id_employe);
+                    });
+
+                    liste.appendChild(item);
+                });
+            });
+
+            // Actualiser la liste
+            document.getElementById('btnRefreshEmployes').addEventListener('click', loadEmployes);
+
+            // Fonctions utilitaires
+            function formatMontant(montant) {
+                return new Intl.NumberFormat('fr-FR').format(montant) + ' AR';
+            }
+
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('fr-FR');
+            }
+
+            function capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function getMoisNom(numeroMois) {
+                const mois = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+                return mois[numeroMois - 1] || '';
+            }
+
+            // Initialiser
+            loadEmployes();
+        });
+    </script>
     <!-- Script pour la navigation entre les sections -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -416,5 +1057,6 @@
             });
         });
     </script>
+
 </body>
 </html>

@@ -139,6 +139,10 @@
                                         <label for="address" class="form-label">Adresse</label>
                                         <textarea class="form-control" id="address" name="address" rows="3" disabled required></textarea>
                                     </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="actifSwitch" disabled>
+                                        <label class="form-check-label" for="actifSwitch">Actif</label>
+                                    </div>
 
                                     <div class="form-actions d-flex">
                                         <button type="button" class="btn btn-success me-2" onclick="saveStaff()">
@@ -281,106 +285,273 @@
 <script src="<?= Flight::base() ?>/public/vendor/jquery/jquery.js"></script>
 <script src="<?= Flight::base() ?>/public/vendor/bootstrap/js/bootstrap.bundle.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentStaffId = null;
-        let isEditing = false;
-        let staffData = [];
-        let genres = [];
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStaffId = null;
+    let isEditing = false;
+    let staffData = [];
+    let genres = [];
 
-        const staffTypeBtns = document.querySelectorAll(".staff-type-btn");
-        const staffListTitle = document.getElementById("staff-list-title");
-        const staffListContainer = document.getElementById("staff-list-container");
-        const genderSelect = document.getElementById("gender");
-        const addGenderSelect = document.getElementById("addGender");
+    const staffTypeBtns = document.querySelectorAll(".staff-type-btn");
+    const staffListTitle = document.getElementById("staff-list-title");
+    const staffListContainer = document.getElementById("staff-list-container");
+    const genderSelect = document.getElementById("gender");
+    const addGenderSelect = document.getElementById("addGender");
 
-        // Initialize
-        enumGender();
-        enumStaff('professeur');
+    // Initialize
+    enumGender();
+    enumStaff('prof');
 
-        async function enumGender() {
-            try {
-                const response = await fetch('<?= Flight::base() ?>/api/genres');
-                genres = await response.json();
-                populateGenderSelects();
-            } catch (e) {
-                console.error('Error loading genres:', e);
-            }
+    // Make functions globally accessible
+    window.showAddForm = function() {
+        clearForm();
+        const addModal = new bootstrap.Modal(document.getElementById('addStaffModal'));
+        addModal.show();
+        isEditing = false;
+        currentStaffId = null;
+        enableAddForm();
+    }
+
+    window.enableEdit = function() {
+        if (!currentStaffId) return;
+        isEditing = true;
+        enableForm();
+        const formActions = document.querySelector('.form-actions');
+        if (formActions) formActions.style.display = 'flex';
+    }
+
+    window.cancelEdit = function() {
+        if (currentStaffId) {
+            selectStaff(currentStaffId);
+        }
+        isEditing = false;
+        disableForm();
+        const formActions = document.querySelector('.form-actions');
+        if (formActions) formActions.style.display = 'none';
+    }
+
+    window.deleteStaff = function() {
+        if (!currentStaffId) return;
+
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre du personnel ?')) {
+            return;
         }
 
-        function populateGenderSelects() {
-            const selects = [genderSelect, addGenderSelect];
-            selects.forEach(select => {
-                if (select) {
-                    select.innerHTML = '<option value="">Sélectionner</option>';
-                    genres.forEach(genre => {
-                        select.innerHTML += `<option value="${genre.id_genre}">${genre.label}</option>`;
-                    });
-                }
-            });
-        }
+        const staff = staffData.find(s => s.id == currentStaffId);
+        if (!staff) return;
 
-        function getStaffApiUrl(type, action, id = '') {
-            const base = '<?= Flight::base() ?>/api/';
-            if (type === 'professeur') {
-                switch(action) {
-                    case 'list': return base + 'profs';
-                    case 'add': return base + 'prof';
-                    case 'update': return base + 'prof/update/' + id;
-                    case 'delete': return base + 'prof/delete/' + id;
-                }
+        const url = getStaffApiUrl(staff.type, 'delete', currentStaffId);
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success || data.message) {
+                alert("Personnel supprimé avec succès");
+                enumStaff(staff.type);
+                clearForm();
             } else {
-                switch(action) {
-                    case 'list': return base + 'superviseurs';
-                    case 'add': return base + 'superviseur';
-                    case 'update': return base + 'superviseur/update/' + id;
-                    case 'delete': return base + 'superviseur/delete/' + id;
-                }
+                alert("Erreur lors de la suppression");
             }
-            return '';
-        }
-
-       async function enumStaff(type) {
-            const url = getStaffApiUrl(type, 'list');
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                staffData = data.map(staff => ({
-                    id: staff.id, // Use the unified 'id' field from your SQL query
-                    firstName: staff.prenom,
-                    lastName: staff.nom,
-                    contact: staff.contact,
-                    gender: staff.id_genre,
-                    address: staff.adresse,
-                    dateNaissance: staff.date_naissance,
-                    type: type
-                }));
-                loadStaffList(type);
-            } catch (e) {
-                console.error('Error loading staff:', e);
-            }
-        }
-
-        function getGenreLabel(id_genre) {
-            const genre = genres.find(g => g.id_genre == id_genre);
-            return genre ? genre.label : 'Non défini';
-        }
-
-        staffTypeBtns.forEach((btn) => {
-            btn.addEventListener("click", () => {
-                staffTypeBtns.forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-                updateListForType(btn.dataset.type);
-                enumStaff(btn.dataset.type);
-            });
+        })
+        .catch(e => {
+            console.error('Error deleting staff:', e);
+            alert("Erreur lors de la suppression: " + e.message);
         });
+    }
 
-        function updateListForType(type) {
-            staffListTitle.textContent = type === "professeur" ? "Liste des Professeurs" : "Liste des Superviseurs";
-            cancelEdit();
+    window.saveStaff = function() {
+        if (!isEditing || !currentStaffId) return;
+
+        const staff = staffData.find(s => s.id == currentStaffId);
+        if (!staff) return;
+
+        const formData = {
+            nom: document.getElementById('lastName').value,
+            prenom: document.getElementById('firstName').value,
+            date_naissance: document.getElementById('dateNaissance').value || null,
+            adresse: document.getElementById('address').value,
+            contact: document.getElementById('contact').value,
+            id_genre: document.getElementById('gender').value,
+            actif: document.getElementById('actifSwitch').checked
+        };
+
+        const url = getStaffApiUrl(staff.type, 'update', currentStaffId);
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Personnel modifié avec succès");
+                enumStaff(staff.type);
+                isEditing = false;
+                disableForm();
+                const formActions = document.querySelector('.form-actions');
+                if (formActions) formActions.style.display = 'none';
+            } else {
+                alert("Erreur lors de la modification");
+            }
+        })
+        .catch(e => {
+            console.error('Error updating staff:', e);
+            alert("Erreur lors de la mise à jour: " + e.message);
+        });
+    }
+
+    window.toggleStaffStatus = function(id, isActive) {
+        const staff = staffData.find(s => s.id == id);
+        if (!staff) return;
+
+        // Convert boolean to string explicitly to avoid backend boolean parsing issues
+        const actifValue = isActive ? "1" : "0";
+
+        const formData = {
+            nom: staff.nom,
+            prenom: staff.prenom,
+            date_naissance: staff.date_naissance,
+            adresse: staff.adresse,
+            contact: staff.contact,
+            id_genre: staff.id_genre,
+            actif: actifValue  // Send as string "1" or "0" instead of boolean
+        };
+
+        const url = getStaffApiUrl(staff.type, 'update', id);
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Get text first to handle empty responses
+        })
+        .then(text => {
+            let data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                console.error('Response is not valid JSON:', text);
+                throw new Error('Invalid JSON response from server');
+            }
+
+            if (data.success) {
+                enumStaff(staff.type);
+            } else {
+                alert("Erreur lors de la modification du statut: " + (data.message || 'Erreur inconnue'));
+                enumStaff(staff.type);
+            }
+        })
+        .catch(e => {
+            console.error('Error toggling staff status:', e);
+            alert("Erreur lors de la modification du statut: " + e.message);
+            enumStaff(staff.type);
+        });
+    }
+
+    // Add form submission handler
+    const addStaffForm = document.getElementById('addStaffForm');
+    if (addStaffForm) {
+        addStaffForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addStaff();
+        });
+    }
+
+    async function enumGender() {
+        try {
+            const response = await fetch('<?= Flight::base() ?>/api/genres');
+            if (!response.ok) throw new Error('Failed to fetch genres');
+            genres = await response.json();
+            populateGenderSelects();
+        } catch (error) {
+            console.error('Error fetching genres:', error);
+        }
+    }
+
+    function populateGenderSelects() {
+        const options = genres.map(genre =>
+            `<option value="${genre.id_genre}">${genre.label}</option>`
+        ).join('');
+
+        if (genderSelect) {
+            genderSelect.innerHTML = '<option value="">Sélectionner le genre</option>' + options;
+        }
+        if (addGenderSelect) {
+            addGenderSelect.innerHTML = '<option value="">Sélectionner le genre</option>' + options;
+        }
+    }
+
+    function getStaffApiUrl(type, action, id = '') {
+        const baseUrls = {
+            'prof': '<?= Flight::base() ?>/api/prof',
+            'professeur': '<?= Flight::base() ?>/api/prof',
+            'superviseur': '<?= Flight::base() ?>/api/superviseur'
+        };
+
+        const baseUrl = baseUrls[type];
+        if (!baseUrl) return '';
+
+        switch (action) {
+            case 'list':
+                return type === 'prof' || type === 'professeur' ? '<?= Flight::base() ?>/api/profs' : '<?= Flight::base() ?>/api/superviseurs';
+            case 'get':
+                return `${baseUrl}/${id}`;
+            case 'insert':
+                return baseUrl;
+            case 'update':
+                return `${baseUrl}/update/${id}`;
+            case 'delete':
+                return `${baseUrl}/delete/${id}`;
+            default:
+                return baseUrl;
+        }
+    }
+
+    async function enumStaff(type) {
+        const url = getStaffApiUrl(type, 'list');
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to fetch ${type} data`);
+
+            const data = await response.json();
+            staffData = data.map(staff => ({
+                id: staff.id,
+                nom: staff.nom,
+                prenom: staff.prenom,
+                date_naissance: staff.date_naissance,
+                adresse: staff.adresse,
+                contact: staff.contact,
+                id_genre: staff.id_genre,
+                actif: staff.actif !== undefined ? staff.actif : true,
+                type: type === 'professeur' ? 'prof' : type
+            }));
+
+            loadStaffList(type);
+        } catch (error) {
+            console.error(`Error fetching ${type}:`, error);
+            staffData = [];
+            loadStaffList(type);
+        }
+    }
+
+    function loadStaffList(type) {
+        const normalizedType = type === 'professeur' ? 'prof' : type;
+        const filteredStaff = staffData.filter((s) => s.type === normalizedType);
+
+        const totalStaffEl = document.getElementById('total-staff');
+        if (totalStaffEl) {
+            totalStaffEl.textContent = filteredStaff.length;
         }
 
-        function loadStaffList(type) {
-            const filteredStaff = staffData.filter((s) => s.type === type);
+        if (staffListContainer) {
             staffListContainer.innerHTML = "";
             filteredStaff.forEach((staff, index) => {
                 const div = document.createElement("div");
@@ -390,225 +561,202 @@
                 div.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-0">${staff.firstName} ${staff.lastName}</h6>
-                            <small class="text-muted">${staff.contact}</small>
+                            <h6 class="mb-1">${staff.prenom} ${staff.nom}</h6>
+                            <small class="text-muted">${staff.contact || 'Pas de contact'}</small>
                         </div>
-                        <span class="badge bg-primary">${getGenreLabel(staff.gender)}</span>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" ${staff.actif ? 'checked' : ''}
+                                   onchange="toggleStaffStatus(${staff.id}, this.checked)">
+                        </div>
                     </div>
                 `;
-                div.addEventListener("click", () => selectStaff(staff.id));
+                div.addEventListener("click", (e) => {
+                    if (!e.target.classList.contains('form-check-input')) {
+                        selectStaff(staff.id);
+                    }
+                });
                 staffListContainer.appendChild(div);
             });
-            document.getElementById("total-staff").textContent = filteredStaff.length;
-            if (filteredStaff.length > 0) {
-                selectStaff(filteredStaff[0].id);
-            } else {
+        }
+
+        if (filteredStaff.length > 0) {
+            selectStaff(filteredStaff[0].id);
+        } else {
+            clearForm();
+        }
+    }
+
+    function enableAddForm() {
+        const addFormFields = ['addFirstName', 'addLastName', 'addDateNaissance', 'addAddress', 'addContact', 'addGender'];
+        addFormFields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.disabled = false;
+            }
+        });
+    }
+
+    function clearForm() {
+        const addFormFields = ['addFirstName', 'addLastName', 'addDateNaissance', 'addAddress', 'addContact', 'addGender'];
+        addFormFields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = '';
+            }
+        });
+
+        const viewFormFields = ['firstName', 'lastName', 'dateNaissance', 'address', 'contact', 'gender'];
+        viewFormFields.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = '';
+            }
+        });
+
+        const activeSwitch = document.getElementById('actifSwitch');
+        if (activeSwitch) {
+            activeSwitch.checked = false;
+        }
+
+        currentStaffId = null;
+    }
+
+    function selectStaff(id) {
+        currentStaffId = id;
+        const staff = staffData.find(s => s.id == id);
+
+        if (!staff) return;
+
+        document.querySelectorAll('.staff-item').forEach(item => item.classList.remove('active'));
+        const activeItem = document.querySelector(`[data-id="${id}"]`);
+        if (activeItem) activeItem.classList.add('active');
+
+        // Format date properly for input field
+        let formattedDate = '';
+        if (staff.date_naissance) {
+            const date = new Date(staff.date_naissance);
+            formattedDate = date.toISOString().split('T')[0]; // Convert to yyyy-MM-dd
+        }
+
+        const viewFields = {
+            firstName: staff.prenom || '',
+            lastName: staff.nom || '',
+            dateNaissance: formattedDate,
+            address: staff.adresse || '',
+            contact: staff.contact || '',
+            gender: staff.id_genre || '',
+            actifSwitch: staff.actif !== false
+        };
+
+        Object.entries(viewFields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = value;
+                } else {
+                    element.value = value;
+                }
+            }
+        });
+
+        disableForm();
+        isEditing = false;
+        const formActions = document.querySelector('.form-actions');
+        if (formActions) formActions.style.display = 'none';
+    }
+
+    function enableForm() {
+        const inputs = ['firstName', 'lastName', 'dateNaissance', 'address', 'contact', 'gender', 'actifSwitch'];
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.disabled = false;
+            }
+        });
+    }
+
+    function disableForm() {
+        const inputs = ['firstName', 'lastName', 'dateNaissance', 'address', 'contact', 'gender', 'actifSwitch'];
+        inputs.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.disabled = true;
+            }
+        });
+    }
+
+    function addStaff() {
+        const currentType = getCurrentStaffType();
+
+        const formData = {
+            nom: document.getElementById('addLastName').value.trim(),
+            prenom: document.getElementById('addFirstName').value.trim(),
+            date_naissance: document.getElementById('addDateNaissance').value || null,
+            adresse: document.getElementById('addAddress').value.trim(),
+            contact: document.getElementById('addContact').value.trim(),
+            id_genre: parseInt(document.getElementById('addGender').value)
+        };
+
+        // Validation
+        if (!formData.nom || !formData.prenom) {
+            alert("Le nom et le prénom sont obligatoires");
+            return;
+        }
+
+        if (!formData.id_genre) {
+            alert("Veuillez sélectionner un genre");
+            return;
+        }
+
+        const url = getStaffApiUrl(currentType, 'insert');
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Personnel ajouté avec succès");
+                const modalElement = document.getElementById('addStaffModal');
+                if (modalElement) {
+                    // Use the older method compatible with Bootstrap 5.3.0
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
                 clearForm();
+                enumStaff(currentType);
+            } else {
+                alert("Erreur lors de l'ajout: " + (data.message || 'Erreur inconnue'));
             }
-        }
+        })
+        .catch(e => {
+            console.error('Error adding staff:', e);
+            alert("Erreur lors de l'ajout: " + e.message);
+        });
+    }
 
-        // Add this helper function at the top of your script
-        function formatDateForInput(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '';
-            return date.toISOString().split('T')[0]; // Returns yyyy-MM-dd format
-        }
+    function getCurrentStaffType() {
+        const activeBtn = document.querySelector('.staff-type-btn.active');
+        return activeBtn ? activeBtn.dataset.type : 'prof';
+    }
 
-        function selectStaff(id) {
-            const staff = staffData.find((s) => s.id == id);
-            if (!staff) return;
-            currentStaffId = id;
-            document.querySelectorAll(".staff-item").forEach((item) => {
-                item.classList.remove("active");
-            });
-            const activeItem = document.querySelector(`.staff-item[data-id="${id}"]`);
-            if (activeItem) activeItem.classList.add("active");
+    staffTypeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.dataset.type;
 
-            const form = document.getElementById("staffForm");
-            form.firstName.value = staff.firstName;
-            form.lastName.value = staff.lastName;
-            form.contact.value = staff.contact;
-            form.gender.value = staff.gender;
-            form.address.value = staff.address;
-            // Fix date formatting
-            if (form.dateNaissance) {
-                form.dateNaissance.value = formatDateForInput(staff.dateNaissance);
+            staffTypeBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            if (staffListTitle) {
+                staffListTitle.textContent = type === 'professeur' ? 'Liste des Professeurs' : 'Liste des Superviseurs';
             }
-            disableForm();
-        }
 
-        // Global functions
-        window.enableEdit = function() {
-            if (currentStaffId === null) return alert("Sélectionnez un personnel !");
-            isEditing = true;
-            enableForm();
-        }
-
-        window.cancelEdit = function() {
-            isEditing = false;
-            disableForm();
-            if (currentStaffId !== null) selectStaff(currentStaffId);
-        }
-
-        window.saveStaff = function() {
-            if (!isEditing) return;
-            const form = document.getElementById("staffForm");
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            const staff = staffData.find((s) => s.id == currentStaffId);
-            if (!staff) return;
-            const url = getStaffApiUrl(staff.type, 'update', staff.id);
-            const payload = {
-                nom: form.lastName.value.trim(),
-                prenom: form.firstName.value.trim(),
-                contact: form.contact.value.trim(),
-                adresse: form.address.value.trim(),
-                id_genre: form.gender.value,
-                date_naissance: form.dateNaissance ? form.dateNaissance.value : null
-            };
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                enumStaff(staff.type);
-                isEditing = false;
-                disableForm();
-                alert("Modifications enregistrées avec succès !");
-            })
-            .catch(e => {
-                console.error('Error updating staff:', e);
-                alert("Erreur lors de la mise à jour: " + e.message);
-            });
-        }
-
-        window.deleteStaff = function() {
-            if (currentStaffId === null) return alert("Sélectionnez un personnel !");
-            const staff = staffData.find((s) => s.id == currentStaffId);
-            if (!staff) return;
-            const url = getStaffApiUrl(staff.type, 'delete', staff.id);
-            if (confirm("Êtes-vous sûr de vouloir supprimer ce membre du personnel ?")) {
-                fetch(url, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    enumStaff(staff.type);
-                    clearForm();
-                    alert("Personnel supprimé avec succès !");
-                })
-                .catch(e => {
-                    console.error('Error deleting staff:', e);
-                    alert("Erreur lors de la suppression: " + e.message);
-                });
-            }
-        }
-
-        function clearForm() {
-            const form = document.getElementById("staffForm");
-            form.reset();
-            disableForm();
-        }
-
-        function enableForm() {
-            const form = document.getElementById("staffForm");
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => input.disabled = false);
-            document.querySelector(".form-actions").style.display = "flex";
-            document.querySelector("#editBtn").style.display = "none";
-            document.querySelector("#deleteBtn").style.display = "none";
-        }
-
-        function disableForm() {
-            const form = document.getElementById("staffForm");
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => input.disabled = true);
-            document.querySelector(".form-actions").style.display = "none";
-            document.querySelector("#editBtn").style.display = "inline-block";
-            document.querySelector("#deleteBtn").style.display = "inline-block";
-        }
-
-        window.showAddForm = function() {
-            const modal = new bootstrap.Modal(document.getElementById("addStaffModal"));
-            document.getElementById("addStaffForm").reset();
-            const activeType = document.querySelector(".staff-type-btn.active").dataset.type;
-            document.getElementById("addType").value = activeType;
-            modal.show();
-        }
-
-        document.getElementById("addStaffForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const form = e.target;
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            const type = form.type.value;
-            const url = getStaffApiUrl(type, 'add');
-            const payload = {
-                nom: form.lastName.value.trim(),
-                prenom: form.firstName.value.trim(),
-                contact: form.contact.value.trim(),
-                adresse: form.address.value.trim(),
-                id_genre: form.gender.value,
-                date_naissance: form.dateNaissance.value
-            };
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                enumStaff(type);
-                // Multiple fallback approaches for modal closing
-                const modalElement = document.getElementById("addStaffModal");
-
-                // Try method 1: Bootstrap 5 getInstance
-                try {
-                    const modal = bootstrap.Modal.getInstance(modalElement);
-                    if (modal) {
-                        modal.hide();
-                    } else {
-                        throw new Error('getInstance failed');
-                    }
-                } catch (e) {
-                    // Fallback method 2: Click dismiss button
-                    const dismissBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
-                    if (dismissBtn) {
-                        dismissBtn.click();
-                    } else {
-                        // Fallback method 3: Manual modal hide
-                        modalElement.classList.remove('show');
-                        modalElement.style.display = 'none';
-                        document.body.classList.remove('modal-open');
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) backdrop.remove();
-                    }
-                }
-
-                alert("Personnel ajouté avec succès !");
-            })
-            .catch(e => {
-                console.error('Error adding staff:', e);
-                alert("Erreur lors de l'ajout: " + e.message);
-            });
+            enumStaff(type);
+            clearForm();
         });
     });
+});
 </script>
 </html>

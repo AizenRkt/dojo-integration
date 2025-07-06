@@ -107,18 +107,20 @@ class Controller {
         $m1 = new TarifAbonnementModel();
         $m2 = new TarifEcolageModel();
         $m3 = new TarifClubModel();
+
         $tarifAbo = $m1->getCurrentTarif();
         $tarifEcoEnfant = $m2->getCurrentTarifEnfant();
         $tarifEcoAdult = $m2->getCurrentTarifAdulte();
         $tarifClub = $m3->getCurrentTarif();
 
         Flight::render('gestion/tarif', [
-            'abonnement' => $tarifAbo['montant'],
-            'ecolageEnfant' => $tarifEcoEnfant['montant'],
-            'ecolageAdult' => $tarifEcoAdult['montant'],
-            'club' => $tarifClub['montant_par_heure']
+            'abonnement' => isset($tarifAbo['montant']) ? $tarifAbo['montant'] : null,
+            'ecolageEnfant' => isset($tarifEcoEnfant['montant']) ? $tarifEcoEnfant['montant'] : null,
+            'ecolageAdult' => isset($tarifEcoAdult['montant']) ? $tarifEcoAdult['montant'] : null,
+            'club' => isset($tarifClub['montant_par_heure']) ? $tarifClub['montant_par_heure'] : null,
         ]);
     }
+
 
     public function edt() {
         Flight::render('gestion/edt');

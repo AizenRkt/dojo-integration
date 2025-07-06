@@ -137,11 +137,21 @@ class ReservationModel {
         return $free;
     }
 
-    private function jourDeSemaine(string $date, string $locale = 'fr_FR'): string
+    private function jourDeSemaine($date): string
     {
-        $dt = new DateTime($date);
-        setlocale(LC_TIME, $locale . '.utf8');
-        return strtolower(strftime('%A', $dt->getTimestamp()));
+        $dayOfWeek = strtolower(date('l', strtotime($date)));
+
+        $mapping = [
+            'monday'    => 'lundi',
+            'tuesday'   => 'mardi',
+            'wednesday' => 'mercredi',
+            'thursday'  => 'jeudi',
+            'friday'    => 'vendredi',
+            'saturday'  => 'samedi',
+            'sunday'    => 'dimanche'
+        ];
+
+        return $mapping[$dayOfWeek] ?? $dayOfWeek;
     }
 
     private function mergeIntervals(array $intervals): array
@@ -159,5 +169,23 @@ class ReservationModel {
 
         return $merged;
     }
+    public function getByDate($date) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT r.*, cg.nom_responsable, cg.discipline, cg.nombre 
+                FROM reservation r 
+                JOIN club_groupe cg ON r.id_club = cg.id 
+                WHERE r.date_reserve = ? 
+                ORDER BY r.heure_debut
+            ");
+            $stmt->execute([$date]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Error getting reservations by date: " . $e->getMessage());
+            return [];
+        }
+    }
+
 
 }

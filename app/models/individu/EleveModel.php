@@ -76,5 +76,62 @@ class EleveModel {
             return "Erreur de suppression : " . $e->getMessage();
         }
     }
+    public function getWithParents() {
+        try {
+            $db = Flight::db();
+            $stmt = $db->query("
+                SELECT e.*, g.label as genre_label 
+                FROM eleve e 
+                LEFT JOIN genre g ON e.id_genre = g.id_genre 
+                ORDER BY e.nom, e.prenom
+            ");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getByIdWithParents($id_eleve) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT e.*, g.label as genre_label 
+                FROM eleve e 
+                LEFT JOIN genre g ON e.id_genre = g.id_genre 
+                WHERE e.id_eleve = :id_eleve
+            ");
+            $stmt->execute([':id_eleve' => $id_eleve]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    public function getParentsByEleveId($id_eleve) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT p.* 
+                FROM parent p 
+                JOIN parent_eleve pe ON p.id_parent = pe.id_parent 
+                WHERE pe.id_eleve = :id_eleve
+            ");
+            $stmt->execute([':id_eleve' => $id_eleve]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    public function associateParent($id_eleve, $id_parent) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("INSERT INTO parent_eleve (id_eleve, id_parent) VALUES (:id_eleve, :id_parent)");
+            $stmt->execute([':id_eleve' => $id_eleve, ':id_parent' => $id_parent]);
+            return true;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
 }
 

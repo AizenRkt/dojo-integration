@@ -115,7 +115,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/personnels" class='sidebar-link'>
+                    <a href="<?= Flight::base() ?>/eleves" class='sidebar-link'>
                         <i class="bi bi-people-fill"></i>
                         <span>liste des individus</span>
                     </a>

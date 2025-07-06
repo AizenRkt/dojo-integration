@@ -30,7 +30,7 @@
                             <div class="col-md-6">
                                 <label>Tarif enfants</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="tarif-enfant" value="<?= htmlspecialchars($ecolageEnfant) ?>" readonly>
+                                    <input type="text" class="form-control" id="tarif-enfant" value="<?= htmlspecialchars($ecolageEnfant ?? 'Non défini') ?>" readonly>
                                     <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
                                     <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
@@ -38,7 +38,7 @@
                             <div class="col-md-6">
                                 <label>Tarif adulte</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="tarif-adulte" value="<?= htmlspecialchars($ecolageAdult) ?>" readonly>
+                                    <input type="text" class="form-control" id="tarif-adulte" value="<?= htmlspecialchars($ecolageAdult ?? 'Non défini') ?>" readonly>
                                     <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
                                     <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
@@ -46,7 +46,7 @@
                             <div class="col-md-6">
                                 <label>Tarif abonnement</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="tarif-mensuel" value="<?= htmlspecialchars($abonnement) ?>" readonly>
+                                    <input type="text" class="form-control" id="tarif-mensuel" value="<?= htmlspecialchars($abonnement ?? 'Non défini') ?>" readonly>
                                     <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
                                     <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
@@ -54,7 +54,7 @@
                             <div class="col-md-6">
                                 <label>Tarif club par heure</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="tarif-heure" value="<?= htmlspecialchars($club) ?>" readonly>
+                                    <input type="text" class="form-control" id="tarif-heure" value="<?= htmlspecialchars($club ?? 'Non défini') ?>" readonly>
                                     <button class="btn btn-outline-primary edit-btn"><i class="fas fa-edit"></i></button>
                                     <button class="btn btn-outline-success validate-btn d-none"><i class="fas fa-check"></i></button>
                                 </div>
@@ -128,17 +128,39 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ montant })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    // Check if response is ok and contains content
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+
+                    // Check if response has content before parsing JSON
+                    return res.text().then(text => {
+                        if (!text) {
+                            throw new Error('Empty response from server');
+                        }
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            console.error('Response text:', text);
+                            throw new Error('Invalid JSON response from server');
+                        }
+                    });
+                })
                 .then(data => {
                     if (data.success) {
                         alert('Tarif mis à jour avec succès.');
-                        location.reload()
+                        location.reload();
                     } else {
-                        alert('Erreur lors de la mise à jour.');
+                        alert('Erreur lors de la mise à jour: ' + (data.message || 'Erreur inconnue'));
                         input.value = oldValue;
-                        location.reload()
                     }
                 })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Erreur de communication avec le serveur: ' + error.message);
+                    input.value = oldValue;
+                });
             }
 
             input.setAttribute('readonly', true);

@@ -5,13 +5,21 @@ use app\controllers\Controller;
 use app\controllers\controllersCours\CalendrierController;
 use app\controllers\controllersCours\CoursController;
 use app\controllers\controllersCours\SeancesController;
+use app\controllers\finance\SortieController;
 use app\controllers\GroupesControllers\GroupeController;
 use app\controllers\GroupesControllers\ReservationController;
+use app\controllers\PaiementController;
+use app\controllers\SalaireController;
 use app\controllers\presence\PresenceController;
 use app\controllers\salle\DashboardController;
 use app\controllers\salle\FacturationController;
 use app\controllers\salle\SuiviSalleController;
 use app\controllers\statistique\ReportController;
+use app\controllers\individu\ParentController;
+use app\controllers\individu\EleveController;
+use app\controllers\individu\GenreController;
+use app\controllers\individu\ProfController;
+use app\controllers\individu\SuperviseurController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
@@ -21,28 +29,188 @@ use app\models\TarifClubModel\TarifClubModel;
 use flight\Engine;
 use flight\net\Router;
 
-//Groupe&Reservation
+// Routes pour la gestion des sorties
+$sortieController = new SortieController();
+Flight::route('GET /api/sorties/motifs', [$sortieController, 'getMotifs']);
+Flight::route('GET /api/sorties/statuts', [$sortieController, 'getStatuts']);
+Flight::route('GET /api/sorties/categories', [$sortieController, 'getCategories']);
+Flight::route('GET /api/sorties/statistiques', [$sortieController, 'getStatistiques']);
+Flight::route('GET /api/sorties', [$sortieController, 'getSorties']);
+Flight::route('POST /api/sorties', [$sortieController, 'createSortie']);
+Flight::route('GET /api/sorties/modes-paiement', [$sortieController, 'getModePaiements']);
+Flight::route('GET /api/sorties/@id', [$sortieController, 'getSortieDetails']);
+Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']);
 
-//presence
 
-// salle use
 
-// salle rapport
 
-// emploi du temps
+// Routes existantes pour les salaires
+Flight::route('GET /gestion/finance/salaires', function() {
+    $controller = new SalaireController();
+    $controller->index();
+});
 
-//importation lié flight
 
-//use Flight;
+// Routes pour la gestion des salaires
+Flight::route('GET /api/employes', function() {
+    $controller = new SalaireController();
+    $controller->getAllEmployes();
+});
 
-/** 
- * @var Router $router 
- * @var Engine $app
- */
-/*$router->get('/', function() use ($app) {
-	$Welcome_Controller = new WelcomeController($app);
-	$app->render('welcome', [ 'message' => 'It works!!' ]);
-});*/
+Flight::route('GET /api/employes/@id', function($id) {
+    $controller = new SalaireController();
+    $controller->getEmployeById($id);
+});
+
+Flight::route('GET /api/salaires/config', function() {
+    $controller = new SalaireController();
+    $controller->getSalairesConfig();
+});
+
+Flight::route('PUT /api/salaires/config', function() {
+    $controller = new SalaireController();
+    $controller->modifierSalaireType();
+});
+
+Flight::route('POST /api/salaires/payer', function() {
+    $controller = new SalaireController();
+    $controller->payerSalaire();
+});
+
+Flight::route('PUT /api/salaires/config', function() {
+    $controller = new SalaireController();
+    $controller->modifierConfigurationSalaire();
+});
+
+Flight::route('GET /api/employes/recherche', function() {
+    $controller = new SalaireController();
+    $controller->rechercherEmployes();
+});
+
+Flight::route('GET /api/salaires/statistiques', function() {
+    $controller = new SalaireController();
+    $controller->getStatistiques();
+});
+
+
+// Add these routes to your routes.php file:
+
+// Replace the existing genre and staff routes in routes.php with these:
+Flight::route('GET /gestion/finance/paiements', function() {
+    $controller = new PaiementController();
+    $controller->index();
+});
+
+Flight::route('POST /api/paiements', function() {
+    $controller = new PaiementController();
+    $controller->enregistrerPaiement();
+});
+
+Flight::route('GET /api/reservations', function() {
+    $controller = new PaiementController();
+    $controller->getReservations();
+});
+
+Flight::route('GET /api/reservations/@id', function($id) {
+    $controller = new PaiementController();
+    $controller->getReservationDetails($id);
+});
+
+Flight::route('DELETE /api/paiements/@id_reservation', function($id_reservation) {
+    $controller = new PaiementController();
+    $controller->supprimerPaiement($id_reservation);
+});
+
+
+// Genre routes
+Flight::route('GET /api/genres', function() {
+    $controller = new GenreController();
+    $controller->getAll();
+});
+
+// Staff routes using Flight::route (consistent with existing prof/superviseur routes)
+Flight::route('GET /api/staff/@type', function($type) {
+    if ($type === 'prof') {
+        $controller = new ProfController();
+        $controller->getAll();
+    } elseif ($type === 'superviseur') {
+        $controller = new SuperviseurController();
+        $controller->getAll();
+    } else {
+        Flight::json(['error' => 'Invalid staff type']);
+    }
+});
+
+Flight::route('POST /api/staff/@type', function($type) {
+    if ($type === 'prof') {
+        $controller = new ProfController();
+        $controller->insert();
+    } elseif ($type === 'superviseur') {
+        $controller = new SuperviseurController();
+        $controller->insert();
+    } else {
+        Flight::json(['error' => 'Invalid staff type']);
+    }
+});
+
+Flight::route('POST /api/staff/@type/update/@id', function($type, $id) {
+    if ($type === 'prof') {
+        $controller = new ProfController();
+        $controller->update($id);
+    } elseif ($type === 'superviseur') {
+        $controller = new SuperviseurController();
+        $controller->update($id);
+    } else {
+        Flight::json(['error' => 'Invalid staff type']);
+    }
+});
+
+Flight::route('POST /api/staff/@type/delete/@id', function($type, $id) {
+    if ($type === 'prof') {
+        $controller = new ProfController();
+        $controller->delete($id);
+    } elseif ($type === 'superviseur') {
+        $controller = new SuperviseurController();
+        $controller->delete($id);
+    } else {
+        Flight::json(['error' => 'Invalid staff type']);
+    }
+});
+$profController = new ProfController();
+$superviseurController = new SuperviseurController();
+$genreController = new GenreController();
+
+// Professeur
+$router->get('/api/profs', [ $profController, 'getAll' ]);
+$router->get('/api/prof/@id:[0-9]+', [ $profController, 'getById' ]);
+$router->post('/api/prof', [ $profController, 'insert' ]);
+$router->post('/api/prof/update/@id:[0-9]+', [ $profController, 'update' ]);
+$router->post('/api/prof/delete/@id:[0-9]+', [ $profController, 'delete' ]);
+
+// Superviseur
+$router->get('/api/superviseurs', [ $superviseurController, 'getAll' ]);
+$router->get('/api/superviseur/@id:[0-9]+', [ $superviseurController, 'getById' ]);
+$router->post('/api/superviseur', [ $superviseurController, 'insert' ]);
+$router->post('/api/superviseur/update/@id:[0-9]+', [ $superviseurController, 'update' ]);
+$router->post('/api/superviseur/delete/@id:[0-9]+', [ $superviseurController, 'delete' ]);
+//
+
+// Parent routes (add after the superviseur routes)
+$parentController = new ParentController();
+
+$router->get('/api/parents', [ $parentController, 'getAll' ]);
+$router->get('/api/parent/@id:[0-9]+', [ $parentController, 'getById' ]);
+$router->post('/api/parent', [ $parentController, 'insert' ]);
+$router->post('/api/parent/update/@id:[0-9]+', [ $parentController, 'update' ]);
+$router->post('/api/parent/delete/@id:[0-9]+', [ $parentController, 'delete' ]);
+
+// Eleves routes
+$eleveController = new EleveController();
+
+Flight::route('GET /eleves', [$eleveController, 'index']);
+Flight::route('GET /eleves/create', [$eleveController, 'create']);
+Flight::route('POST /eleves', [$eleveController, 'store']);
+Flight::route('GET /eleves/@id_eleve', [$eleveController, 'show']);
 
 $Controller = new Controller();
 // exemple de base
@@ -76,20 +244,6 @@ $router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
 $router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 
-// $router->get('/', \app\controllers\salle\WelcomeController::class.'->home'); 
-
-// $router->get('/hello-world/@name', function($name) {
-// 	echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
-// });
-
-// $router->group('/api', function() use ($router, $app) {
-// 	$Api_Example_Controller = new ApiExampleController($app);
-// 	$router->get('/users', [ $Api_Example_Controller, 'getUsers' ]);
-// 	$router->get('/users/@id:[0-9]', [ $Api_Example_Controller, 'getUser' ]);
-// 	$router->post('/users/@id:[0-9]', [ $Api_Example_Controller, 'updateUser' ]);
-// });
-
-// Routes pour la page personnel
 
 //Groupe&Reservation
 $GroupeController = new GroupeController();
@@ -100,13 +254,29 @@ $router->get('/test', function() {
     Flight::json(['message' => 'Test OK']);
 });
 
-$router->get('/', [ $GroupeController, 'formGroupe' ]);
-$router->get('/groupes', [ $GroupeController, 'GetAllGroupes' ]);
-$router->get('/groupe/@id:[0-9]+', [ $GroupeController, 'GetGroupeById' ]);
-$router->get('/groupe/insert', [ $GroupeController, 'formGroupe' ]);
-$router->post('/groupe/insert', [ $GroupeController, 'InsertGroupe' ]);
-$router->post('/groupe/update/@id:[0-9]+', [ $GroupeController, 'UpdateGroupe' ]);
-$router->get('/groupe/delete/@id:[0-9]+', [ $GroupeController, 'DeleteGroupe' ]);
+// Routes API pour les groupes
+Flight::route('GET /groupes/api/all', [$GroupeController, 'getAllGroupesAPI']);
+Flight::route('POST /groupes/api/insert', [$GroupeController, 'insertGroupeAPI']);
+Flight::route('DELETE /groupes/api/delete/@id', [$GroupeController, 'deleteGroupeAPI']);
+
+// Routes pour les pages de gestion des groupes
+Flight::route('GET /groupes/insert', [$GroupeController, 'formGroupe']);
+Flight::route('POST /groupes/insert', [$GroupeController, 'InsertGroupe']);
+Flight::route('GET /groupes/update/@id', [$GroupeController, 'GetGroupeById']);
+Flight::route('POST /groupes/update/@id', [$GroupeController, 'UpdateGroupe']);
+Flight::route('GET /groupes/details/@id', [$GroupeController, 'GetGroupeById']);
+Flight::route('DELETE /groupes/delete/@id', [$GroupeController, 'DeleteGroupe']);
+Flight::route('GET /groupes', [$GroupeController, 'GetAllGroupes']);
+
+// Routes pour la page de suivi des clubs
+Flight::route('GET /suivi/club', [$GroupeController, 'showClubTracking']);
+Flight::route('GET /suivi/club/@year/@month', [$GroupeController, 'showClubTracking']);
+
+// Routes pour les détails du calendrier
+Flight::route('GET /api/day-details/@date', [$GroupeController, 'getDayDetails']);
+Flight::route('GET /api/monthly-data/@year/@month', [$GroupeController, 'getMonthlyData']);
+Flight::route('GET /api/month/@year/@month', [$GroupeController, 'getMonthlyData']);
+
 
 $router->get('/reservations', [ $ReservationController, 'GetAllReservations' ]);
 $router->get('/reservation/@id:[0-9]+', [ $ReservationController, 'GetReservationById' ]);
@@ -114,14 +284,6 @@ $router->get('/reservation/insert', [ $ReservationController, 'formReservation' 
 $router->post('/reservation/insert', [ $ReservationController, 'InsertReservation' ]);
 $router->post('/reservation/update/@id:[0-9]+', [ $ReservationController, 'UpdateReservation' ]);
 $router->get('/reservation/delete/@id:[0-9]+', [ $ReservationController, 'DeleteReservation' ]);
-// Route pour afficher le suivi des clubs
-$router->get('/suivi/clubs', [$GroupeController, 'showClubTracking']);
-
-// API pour récupérer les détails d'un jour
-$router->get('/api/day/@date', [$GroupeController, 'getDayDetails']);
-
-// API pour récupérer les données mensuelles
-$router->get('/api/month/@year:[0-9]+/@month:[0-9]+', [$GroupeController, 'getMonthlyData']);
 
 
 //presences
@@ -241,28 +403,7 @@ $dashboardController = new  DashboardController();
 Flight::route('GET /dashboard', [$dashboardController, 'index']);
 
 
-// --- API PROF & SUPERVISEUR ---
-use app\controllers\individu\ProfController;
-use app\controllers\individu\SuperviseurController;
-use app\controllers\individu\GenreController;
-$profController = new ProfController();
-$superviseurController = new SuperviseurController();
-$genreController = new GenreController();
 
-// Professeur
-$router->get('/api/profs', [ $profController, 'getAll' ]);
-$router->get('/api/prof/@id:[0-9]+', [ $profController, 'getById' ]);
-$router->post('/api/prof', [ $profController, 'insert' ]);
-$router->post('/api/prof/update/@id:[0-9]+', [ $profController, 'update' ]);
-$router->post('/api/prof/delete/@id:[0-9]+', [ $profController, 'delete' ]);
-
-// Superviseur
-$router->get('/api/superviseurs', [ $superviseurController, 'getAll' ]);
-$router->get('/api/superviseur/@id:[0-9]+', [ $superviseurController, 'getById' ]);
-$router->post('/api/superviseur', [ $superviseurController, 'insert' ]);
-$router->post('/api/superviseur/update/@id:[0-9]+', [ $superviseurController, 'update' ]);
-$router->post('/api/superviseur/delete/@id:[0-9]+', [ $superviseurController, 'delete' ]);
-
-// Genre
-$router->get('/api/genres', [ $genreController, 'getAll' ]);
+//// Genre
+//$router->get('/api/genres', [ $genreController, 'getAll' ]);
 ?>

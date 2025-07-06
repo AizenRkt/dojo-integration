@@ -72,124 +72,162 @@
                 }
             }
 
-            // Nouvelles méthodes pour le suivi des clubs
-            public function getScheduleData($year = null, $month = null) {
+            public function getScheduleData($year, $month) {
                 try {
                     $db = Flight::db();
 
-                    if (!$year) $year = date('Y');
-                    if (!$month) $month = date('m');
-
-                    // S'assurer que le mois est sur 2 chiffres
-                    $month = str_pad($month, 2, '0', STR_PAD_LEFT);
-
-                    $startDate = sprintf('%04d-%02d-01', $year, $month);
-                    $endDate = date('Y-m-t', strtotime($startDate));
+                    $firstDay = date('Y-m-01', mktime(0, 0, 0, $month, 1, $year));
+                    $lastDay = date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
 
                     $stmt = $db->prepare("
-            SELECT
-                TO_CHAR(r.date_reserve, 'YYYY-MM-DD') as date_reserve,
-                r.heure_debut,
-                r.heure_fin,
-                g.nom_responsable as group_name,
-                g.discipline,
-                g.nombre as participants
-            FROM reservation r
-            JOIN club_groupe g ON r.id_club = g.id
-            WHERE r.date_reserve BETWEEN :start_date AND :end_date
-            AND r.valeur = 'confirme'
-            ORDER BY r.date_reserve, r.heure_debut
-        ");
+                        SELECT 
+                            r.date_reserve,
+                            r.heure_debut,
+                            r.heure_fin,
+                            g.nom_responsable as group_name,
+                            g.discipline,
+                            g.nombre as participants
+                        FROM reservation r
+                        JOIN club_groupe g ON r.id_club = g.id
+                        WHERE r.date_reserve BETWEEN :first_day AND :last_day
+                        AND r.valeur = 'payee'
+                        ORDER BY r.date_reserve, r.heure_debut
+                    ");
 
                     $stmt->execute([
-                        ':start_date' => $startDate,
-                        ':end_date' => $endDate
+                        ':first_day' => $firstDay,
+                        ':last_day' => $lastDay
                     ]);
 
                     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-                } catch (\PDOException $e) {
+                } catch (\Exception $e) {
+                    error_log("Error in getScheduleData: " . $e->getMessage());
                     return [];
                 }
             }
-            public function getDayAvailability($date) {
-                try {
-                    $db = Flight::db();
 
-                    // Créneaux standard du dojo
-                    $standardSlots = [
-                        ['start' => '08:00', 'end' => '10:00'],
-                        ['start' => '10:30', 'end' => '12:00'],
-                        ['start' => '14:00', 'end' => '16:00'],
-                        ['start' => '16:30', 'end' => '18:00'],
-                        ['start' => '18:30', 'end' => '20:00']
-                    ];
+// Dans GroupeModel.php, ajoutez cette méthode
+public function getDayAvailability($date) {
+    try {
+        // Vérifier le jour de la semaine
+        $dayOfWeek = strtolower(date('l', strtotime($date)));
+        $dayOfWeekFr = $this->jourDeSemaine($date);
 
-                    // Récupérer les réservations du jour
-                    $stmt = $db->prepare("
-                        SELECT heure_debut, heure_fin 
-                        FROM reservation 
-                        WHERE date_reserve = :date AND valeur = 'confirme'
-                        ORDER BY heure_debut
-                    ");
-                    $stmt->execute([':date' => $date]);
-                    $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Exclure mercredi et samedi
+        if (in_array($dayOfWeekFr, ['mercredi', 'samedi'])) {
+            return ['available' => [], 'closed' => true];
+        }
 
-                    $occupiedSlots = [];
-                    $availableSlots = [];
+        // Horaires d'ouverture par défaut : 8h-18h
+        $openingTime = '08:00:00';
+        $closingTime = '18:00:00';
 
-                    foreach ($standardSlots as $slot) {
-                        $isOccupied = false;
-                        foreach ($reservations as $reservation) {
-                            if ($reservation['heure_debut'] <= $slot['start'] && $reservation['heure_fin'] >= $slot['end']) {
-                                $isOccupied = true;
-                                break;
-                            }
-                        }
+        // Récupérer les réservations confirmées pour cette date
+        $db = Flight::db();
+        $stmt = $db->prepare("
+            SELECT heure_debut, heure_fin 
+            FROM reservation 
+            WHERE date_reserve = :date 
+            AND valeur = 'payee'
+            ORDER BY heure_debut
+        ");
+        $stmt->execute([':date' => $date]);
+        $reservations = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-                        if ($isOccupied) {
-                            $occupiedSlots[] = $slot['start'] . ' - ' . $slot['end'];
-                        } else {
-                            $availableSlots[] = $slot['start'] . ' - ' . $slot['end'];
-                        }
-                    }
+        // Calculer les créneaux disponibles
+        $availableSlots = $this->calculateAvailableSlots($openingTime, $closingTime, $reservations);
 
-                    return [
-                        'occupied' => $occupiedSlots,
-                        'available' => $availableSlots
-                    ];
-                } catch (\PDOException $e) {
-                    return ['occupied' => [], 'available' => []];
-                }
-            }
+        return [
+            'available' => $availableSlots,
+            'closed' => false,
+            'opening_hours' => ['start' => $openingTime, 'end' => $closingTime]
+        ];
 
-            public function getMonthlyStats($year, $month) {
-                try {
-                    $db = Flight::db();
+    } catch (\Exception $e) {
+        return ['available' => [], 'closed' => false];
+    }
+}
 
-                    // Correction du format de date
-                    $startDate = sprintf('%04d-%02d-01', $year, $month);
-                    $endDate = date('Y-m-t', strtotime($startDate));
+private function calculateAvailableSlots($openingTime, $closingTime, $reservations) {
+    $slots = [];
+    $currentTime = $openingTime;
 
-                    $stmt = $db->prepare("
+    foreach ($reservations as $reservation) {
+        // Si il y a un gap avant la réservation
+        if ($currentTime < $reservation['heure_debut']) {
+            $slots[] = [
+                'start' => $currentTime,
+                'end' => $reservation['heure_debut']
+            ];
+        }
+        // Avancer le curseur après la réservation
+        $currentTime = max($currentTime, $reservation['heure_fin']);
+    }
+
+    // Vérifier s'il reste du temps après la dernière réservation
+    if ($currentTime < $closingTime) {
+        $slots[] = [
+            'start' => $currentTime,
+            'end' => $closingTime
+        ];
+    }
+
+    return $slots;
+}
+
+private function jourDeSemaine($date) {
+    $dayOfWeek = strtolower(date('l', strtotime($date)));
+
+    $mapping = [
+        'monday' => 'lundi',
+        'tuesday' => 'mardi',
+        'wednesday' => 'mercredi',
+        'thursday' => 'jeudi',
+        'friday' => 'vendredi',
+        'saturday' => 'samedi',
+        'sunday' => 'dimanche'
+    ];
+
+    return $mapping[$dayOfWeek] ?? $dayOfWeek;
+}
+public function getMonthlyStats($year, $month) {
+    try {
+        $db = Flight::db();
+
+        $firstDay = date('Y-m-01', mktime(0, 0, 0, $month, 1, $year));
+        $lastDay = date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
+
+        // Statistiques du mois
+        $stmt = $db->prepare("
             SELECT 
-                DATE(r.date_reserve) as reservation_date,
                 COUNT(*) as total_reservations,
+                COUNT(DISTINCT r.id_club) as groupes_actifs,
                 SUM(g.nombre) as total_participants
             FROM reservation r
             JOIN club_groupe g ON r.id_club = g.id
-            WHERE r.date_reserve BETWEEN :start_date AND :end_date
-            AND r.valeur = 'confirme'
-            GROUP BY DATE(r.date_reserve)
+            WHERE r.date_reserve BETWEEN :first_day AND :last_day
+            AND r.valeur = 'payee'
         ");
 
-                    $stmt->execute([
-                        ':start_date' => $startDate,
-                        ':end_date' => $endDate
-                    ]);
+        $stmt->execute([
+            ':first_day' => $firstDay,
+            ':last_day' => $lastDay
+        ]);
 
-                    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-                } catch (\PDOException $e) {
-                    return [];
-                }
-            }
+        return $stmt->fetch(\PDO::FETCH_ASSOC) ?: [
+            'total_reservations' => 0,
+            'groupes_actifs' => 0,
+            'total_participants' => 0
+        ];
+    } catch (\Exception $e) {
+        error_log("Error in getMonthlyStats: " . $e->getMessage());
+        return [
+            'total_reservations' => 0,
+            'groupes_actifs' => 0,
+            'total_participants' => 0
+        ];
+    }
+}
+
+
         }

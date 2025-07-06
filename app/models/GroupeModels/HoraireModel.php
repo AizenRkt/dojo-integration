@@ -7,14 +7,14 @@ use Flight;
 
 class HoraireModel {
 
-    public function insert($jour, $debut, $fin) {
+   public function insert($jour, $debut, $fin) {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("INSERT INTO horaire (jour, debut, fin) VALUES (:jour, :debut, :fin)");
             $stmt->execute([
                 ':jour' => $jour,
                 ':debut' => $debut,
-                'fin' => $fin
+                ':fin' => $fin  // Fixed: was missing the colon
             ]);
             return "Insertion réussie !";
         } catch (\PDOException $e) {
