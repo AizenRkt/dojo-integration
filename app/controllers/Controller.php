@@ -6,6 +6,7 @@ use app\controllers\statistique\ReportController;
 use app\models\TarifAbonnementModel\TarifAbonnementModel;
 use app\models\TarifClubModel\TarifClubModel;
 use app\models\TarifEcolageModel\TarifEcolageModel;
+use app\models\individu\LoginModel;
 
 use Flight;
 
@@ -21,6 +22,39 @@ class Controller {
     public function login() {
         Flight::render('template/auth/login');
 
+    }
+    public function handleLogin() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+    
+            $user = LoginModel::verifyCredentials($username, $password);
+    
+            if ($user) {
+                // Stocker les informations de l'utilisateur en session
+                $_SESSION['user'] = $user;
+                
+                // Rediriger en fonction du rôle
+                switch ($user['role']) {
+                    case 'admin':
+                    case 'superviseur':
+                        Flight::redirect('/acceuil');
+                        break;
+                    case 'prof':
+                        Flight::redirect('/presence');
+                        break;
+                    default:
+                        Flight::redirect('/');
+                }
+            } else {
+                Flight::redirect('/?error=1');
+            }
+        }
+    }
+    
+    public function logout() {
+        session_destroy();
+        Flight::redirect('/');
     }
     public function signin() {
         Flight::render('template/auth/signin');
