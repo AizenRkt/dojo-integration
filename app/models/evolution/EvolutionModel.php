@@ -18,17 +18,10 @@ class EvolutionModel {
     public function getElevesAvecEtoile() {
         try {
             $db = Flight::db();
-            $sql = "SELECT e.*, ev.note
+            $sql = "SELECT e.*, COALESCE(ROUND(AVG(ev.note)::NUMERIC, 1), 0) as note
                 FROM eleve e
-                LEFT JOIN (
-                    SELECT ev1.id_eleve, ev1.note
-                    FROM evolution ev1
-                    INNER JOIN (
-                        SELECT id_eleve, MAX(date_evolution) as max_date
-                        FROM evolution
-                        GROUP BY id_eleve
-                    ) latest ON ev1.id_eleve = latest.id_eleve AND ev1.date_evolution = latest.max_date
-                ) ev ON e.id_eleve = ev.id_eleve
+                LEFT JOIN evolution ev ON e.id_eleve = ev.id_eleve
+                GROUP BY e.id_eleve, e.nom, e.prenom, e.date_naissance, e.adresse, e.contact, e.date_inscription, e.id_genre
                 ORDER BY e.nom
             ";
             $stmt = $db->query($sql);

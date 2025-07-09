@@ -152,5 +152,51 @@ public function getMonthlySubscriptionData($year, $month) {
     
     return $monthlyData;
 }
+    public function showAbonnementStats() {
+        $year = $_GET['year'] ?? date('Y');
+        $month = $_GET['month'] ?? date('m');
+        $week = $_GET['week'] ?? date('W');
+
+        // Get basic data
+        $inscriptionsData = $this->getInscriptionsData($year, $month);
+        $renewalData = $this->getRenewalRateData($year, $month);
+        $revenueData = $this->getRevenueData($year, $month);
+        $occupancyData = $this->getOccupancyAlert($year, $week);
+        $unsubscribeData = $this->getUnsubscribeAlert($year, $month);
+        $attendanceData = $this->getAttendanceData($year, $week);
+        $monthlyData = $this->getMonthlySubscriptionData($year, $month);
+
+        // Calculate totals
+        $totalClients = $inscriptionsData['total'];
+        $renewalRate = $renewalData['rate'];
+        $totalReabonnement = round($totalClients * $renewalRate / 100);
+        $totalNouveau = $totalClients - $totalReabonnement;
+        $reabonnementPourcentage = $totalClients > 0 ? round(($totalReabonnement / $totalClients) * 100, 1) : 0;
+        $nouveauPourcentage = $totalClients > 0 ? round(($totalNouveau / $totalClients) * 100, 1) : 0;
+
+        // Revenue and profit calculation
+        $revenue = $revenueData['revenue'];
+        $coachCost = 18 * 4 * 10000; // 18h/week * 4 weeks * 10,000 Ar/hour = 720,000 Ar
+        $profit = $revenue - $coachCost;
+
+        // Pass all variables to view
+        Flight::render('statistique/abonnement', [
+            'year' => $year,
+            'month' => $month,
+            'totalClients' => $totalClients,
+            'totalReabonnement' => $totalReabonnement,
+            'totalNouveau' => $totalNouveau,
+            'reabonnementPourcentage' => $reabonnementPourcentage,
+            'nouveauPourcentage' => $nouveauPourcentage,
+            'revenue' => $revenue,
+            'profit' => $profit,
+            'occupancyRate' => $occupancyData['occupancy'],
+            'occupancyAlert' => $occupancyData['alert'],
+            'unsubscribeRate' => $unsubscribeData['unsubscribe_rate'],
+            'unsubscribeAlert' => $unsubscribeData['alert'],
+            'attendanceData' => $attendanceData,
+            'monthlyData' => $monthlyData
+        ]);
+    }
 }
 ?>

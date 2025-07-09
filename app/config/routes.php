@@ -46,22 +46,13 @@ Flight::route('GET /api/sorties/modes-paiement', [$sortieController, 'getModePai
 Flight::route('GET /api/sorties/@id', [$sortieController, 'getSortieDetails']);
 Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']);
 
-
-
-
-// Routes existantes pour les salaires
-// Flight::route('GET /gestion/finance/salaires', function() {
-//     $controller = new SalaireController();
-//     $controller->index();
-// });
-
 // page professeur
 $Controller = new Controller();
-$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
-$router->get('/evolution', [ $Controller, 'evolution' ]);
-$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
-$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
-$router->get('/compte', [ $Controller, 'compte' ]);
+Flight::route('GET /prof', [$Controller, 'professeurSidebar']);
+Flight::route('GET /evolution', [$Controller, 'evolution']);
+Flight::route('GET /emploi_du_temps', [$Controller, 'emploi_temps']);
+Flight::route('GET /presence_eleve', [$Controller, 'presence_eleve']);
+Flight::route('GET /compte', [$Controller, 'compte']);
 
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
@@ -89,20 +80,6 @@ Flight::route('POST /api/salaires/payer', function() {
     $controller->payerSalaire();
 });
 
-// Flight::route('PUT /api/salaires/config', function() {
-//     $controller = new SalaireController();
-//     $controller->modifierConfigurationSalaire();
-// });
-
-// Flight::route('GET /api/employes/recherche', function() {
-//     $controller = new SalaireController();
-//     $controller->rechercherEmployes();
-// });
-
-// Flight::route('GET /api/salaires/statistiques', function() {
-//     $controller = new SalaireController();
-//     $controller->getStatistiques();
-// });
 
 $factureController = new FactureController();
 Flight::route('GET /facture/salaire/@id', [$factureController, 'factureSalaire']);
@@ -335,6 +312,12 @@ $router->get('/presence/annulation-possible/@id_seances:[0-9]+', function($id_se
     return $presenceController->annulationPossible($id_seances) ? 'true' : 'false';
 });
 
+// Add this route for the professor presence page
+Flight::route('GET /api/cours-aujourdhui', [$presenceController, 'getCoursAujourdhui']);
+Flight::route('GET /api/eleves-seance/@id_seances', [$presenceController, 'getElevesParSeance']);
+Flight::route('POST /api/enregistrer-presence', [$presenceController, 'enregistrerPresence']);
+Flight::route('GET /presence_eleve', [$presenceController, 'showPresenceEleve']);
+
 // emploi du temps
 $coursController = new CoursController();
 $seancesController = new SeancesController();
@@ -511,4 +494,5 @@ Flight::route('GET /abonnement/days_remaining/@id', [$abonnementController, 'day
 
 //// Genre
 //$router->get('/api/genres', [ $genreController, 'getAll' ]);
+
 ?>
