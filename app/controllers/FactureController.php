@@ -57,7 +57,7 @@ class FactureController {
 
         // Données
         $pdf->SetFont('Arial', '', 12);
-        $tva = 0.10; // 10%
+        $tva = 0.20; // 20%
         $ht = $data['montant'] / (1 + $tva);
         $ttc = $data['montant'];
 
@@ -70,7 +70,7 @@ class FactureController {
         // Total
         $pdf->Ln(5);
         $pdf->Cell(0, 10, "Total HT : " . number_format($ht, 2, ',', ' ') . " Ar", 0, 1);
-        $pdf->Cell(0, 10, "TVA (10%) : " . number_format($ttc - $ht, 2, ',', ' ') . " Ar", 0, 1);
+        $pdf->Cell(0, 10, "TVA (20%) : " . number_format($ttc - $ht, 2, ',', ' ') . " Ar", 0, 1);
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, 10, "Total TTC : " . number_format($ttc, 2, ',', ' ') . " Ar", 0, 1);
 
