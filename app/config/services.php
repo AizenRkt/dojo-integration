@@ -19,9 +19,9 @@ $dsn = 'pgsql:host=' . $config['database']['host'] . ';port=' . $config['databas
 
 // Uncomment the below lines if you want to add a Flight::db() service
 // In development, you'll want the class that captures the queries for you. In production, not so much.
- $pdoClass = Debugger::$showBar === true ? PdoQueryCapture::class : PdoWrapper::class;
- //$app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, '' ?? null ]);
- $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $config['database']['password'] ?? null ]);
+$pdoClass = Debugger::$showBar === true ? PdoQueryCapture::class : PdoWrapper::class;
+//$app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, '' ?? null ]);
+$app->register('db', $pdoClass, [$dsn, $config['database']['user'] ?? null, $config['database']['password'] ?? null]);
 
 // Got google oauth stuff? You could register that here
 // $app->register('google_oauth', Google_Client::class, [ $config['google_oauth'] ]);
@@ -42,16 +42,30 @@ Flight::map('sign', function () {
 });
 
 Flight::map('menuAdmin', function () {
-    Flight::render('template/menu/adminSidebar');
+    if (isset($_SESSION['role'])) {
+        switch ($_SESSION['role']) {
+            case 'admin':
+                Flight::render('template/menu/adminSidebar');
+                break;
+            case 'superviseur':
+                Flight::render('template/menu/supervisorSidebar');
+                break;
+            case 'prof':
+                Flight::render('template/menu/supervisorSidebar');
+                break;
+            default:
+                break;
+        }
+    }
 });
+
 Flight::map('menuSupervisor', function () {
     Flight::render('template/menu/supervisorSidebar');
 });
-
 Flight::map('footer', function () {
     Flight::render('template/footer');
 });
-Flight::map('base', function() {
+Flight::map('base', function () {
     $base = Flight::get('flight.base_url');
     return $base;
 });

@@ -33,7 +33,7 @@ class Controller {
             if ($user) {
                 // Stocker les informations de l'utilisateur en session
                 $_SESSION['user'] = $user;
-                
+                $_SESSION['role'] = $user['role'];
                 // Rediriger en fonction du rôle
                 switch ($user['role']) {
                     case 'admin':
