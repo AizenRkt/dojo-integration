@@ -4,6 +4,7 @@
  use Flight;
  use PDO;
  use Exception;
+ use DateTime;
 
  class EcolageModel {
      private $db;
@@ -107,14 +108,34 @@
     }
 
     public function create($data) {
-        $isAdult = true;
+        // 1. Récupérer la date de naissance de l'élève
+        $stmtCheck = $this->db->prepare("
+            SELECT date_naissance 
+            FROM eleve 
+            WHERE id_eleve = :id_eleve
+        ");
+        $stmtCheck->execute([':id_eleve' => $data['id_eleve']]);
+        $eleve = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$eleve) {
+            throw new Exception("Élève non trouvé");
+        }
+    
+        // 2. Calculer si l'élève est adulte (18 ans ou plus)
+        $dateNaissance = new DateTime($eleve['date_naissance']);
+        $aujourdhui = new DateTime();
+        $difference = $dateNaissance->diff($aujourdhui);
+        $age = $difference->y;
+        $isAdult = ($age >= 18);
+    
         $tarif = $this->getTarif($isAdult);
     
-        // 1. Insérer d'abord avec statut temporaire
+        // 3. Insérer le paiement
         $stmt = $this->db->prepare("
             INSERT INTO {$this->table} 
             (id_eleve, montant, date_paiement, mois, annee, statut) 
             VALUES (:id_eleve, :montant, :date_paiement, :mois, :annee, 'non paye')
+            RETURNING id_ecolage
         ");
         $stmt->execute([
             ':id_eleve' => $data['id_eleve'],
@@ -123,8 +144,9 @@
             ':mois' => $data['mois'],
             ':annee' => $data['annee']
         ]);
+        $idEcolage = $stmt->fetchColumn();
     
-        // 2. Vérifier si le paiement est maintenant complet
+        // 4. Vérifier si le paiement est complet
         $stmt2 = $this->db->prepare("
             SELECT COALESCE(SUM(montant), 0) AS total_paye
             FROM {$this->table}
@@ -140,7 +162,7 @@
         $row = $stmt2->fetch(PDO::FETCH_ASSOC);
         $somme = (float)$row['total_paye'];
     
-        // 3. Si paiement complet => update toutes les lignes du mois à "paye"
+        // 5. Si paiement complet, mettre à jour le statut
         if (abs($somme - $tarif) < 0.01) {
             $stmt3 = $this->db->prepare("
                 UPDATE {$this->table}
@@ -156,9 +178,8 @@
             ]);
         }
     
-        return true;
+        return $idEcolage; // Retourne l'ID du nouvel enregistrement
     }
-
     
     public function isEcolagePaye($id_eleve, $mois, $annee) {
         $stmt = $this->db->prepare("
