@@ -151,9 +151,10 @@
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
                                             <small class="star">
-                                                <?php 
+                                                <?php
                                                     $note = isset($e['note']) ? $e['note'] : 0;
-                                                    echo str_repeat('★', $note) . str_repeat('☆', 5 - $note);
+                                                    $noteRounded = round($note);
+                                                    echo str_repeat('★', $noteRounded) . str_repeat('☆', 5 - $noteRounded);
                                                 ?>
                                             </small>
                                         </div>
