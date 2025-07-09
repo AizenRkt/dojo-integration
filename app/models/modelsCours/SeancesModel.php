@@ -134,30 +134,32 @@ class SeancesModel {
     }
 
     public function getAll() {
-        $sql = "
-            SELECT 
-                sc.id_seances,
-                sc.date,
-                ph.heure_debut,
-                ph.heure_fin,
-                c.label AS nom_cours,
-                p.nom AS nom_prof,
-                p.prenom AS prenom_prof
-            FROM seances_cours sc
-            JOIN plage_horaire ph ON sc.id_plage = ph.id
-            JOIN cours c ON sc.id_cours = c.id_cours
-            JOIN prof p ON sc.id_prof = p.id_prof
-            WHERE sc.id_seances NOT IN (
-                SELECT id_seances
-                FROM historique_seances
-                WHERE statut = 'annule'
-            )
-            ORDER BY sc.date DESC, ph.heure_debut
-        ";
+    $sql = "
+        SELECT 
+            sc.id_seances,
+            sc.date,
+            ph.heure_debut,
+            ph.heure_fin,
+            c.label AS nom_cours,
+            pers.nom AS nom_prof,
+            pers.prenom AS prenom_prof
+        FROM seances_cours sc
+        JOIN plage_horaire ph ON sc.id_plage = ph.id
+        JOIN cours c ON sc.id_cours = c.id_cours
+        JOIN prof p ON sc.id_prof = p.id_prof
+        JOIN personnel pers ON p.id_prof = pers.id_personnel
+        WHERE sc.id_seances NOT IN (
+            SELECT id_seances
+            FROM historique_seances
+            WHERE statut = 'annule'
+        )
+        ORDER BY sc.date DESC, ph.heure_debut
+    ";
 
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    $stmt = $this->pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
     public function getById($id) {
         $sql = "SELECT sc.*, ph.heure_debut, ph.heure_fin
