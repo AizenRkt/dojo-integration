@@ -4,7 +4,7 @@ namespace app\controllers\presence;
 use app\models\presence\PresenceModel;
 use Flight;
 use PDO;
-
+use Exception;
 class PresenceController {
     private $presenceModel;
 
@@ -99,6 +99,111 @@ class PresenceController {
             'success' => true,
             'details' => $details
         ]);
+    }
+    public function showPresenceEleve() {
+        Flight::render('professeur/presence_eleve');
+    }
+
+    public function getCoursAujourdhui() {
+        $today = date('Y-m-d');
+        $sql = "SELECT 
+                    sc.id_seances,
+                    c.label as cours_nom,
+                    sc.date,
+                    ph.heure_debut,
+                    ph.heure_fin,
+                    CONCAT(p.nom, ' ', p.prenom) as professeur
+                FROM seances_cours sc
+                JOIN cours c ON sc.id_cours = c.id_cours
+                JOIN plage_horaire ph ON sc.id_plage = ph.id
+                JOIN prof pr ON sc.id_prof = pr.id_prof
+                JOIN personnel p ON pr.id_prof = p.id_personnel
+                WHERE sc.date = :today
+                ORDER BY ph.heure_debut";
+
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute(['today' => $today]);
+        $cours = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        Flight::json([
+            'success' => true,
+            'cours' => $cours,
+            'date' => $today
+        ]);
+    }
+
+    public function getElevesParSeance($id_seances) {
+        // Récupérer les élèves qui ont déjà une présence enregistrée
+        $sql = "SELECT 
+                    e.id_eleve,
+                    e.nom,
+                    e.prenom,
+                    COALESCE(p.present, false) as present,
+                    COALESCE(p.remarque, '') as remarque,
+                    p.id_presence
+                FROM eleve e
+                LEFT JOIN presence p ON e.id_eleve = p.id_eleve AND p.id_seances = :id_seances
+                WHERE e.id_eleve IN (
+                    SELECT DISTINCT id_eleve 
+                    FROM gestion_groupe gg
+                    JOIN planification_cours pc ON gg.groupe = pc.groupe
+                    WHERE pc.id_seance = :id_seances
+                    AND gg.mois = EXTRACT(MONTH FROM CURRENT_DATE)
+                    AND gg.annee = EXTRACT(YEAR FROM CURRENT_DATE)
+                )
+                ORDER BY e.nom, e.prenom";
+
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute(['id_seances' => $id_seances]);
+        $eleves = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        Flight::json([
+            'success' => true,
+            'eleves' => $eleves
+        ]);
+    }
+
+    public function enregistrerPresence() {
+        $data = Flight::request()->data->getData();
+        $id_seances = $data['id_seances'];
+        $presences = $data['presences'];
+
+        try {
+            $this->getDb()->beginTransaction();
+
+            foreach ($presences as $presence) {
+                // Ensure proper boolean conversion
+                $present = isset($presence['present']) && $presence['present'] === true;
+
+                $presenceData = [
+                    'present' => $present ? 'true' : 'false', // Convert to string boolean for PostgreSQL
+                    'remarque' => !empty($presence['remarque']) ? $presence['remarque'] : null
+                ];
+
+                if (isset($presence['id_presence']) && !empty($presence['id_presence'])) {
+                    // Mise à jour
+                    $this->presenceModel->update($presence['id_presence'], $presenceData);
+                } else {
+                    // Insertion
+                    $presenceData['id_eleve'] = $presence['id_eleve'];
+                    $presenceData['id_seances'] = $id_seances;
+                    $this->presenceModel->insert($presenceData);
+                }
+            }
+
+            $this->getDb()->commit();
+
+            Flight::json([
+                'success' => true,
+                'message' => 'Présence enregistrée avec succès'
+            ]);
+        } catch (Exception $e) {
+            $this->getDb()->rollBack();
+            Flight::json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'enregistrement: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
 ?>

@@ -5,24 +5,28 @@ namespace app\models\individu;
 use PDO;
 use Flight;
 
-class ParentModel {
-    public function insert($nom, $prenom, $contact, $adresse) {
+class ParentModel
+{
+    // Dans ParentModel.php
+    public function insert($nom, $prenom, $contact, $adresse)
+    {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("INSERT INTO parent (nom, prenom, contact, adresse) VALUES (:nom, :prenom, :contact, :adresse)");
+            $stmt = $db->prepare("INSERT INTO parent (nom, prenom, contact, adresse) VALUES (:nom, :prenom, :contact, :adresse) RETURNING id_parent");
             $stmt->execute([
                 ':nom' => $nom,
                 ':prenom' => $prenom,
                 ':contact' => $contact,
                 ':adresse' => $adresse
             ]);
-            return "Insertion réussie !";
+            return $stmt->fetch(PDO::FETCH_ASSOC)['id_parent'];
         } catch (\PDOException $e) {
-            return "Erreur : " . $e->getMessage();
+            return false;
         }
     }
 
-    public function getAll() {
+    public function getAll()
+    {
         try {
             $db = Flight::db();
             $stmt = $db->query("SELECT * FROM parent");
@@ -32,7 +36,8 @@ class ParentModel {
         }
     }
 
-    public function getById($id_parent) {
+    public function getById($id_parent)
+    {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("SELECT * FROM parent WHERE id_parent = :id_parent");
@@ -43,7 +48,8 @@ class ParentModel {
         }
     }
 
-    public function update($id_parent, $nom, $prenom, $contact, $adresse) {
+    public function update($id_parent, $nom, $prenom, $contact, $adresse)
+    {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("UPDATE parent SET nom = :nom, prenom = :prenom, contact = :contact, adresse = :adresse WHERE id_parent = :id_parent");
@@ -60,7 +66,8 @@ class ParentModel {
         }
     }
 
-    public function delete($id_parent) {
+    public function delete($id_parent)
+    {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("DELETE FROM parent WHERE id_parent = :id_parent");

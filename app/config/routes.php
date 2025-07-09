@@ -32,6 +32,9 @@ use app\models\evolution\EvolutionModel;
 use flight\Engine;
 use flight\net\Router;
 
+//abonnement
+use app\controllers\AbonnementController\AbonnementController;
+
 // Routes pour la gestion des sorties
 $sortieController = new SortieController();
 Flight::route('GET /api/sorties/motifs', [$sortieController, 'getMotifs']);
@@ -44,22 +47,13 @@ Flight::route('GET /api/sorties/modes-paiement', [$sortieController, 'getModePai
 Flight::route('GET /api/sorties/@id', [$sortieController, 'getSortieDetails']);
 Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']);
 
-
-
-
-// Routes existantes pour les salaires
-// Flight::route('GET /gestion/finance/salaires', function() {
-//     $controller = new SalaireController();
-//     $controller->index();
-// });
-
 // page professeur
 $Controller = new Controller();
-$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
-$router->get('/evolution', [ $Controller, 'evolution' ]);
-$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
-$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
-$router->get('/compte', [ $Controller, 'compte' ]);
+Flight::route('GET /prof', [$Controller, 'professeurSidebar']);
+Flight::route('GET /evolution', [$Controller, 'evolution']);
+Flight::route('GET /emploi_du_temps', [$Controller, 'emploi_temps']);
+Flight::route('GET /presence_eleve', [$Controller, 'presence_eleve']);
+Flight::route('GET /compte', [$Controller, 'compte']);
 
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
@@ -87,20 +81,6 @@ Flight::route('POST /api/salaires/payer', function() {
     $controller->payerSalaire();
 });
 
-// Flight::route('PUT /api/salaires/config', function() {
-//     $controller = new SalaireController();
-//     $controller->modifierConfigurationSalaire();
-// });
-
-// Flight::route('GET /api/employes/recherche', function() {
-//     $controller = new SalaireController();
-//     $controller->rechercherEmployes();
-// });
-
-// Flight::route('GET /api/salaires/statistiques', function() {
-//     $controller = new SalaireController();
-//     $controller->getStatistiques();
-// });
 
 $factureController = new FactureController();
 Flight::route('GET /facture/salaire/@id', [$factureController, 'factureSalaire']);
@@ -236,6 +216,14 @@ $router->get('/logout', [ $Controller, 'logout' ]);
 $router->get('/demographie', [ $Controller, 'demographie' ]);
 $router->get('/abonnement', [ $Controller, 'abonnement' ]);
 
+// Statistiques des sorties
+$sortieStatController = new \app\controllers\statistique\SortieStatController();
+$router->get('/statistiques/sorties', [ $sortieStatController, 'index' ]);
+$router->get('/api/stats/sorties/categorie', [ $sortieStatController, 'getStatsByCategorie' ]);
+$router->get('/api/stats/sorties/statut', [ $sortieStatController, 'getStatsByStatut' ]);
+$router->get('/api/stats/sorties/motif', [ $sortieStatController, 'getStatsByMotif' ]);
+$router->get('/api/stats/sorties/periode', [ $sortieStatController, 'getStatsByPeriode' ]);
+
 // page suivi
 $router->get('/presence', [ $Controller, 'presence' ]);
 $router->get('/personnel', [ $Controller, 'personnel' ]);
@@ -324,6 +312,12 @@ $router->get('/presence/presents/@date_debut:[0-9]{4}-[0-9]{2}-[0-9]{2}/@date_fi
 $router->get('/presence/annulation-possible/@id_seances:[0-9]+', function($id_seances) use ($presenceController) {
     return $presenceController->annulationPossible($id_seances) ? 'true' : 'false';
 });
+
+// Add this route for the professor presence page
+Flight::route('GET /api/cours-aujourdhui', [$presenceController, 'getCoursAujourdhui']);
+Flight::route('GET /api/eleves-seance/@id_seances', [$presenceController, 'getElevesParSeance']);
+Flight::route('POST /api/enregistrer-presence', [$presenceController, 'enregistrerPresence']);
+Flight::route('GET /presence_eleve', [$presenceController, 'showPresenceEleve']);
 
 // emploi du temps
 $coursController = new CoursController();
@@ -446,19 +440,14 @@ Flight::route('GET /ws/evolution/@id', function($id) {
     }
 });
 
-Flight::route('POST /ws/update_evolution', function(){
-    $data = Flight::request()->data->getData();
+Flight::route('POST /ws/update_evolution', function() {
+    $params = Flight::request()->data->getData();
+    $profId = 1; // ou adapte selon ton système
     $model = new EvolutionModel();
-
-    $prof = 1; // Remplace par l’ID du professeur connecté si tu as une session
-    $result = $model->updateEvolution($prof, $data);
-
-    if ($result) {
-        Flight::json(['success' => true, 'message' => 'Évolution mise à jour avec succès']);
-    } else {
-        Flight::json(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
-    }
+    $ok = $model->updateEvolution($profId, $params);
+    Flight::json(['success' => $ok]);
 });
+
 Flight::route('GET /ws/delete_evolution/@id', function($id){
     $model = new EvolutionModel(); // adapte selon ton modèle
     $result = $model->deleteEvolution($id);
@@ -474,6 +463,39 @@ Flight::route('GET /ws/delete_evolution/@id', function($id){
 Flight::route('GET /suivi-presence', ['app\\controllers\\presence\\PresenceController', 'showSuiviPresence']);
 Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\PresenceController', 'getAbsencesData']);
 Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
+
+
+
+$abonnementController = new AbonnementController();
+// Liste des abonnements
+Flight::route('GET /abonnements', [$abonnementController, 'index']);
+
+// Afficher un abonnement spécifique
+Flight::route('GET /abonnement/show/@id', [$abonnementController, 'show']);
+
+// Créer un abonnement
+Flight::route('GET /abonnement/create', [$abonnementController, 'createForm']);
+Flight::route('POST /abonnement/create', [$abonnementController, 'create']);
+
+// Modifier un abonnement
+Flight::route('GET /abonnement/edit/@id', [$abonnementController, 'editForm']);
+Flight::route('POST /abonnement/update/@id', [$abonnementController, 'update']);
+
+// Supprimer un abonnement
+Flight::route('GET /abonnement/delete/@id', [$abonnementController, 'delete']);
+
+// Annuler un abonnement
+Flight::route('GET /abonnement/annuler/@id', [$abonnementController, 'annulerForm']);
+Flight::route('POST /abonnement/annuler/@id', [$abonnementController, 'annuler']);
+
+// Vérifier si un abonnement est actif
+Flight::route('GET /abonnement/is_active/@id', [$abonnementController, 'isActive']);
+
+// Vérifier les jours restants d'un abonnement
+Flight::route('GET /abonnement/days_remaining/@id', [$abonnementController, 'daysRemaining']);
+
+ //// Genre
+//$router->get('/api/genres', [ $genreController, 'getAll' ]);
 
 
 
@@ -503,6 +525,4 @@ Flight::route('POST /api/ecolage/payer', function() {
 });
 
 
-//// Genre
-//$router->get('/api/genres', [ $genreController, 'getAll' ]);
 ?>

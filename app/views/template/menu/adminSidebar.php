@@ -22,6 +22,12 @@
                         <span>abonnement</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/statistiques/sorties" class='sidebar-link'>
+                        <i class="bi bi-graph-up"></i>
+                        <span>statistiques de sortie</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-title">Suivi</li>
                 <li class="sidebar-item">
@@ -55,6 +61,12 @@
                     <a href="<?= Flight::base() ?>/finance" class='sidebar-link'>
                         <i class="bi bi-bank"></i>
                         <span>finance</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/abonnements" class='sidebar-link'>
+                        <i class="bi bi-bank"></i>
+                        <span>gestion abonnement</span>
                     </a>
                 </li>
         

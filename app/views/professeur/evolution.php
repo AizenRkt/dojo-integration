@@ -151,7 +151,11 @@
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
                                             <small class="star">
-                                                <?= str_repeat('★', $e['note']).str_repeat('☆', 5 - $e['note']) ?>
+                                                <?php
+                                                    $note = isset($e['note']) ? $e['note'] : 0;
+                                                    $noteRounded = round($note);
+                                                    echo str_repeat('★', $noteRounded) . str_repeat('☆', 5 - $noteRounded);
+                                                ?>
                                             </small>
                                         </div>
                                     </a>
@@ -349,12 +353,41 @@
     });
 
     // Recherche
+    // document.getElementById('searchStudent').addEventListener('input', function () {
+    //   const searchTerm = this.value.toLowerCase();
+    //   document.querySelectorAll('#studentsList .student-item').forEach(item => {
+    //     const fullName = item.textContent.toLowerCase();
+    //     item.style.display = fullName.includes(searchTerm) ? '' : 'none';
+    //   });
+    // });
+
+    // Enhanced search functionality
     document.getElementById('searchStudent').addEventListener('input', function () {
-      const searchTerm = this.value.toLowerCase();
-      document.querySelectorAll('#studentsList .student-item').forEach(item => {
-        const fullName = item.textContent.toLowerCase();
-        item.style.display = fullName.includes(searchTerm) ? '' : 'none';
-      });
+        const searchTerm = this.value.toLowerCase().trim();
+        const studentItems = document.querySelectorAll('#studentsList .student-item');
+        let visibleCount = 0;
+
+        studentItems.forEach(item => {
+            const nameElement = item.querySelector('h5');
+            if (nameElement) {
+                const fullName = nameElement.textContent.toLowerCase();
+                const isVisible = fullName.includes(searchTerm);
+                item.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            }
+        });
+
+        // Show "no results" message if no students match
+        const noResultsMsg = document.getElementById('noResultsMsg');
+        if (noResultsMsg) noResultsMsg.remove();
+
+        if (visibleCount === 0 && searchTerm !== '') {
+            const noResults = document.createElement('div');
+            noResults.id = 'noResultsMsg';
+            noResults.className = 'text-muted p-3 text-center';
+            noResults.textContent = 'Aucun élève trouvé';
+            document.getElementById('studentsList').appendChild(noResults);
+        }
     });
 
     // Modifier + supprimer
@@ -388,7 +421,7 @@
         fetch(`${BASE_URL}/ws/evolution/${idEvolution}`)
           .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
           .then(data => {
-            document.getElementById('editIdEvolution').value = data.id;
+            document.getElementById('editIdEvolution').value = data.id_evolution;
             document.getElementById('editIdEleve').value = data.id_eleve;
             document.getElementById('editAvis').value = data.avis;
             editNote = data.note;
@@ -408,37 +441,76 @@
       }
     });
 
+    saveBtn.addEventListener('click', () => {
+        const idEleve = selectedInput.value;
+        const avis = commentEl.value.trim();
+        const note = currentNote;
+
+        if (!idEleve || note === 0 || avis === "") {
+            alert("Veuillez sélectionner un élève, attribuer une note et écrire un commentaire.");
+            return;
+        }
+
+        const data = {
+            id_eleve: idEleve,
+            note: note,
+            avis: avis
+        };
+
+        fetch(`${BASE_URL}/ws/evaluation_add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(response => {
+            if (response.success) {
+                alert("Évaluation enregistrée !");
+                document.querySelector(`.student-item[data-student-id="${idEleve}"]`).click();
+            } else {
+                alert("Erreur : " + response.message);
+            }
+        })
+        .catch(err => {
+            alert("Erreur réseau ou JSON invalide");
+            console.error(err);
+        });
+    });
+
+
     // Enregistrement modification
     editForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const formData = new FormData(editForm);
-      const data = {
-        evolution: formData.get('evolution'),
-        idEleve: formData.get('idEleve'),
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    const data = {
+        evolution: formData.get('evolution'), // id_evolution
         avis: formData.get('avis'),
-        note: editModal.dataset.note || 0
-      };
+        note: Number(editModal.dataset.note || 0) // convertit en nombre
+    };
 
-      fetch(`${BASE_URL}/ws/update_evolution`, {
+    fetch(`${BASE_URL}/ws/update_evolution`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      })
+    })
         .then(r => r.json())
         .then(response => {
-          if (response.success) {
+        if (response.success) {
             alert("Évolution mise à jour !");
             editModal.style.display = 'none';
-            document.querySelector(`.student-item[data-student-id="${data.idEleve}"]`).click();
-          } else {
+            document.querySelector(`.student-item[data-student-id="${formData.get('idEleve')}"]`).click();
+        } else {
             alert("Erreur : " + response.message);
-          }
+        }
         })
         .catch(err => {
-          alert("Erreur lors de la mise à jour");
-          console.error(err);
+        alert("Erreur lors de la mise à jour");
+        console.error(err);
         });
     });
+
   });
 </script>
 
