@@ -151,7 +151,10 @@
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
                                             <small class="star">
-                                                <?= str_repeat('★', $e['note']).str_repeat('☆', 5 - $e['note']) ?>
+                                                <?php 
+                                                    $note = isset($e['note']) ? $e['note'] : 0;
+                                                    echo str_repeat('★', $note) . str_repeat('☆', 5 - $note);
+                                                ?>
                                             </small>
                                         </div>
                                     </a>
@@ -388,7 +391,7 @@
         fetch(`${BASE_URL}/ws/evolution/${idEvolution}`)
           .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
           .then(data => {
-            document.getElementById('editIdEvolution').value = data.id;
+            document.getElementById('editIdEvolution').value = data.id_evolution;
             document.getElementById('editIdEleve').value = data.id_eleve;
             document.getElementById('editAvis').value = data.avis;
             editNote = data.note;
@@ -407,6 +410,45 @@
         editModal.style.display = 'none';
       }
     });
+
+    saveBtn.addEventListener('click', () => {
+        const idEleve = selectedInput.value;
+        const avis = commentEl.value.trim();
+        const note = currentNote;
+
+        if (!idEleve || note === 0 || avis === "") {
+            alert("Veuillez sélectionner un élève, attribuer une note et écrire un commentaire.");
+            return;
+        }
+
+        const data = {
+            id_eleve: idEleve,
+            note: note,
+            avis: avis
+        };
+
+        fetch(`${BASE_URL}/ws/evaluation_add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(response => {
+            if (response.success) {
+                alert("Évaluation enregistrée !");
+                document.querySelector(`.student-item[data-student-id="${idEleve}"]`).click();
+            } else {
+                alert("Erreur : " + response.message);
+            }
+        })
+        .catch(err => {
+            alert("Erreur réseau ou JSON invalide");
+            console.error(err);
+        });
+    });
+
 
     // Enregistrement modification
     editForm.addEventListener('submit', function (e) {

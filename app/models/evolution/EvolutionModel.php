@@ -18,14 +18,19 @@ class EvolutionModel {
     public function getElevesAvecEtoile() {
         try {
             $db = Flight::db();
-            $sql = "SELECT e.*, ev.* 
-            FROM eleve e
-            JOIN evolution ev ON e.id_eleve = ev.id_eleve
-            JOIN (
-                SELECT id_eleve, MAX(date_evolution) as max_date
-                FROM evolution
-                GROUP BY id_eleve
-            ) latest ON ev.id_eleve = latest.id_eleve AND ev.date_evolution = latest.max_date";
+            $sql = "SELECT e.*, ev.note
+                FROM eleve e
+                LEFT JOIN (
+                    SELECT ev1.id_eleve, ev1.note
+                    FROM evolution ev1
+                    INNER JOIN (
+                        SELECT id_eleve, MAX(date_evolution) as max_date
+                        FROM evolution
+                        GROUP BY id_eleve
+                    ) latest ON ev1.id_eleve = latest.id_eleve AND ev1.date_evolution = latest.max_date
+                ) ev ON e.id_eleve = ev.id_eleve
+                ORDER BY e.nom
+            ";
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -78,17 +83,6 @@ class EvolutionModel {
             return null;
         }
     }
-
-    // public function getEleveById($id) {
-    //     try {
-    //         $sql = "SELECT * FROM eleve WHERE id_eleve = :id";
-    //         $stmt = $this->db->prepare($sql);
-    //         $stmt->execute(['id' => $id]);
-    //         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-    //     } catch (PDOException $e) {
-    //         return null;
-    //     }
-    // }
 
     public static function getHistoriqueEvaluations($id_eleve) {
         $db = Flight::db();
