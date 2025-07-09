@@ -57,7 +57,7 @@ class Controller {
         Flight::redirect('/');
     }
     public function signin() {
-        Flight::render('template/auth/signin');
+        Flight::render('template/auth/sigin');
 
     }
 

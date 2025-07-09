@@ -14,26 +14,23 @@ INSERT INTO admin (nom, prenom, contact, email)
 VALUES ('Admin', 'Principal', '0123456789', 'admin@dojo.com');
 
 
-INSERT INTO login (username, mot_de_passe, role, id_personnel)
+INSERT INTO login (username, mot_de_passe, role)
 VALUES (
   'superviseur',
   'mdp2',
-  'superviseur',
-  2
+  'superviseur'
 );
 
-INSERT INTO login (username, mot_de_passe, role, id_personnel)
+INSERT INTO login (username, mot_de_passe, role)
 VALUES (
   'prof',
   'mdp2',
-  'prof',
-  1
+  'prof'
 );
 
-INSERT INTO login (username, mot_de_passe, role, id_personnel)
+INSERT INTO login (username, mot_de_passe, role)
 VALUES (
   'admin',
   'mdp2',
-  'admin',
-  3
+  'admin'
 );
