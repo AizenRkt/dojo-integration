@@ -143,9 +143,9 @@ class Controller {
     }
 
 
-    public function edt() {
-        Flight::render('gestion/edt');
-    }
+    // public function edt() {
+    //     Flight::render('gestion/edt');
+    // }
 
     public function finance() {
         Flight::render('gestion/finance');

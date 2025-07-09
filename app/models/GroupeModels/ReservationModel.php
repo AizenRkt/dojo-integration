@@ -4,6 +4,7 @@ namespace app\models\GroupeModels;
 
 use PDO;
 use Flight;
+use Exception;
 
 class ReservationModel {
 
@@ -186,6 +187,127 @@ class ReservationModel {
             return [];
         }
     }
+
+    public function getActivitesClubs($mois, $annee) {
+        $resultats = [];
+        $db = Flight::db();
+        // --- 1. Abonnements actifs pour chaque jour du mois ---
+        $sqlAbonnement = "
+            SELECT 
+                a.jour,
+                a.id_club,
+                c.nom_responsable AS club_nom,
+                c.discipline,
+                'abonnement' AS type
+            FROM abonnement a
+            JOIN club_groupe c ON c.id = a.id_club
+            WHERE a.mois = :mois AND a.annee = :annee AND a.actif = true
+        ";
+        $stmt1 = $db->prepare($sqlAbonnement);
+        $stmt1->execute([':mois' => $mois, ':annee' => $annee]);
+        $abonnements = $stmt1->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($abonnements as $a) {
+            // pour chaque jour du mois qui correspond au jour d’abonnement
+            for ($i = 1; $i <= 31; $i++) {
+                if (!checkdate($mois, $i, $annee)) continue;
+                $date = new \DateTime("$annee-$mois-$i");
+                if ($date->format('w') == $a['jour']) { // 0 = dimanche, 1 = lundi, etc.
+                    $jour = intval($date->format('j'));
+                    $resultats[$jour][] = $a;
+                }
+            }
+        }
+
+        // --- 2. Réservations confirmées ---
+        $sqlResa = "
+            SELECT 
+                r.date_reserve,
+                r.heure_debut,
+                r.heure_fin,
+                c.nom_responsable AS club_nom,
+                c.discipline,
+                'reservation' AS type
+            FROM reservation r
+            JOIN club_groupe c ON r.id_club = c.id
+            WHERE 
+                r.valeur = 'confirme' AND
+                EXTRACT(MONTH FROM r.date_reserve) = :mois AND
+                EXTRACT(YEAR FROM r.date_reserve) = :annee
+        ";
+        $stmt2 = $db->prepare($sqlResa);
+        $stmt2->execute([':mois' => $mois, ':annee' => $annee]);
+        $reservations = $stmt2->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($reservations as $r) {
+            $jour = intval(date('j', strtotime($r['date_reserve'])));
+            $resultats[$jour][] = $r;
+        }
+
+        return $resultats;
+    }
+
+    public function getActivitesClubsJour($date) {
+        $db = Flight::db();
+        $resultats = [];
+
+        $jour = intval((new \DateTime($date))->format('w')); // 0 = dimanche, 1 = lundi, etc.
+        $mois = intval((new \DateTime($date))->format('n'));
+        $annee = intval((new \DateTime($date))->format('Y'));
+
+        // 1. Abonnements actifs pour ce jour de semaine
+        $sqlAbonnement = "
+            SELECT 
+                :date AS date_activite,
+                a.id_club,
+                c.nom_responsable AS club_nom,
+                c.discipline,
+                NULL AS heure_debut,
+                NULL AS heure_fin,
+                'abonnement' AS type
+            FROM abonnement a
+            JOIN club_groupe c ON c.id = a.id_club
+            WHERE 
+                a.mois = :mois 
+                AND a.annee = :annee 
+                AND a.actif = true
+                AND a.jour = :jour
+        ";
+        $stmt1 = $db->prepare($sqlAbonnement);
+        $stmt1->execute([
+            ':date' => $date,
+            ':mois' => $mois,
+            ':annee' => $annee,
+            ':jour' => $jour
+        ]);
+        $abonnements = $stmt1->fetchAll(\PDO::FETCH_ASSOC);
+
+        $resultats = array_merge($resultats, $abonnements);
+
+        // 2. Réservations confirmées à cette date
+        $sqlResa = "
+            SELECT 
+                r.date_reserve AS date_activite,
+                r.heure_debut,
+                r.heure_fin,
+                c.nom_responsable AS club_nom,
+                c.discipline,
+                'reservation' AS type
+            FROM reservation r
+            JOIN club_groupe c ON r.id_club = c.id
+            WHERE 
+                r.valeur = 'confirme'
+                AND r.date_reserve = :date
+        ";
+        $stmt2 = $db->prepare($sqlResa);
+        $stmt2->execute([':date' => $date]);
+        $reservations = $stmt2->fetchAll(\PDO::FETCH_ASSOC);
+
+        $resultats = array_merge($resultats, $reservations);
+
+        return $resultats;
+    }
+
 
 
 }

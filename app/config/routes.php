@@ -47,16 +47,16 @@ Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']
 // Routes existantes pour les salaires
 Flight::route('GET /gestion/finance/salaires', function() {
     $controller = new SalaireController();
-    $controller->index();
+    // $controller->index();
 });
 
 
 // page professeur
-$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
-$router->get('/evolution', [ $Controller, 'evolution' ]);
-$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
-$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
-$router->get('/compte', [ $Controller, 'compte' ]);
+// $router->get('/prof', [ $Controller, 'professeurSidebar' ]);
+// $router->get('/evolution', [ $Controller, 'evolution' ]);
+// $router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
+// $router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
+// $router->get('/compte', [ $Controller, 'compte' ]);
 
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
@@ -86,17 +86,17 @@ Flight::route('POST /api/salaires/payer', function() {
 
 Flight::route('PUT /api/salaires/config', function() {
     $controller = new SalaireController();
-    $controller->modifierConfigurationSalaire();
+    // $controller->modifierConfigurationSalaire();
 });
 
 Flight::route('GET /api/employes/recherche', function() {
     $controller = new SalaireController();
-    $controller->rechercherEmployes();
+    // $controller->rechercherEmployes();
 });
 
 Flight::route('GET /api/salaires/statistiques', function() {
     $controller = new SalaireController();
-    $controller->getStatistiques();
+    // $controller->getStatistiques();
 });
 
 
@@ -248,7 +248,6 @@ $router->post('/tarif/update/abonnement', [ $abonnement, 'updateTarifAbonnement'
 $router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
 
 
-$router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 
 
@@ -339,6 +338,7 @@ $router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
 // EDT
 $router->get('/calendrier', [$calendrierController, 'afficherMois']);
 $router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);
+$router->get('/edt', [ $calendrierController, 'afficherSemaine' ]);
 
 
 // abonnement 
