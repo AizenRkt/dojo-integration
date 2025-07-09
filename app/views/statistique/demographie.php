@@ -35,18 +35,13 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h4 class="card-title">Total Clients</h4>
-                                    <h2>56</h2>
+                                    <h4 class="card-title">Total Élèves</h4>
+                                    <h2><?= $totalEleves ?></h2>
                                 </div>
                                 <div class="btn-group">
                                     <button id="barBtn" class="btn btn-outline-primary active">Bar</button>
                                     <button id="lineBtn" class="btn btn-outline-primary">Line</button>
                                     <button id="doughnutBtn" class="btn btn-outline-primary">Doughnut</button>
-                                </div>
-                                <div>
-                                    <span><i class="fas fa-calendar-alt me-2"></i>Jun 17, 2024</span>
-                                    <span class="mx-2"><i class="fas fa-arrow-right"></i></span>
-                                    <span>Jun 22, 2025</span>
                                 </div>
                             </div>
 
@@ -70,26 +65,18 @@
                                     <div class="col-md-6">
                                         <div class="progress-group mb-4">
                                             <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Homme (20-60 ans)</div><div>22%</div>
+                                                <div>Homme</div><div><?= $pourcentageHomme ?>%</div>
                                             </div>
                                             <div class="progress">
-                                                <div class="progress-bar bg-info" style="width: 22%;"></div>
+                                                <div class="progress-bar bg-info" style="width: <?= $pourcentageHomme ?>%;"></div>
                                             </div>
                                         </div>
                                         <div class="progress-group mb-4">
                                             <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Femme (20-50 ans)</div><div>71%</div>
+                                                <div>Femme</div><div><?= $pourcentageFemme ?>%</div>
                                             </div>
                                             <div class="progress">
-                                                <div class="progress-bar bg-primary" style="width: 71%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="progress-group mb-4">
-                                            <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Enfants (5-10 ans)</div><div>17%</div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-secondary" style="width: 17%;"></div>
+                                                <div class="progress-bar bg-info" style="width: <?= $pourcentageFemme ?>%;"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -106,44 +93,42 @@
     const doughnutCtx = document.getElementById('doughnutChartCanvas').getContext('2d');
     let myChart;
 
-    const barData = {
-        labels: ['10-12', '16-18', '20-30', '30-40', '40-60'],
-        datasets: [{
-            label: 'Femme',
-            data: [28, 12, 20, 25, 15],
-            backgroundColor: '#4db6ac'
-        }, {
-            label: 'Homme',
-            data: [20, 15, 35, 8, 12],
-            backgroundColor: '#80deea'
-        }]
-    };
+    const ageGenreRawData = <?= $ageGenreData ?>;
+    const genreCounts = <?= $genreData ?>;
 
-    const lineData = {
-        labels: ['10-12', '16-18', '20-30', '30-40', '40-60'],
-        datasets: [{
-            label: 'Femme',
-            data: [5, 15, 25, 20, 8],
-            borderColor: '#4db6ac',
-            backgroundColor: 'transparent',
-            tension: 0.4
-        }, {
-            label: 'Homme',
-            data: [18, 40, 15, 28, 10],
-            borderColor: '#80deea',
-            backgroundColor: 'transparent',
-            tension: 0.4
-        }]
-    };
+    const labels = [...new Set(ageGenreRawData.map(item => item.age_range))];
+
+    const femmes = labels.map(label =>
+        (ageGenreRawData.find(d => d.age_range === label && d.genre === 'Femme') || {}).total || 0
+    );
+    const hommes = labels.map(label =>
+        (ageGenreRawData.find(d => d.age_range === label && d.genre === 'Homme') || {}).total || 0
+    );
 
     const doughnutData = {
-        labels: ['Homme', 'Femme', 'Enfants'],
+        labels: genreCounts.map(d => d.label),
         datasets: [{
-            data: [22, 71, 17],
-            backgroundColor: ['#4db6ac', '#80deea', '#a7c5c6'],
+            data: genreCounts.map(d => d.total),
+            backgroundColor: ['#435ebe', '#0dcaf0', '#a7c5c6'],
             borderWidth: 0,
             cutout: '70%'
         }]
+    };
+
+    const barData = {
+        labels: labels,
+        datasets: [
+            { label: 'Femme', data: femmes, backgroundColor: '#435ebe' },
+            { label: 'Homme', data: hommes, backgroundColor: '#0dcaf0' }
+        ]
+    };
+
+    const lineData = {
+        labels: labels,
+        datasets: [
+            { label: 'Femme', data: femmes, borderColor: '#435ebe', backgroundColor: 'transparent', tension: 0.4 },
+            { label: 'Homme', data: hommes, borderColor: '#0dcaf0', backgroundColor: 'transparent', tension: 0.4 }
+        ]
     };
 
     const commonOptions = {
