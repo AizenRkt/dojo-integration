@@ -13,7 +13,7 @@
                 <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/evolution" class='sidebar-link'>
                         <i class="bi bi-box-seam"></i>
-                        <span>évolution</span>
+                        <span>Suivi p&eacute;dagogique</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
