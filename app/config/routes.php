@@ -20,6 +20,7 @@ use app\controllers\individu\GenreController;
 use app\controllers\individu\ProfController;
 use app\controllers\individu\SuperviseurController;
 use app\controllers\EvolutionController;
+use app\controllers\EcolageController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
@@ -473,6 +474,33 @@ Flight::route('GET /ws/delete_evolution/@id', function($id){
 Flight::route('GET /suivi-presence', ['app\\controllers\\presence\\PresenceController', 'showSuiviPresence']);
 Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\PresenceController', 'getAbsencesData']);
 Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
+
+
+
+Flight::route('GET /api/ecolage/eleves', function() {
+    $controller = new EcolageController();
+    $controller->getAllEleves();
+});
+
+Flight::route('GET /api/ecolage/eleves/@id', function($id) {
+    $controller = new EcolageController();
+    $controller->getEleveById($id);
+});
+
+Flight::route('GET /api/ecolage/prochain-mois/@id_eleve', function($id_eleve) {
+    $controller = new EcolageController();
+    $controller->getProchainMois($id_eleve);
+});
+
+Flight::route('GET /api/ecolage/reste-a-payer', function() {
+    $controller = new EcolageController();
+    $controller->getResteEcolage();
+});
+
+Flight::route('POST /api/ecolage/payer', function() {
+    $controller = new EcolageController();
+    $controller->payerEcolage();
+});
 
 
 //// Genre

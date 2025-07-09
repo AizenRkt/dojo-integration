@@ -62,3 +62,81 @@ INSERT INTO evolution (id_prof, id_eleve, avis, note, date_evolution) VALUES
 INSERT INTO gestion_taxe (taux_tva, date_application)
 VALUES (20.00, '2024-07-09 08:00:00');
 
+-- Élève 1 : Inscrit en janvier 2023
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, date_inscription, id_genre)
+VALUES (
+    'Rakoto', 
+    'Jean', 
+    '2010-05-15', 
+    'Lot II A 123 Bis, Antananarivo', 
+    '0341234567', 
+    '2023-01-10 09:30:00', 
+    1  -- id_genre pour Masculin
+);
+
+-- Élève 2 : Inscrit en mars 2023
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, date_inscription, id_genre)
+VALUES (
+    'Rasoa', 
+    'Marie', 
+    '2012-08-22', 
+    'Lot VF 45, Antsirabe', 
+    '0329876543', 
+    '2023-03-15 14:15:00', 
+    2  -- id_genre pour Féminin
+);
+
+-- Élève 3 : Inscrit en septembre 2023
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, date_inscription, id_genre)
+VALUES (
+    'Randria', 
+    'Paul', 
+    '2000-11-30', 
+    'Rue du Commerce 12, Fianarantsoa', 
+    '0334567890', 
+    '2023-09-05 10:45:00', 
+    1
+);
+
+-- Élève 4 : Inscrit en décembre 2023
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, date_inscription, id_genre)
+VALUES (
+    'Andriamalala', 
+    'Sofia', 
+    '2011-03-18', 
+    'Ampasamadinika, Toamasina', 
+    '0387654321', 
+    '2023-12-20 08:00:00', 
+    2
+);
+
+-- Élève 5 : Inscrit en avril 2024
+INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, date_inscription, id_genre)
+VALUES (
+    'Ravelojaona', 
+    'Tiana', 
+    '2013-07-25', 
+    'Ankadifotsy, Antananarivo', 
+    '0345678912', 
+    '2024-04-02 11:20:00', 
+    2
+);
+
+SELECT 
+    mois,
+    annee,
+    SUM(montant) AS montant_total,
+    ARRAY_AGG(TO_CHAR(date_paiement, 'DD/MM/YYYY HH24:MI')) AS dates_paiement,
+    ARRAY_AGG(statut) AS statuts
+FROM ecolage WHERE id_eleve = 4 GROUP BY annee, mois ORDER BY annee DESC, mois DESC;
+
+SELECT 
+                    mois,
+                    annee,
+                    SUM(montant) AS montant_total,
+                    ARRAY_AGG(TO_CHAR(date_paiement, 'DD/MM/YYYY HH24:MI')) AS dates_paiement,
+                    ARRAY_AGG(statut) AS statuts
+                FROM ecolage
+                WHERE id_eleve = 4
+                GROUP BY annee, mois
+                ORDER BY annee DESC, mois DESC;
