@@ -58,7 +58,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive datatable-minimal">
-                            <table class="table" id="table1">
+                            <table class="table" id="table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>

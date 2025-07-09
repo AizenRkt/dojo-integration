@@ -151,8 +151,27 @@
     }
 
     // Gestion du clic sur le bouton "Rechercher"
+    // Gestion du clic sur le bouton "Rechercher"
     document.querySelector(".btn.btn-success").addEventListener("click", function () {
-        fetch(`<?= Flight::base() ?>/api/suivi-presence/absences`)
+        const dateDebut = document.getElementById('date-debut').value;
+        const dateFin = document.getElementById('date-fin').value;
+
+        // Build URL with date parameters
+        let url = `<?= Flight::base() ?>/api/suivi-presence/absences`;
+        const params = new URLSearchParams();
+
+        if (dateDebut) {
+            params.append('date_debut', dateDebut);
+        }
+        if (dateFin) {
+            params.append('date_fin', dateFin);
+        }
+
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+
+        fetch(url)
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
@@ -168,11 +187,14 @@
                         tr.className = "person-item";
                         tr.dataset.id = eleve.id_eleve;
                         tr.innerHTML = `
-                            <td>${eleve.nom} ${eleve.prenom}</td>
-                            <td>${eleve.nb_absences > 0 ? eleve.nb_absences : '0'}</td>
-                          `;
+                        <td>${eleve.nom} ${eleve.prenom}</td>
+                        <td>${eleve.nb_absences > 0 ? eleve.nb_absences : '0'}</td>
+                      `;
                         tbody.appendChild(tr);
                     });
+
+                    // Update total count
+                    document.getElementById('total-people').textContent = res.data.length;
 
                     initDataTable();
                     attachRowClickEvents();
