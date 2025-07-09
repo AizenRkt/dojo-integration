@@ -151,7 +151,10 @@
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
                                             <small class="star">
-                                                <?= str_repeat('★', $e['note']).str_repeat('☆', 5 - $e['note']) ?>
+                                                <?php 
+                                                    $note = isset($e['note']) ? $e['note'] : 0;
+                                                    echo str_repeat('★', $note) . str_repeat('☆', 5 - $note);
+                                                ?>
                                             </small>
                                         </div>
                                     </a>
@@ -388,7 +391,7 @@
         fetch(`${BASE_URL}/ws/evolution/${idEvolution}`)
           .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
           .then(data => {
-            document.getElementById('editIdEvolution').value = data.id;
+            document.getElementById('editIdEvolution').value = data.id_evolution;
             document.getElementById('editIdEleve').value = data.id_eleve;
             document.getElementById('editAvis').value = data.avis;
             editNote = data.note;
@@ -408,37 +411,76 @@
       }
     });
 
+    saveBtn.addEventListener('click', () => {
+        const idEleve = selectedInput.value;
+        const avis = commentEl.value.trim();
+        const note = currentNote;
+
+        if (!idEleve || note === 0 || avis === "") {
+            alert("Veuillez sélectionner un élève, attribuer une note et écrire un commentaire.");
+            return;
+        }
+
+        const data = {
+            id_eleve: idEleve,
+            note: note,
+            avis: avis
+        };
+
+        fetch(`${BASE_URL}/ws/evaluation_add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(response => {
+            if (response.success) {
+                alert("Évaluation enregistrée !");
+                document.querySelector(`.student-item[data-student-id="${idEleve}"]`).click();
+            } else {
+                alert("Erreur : " + response.message);
+            }
+        })
+        .catch(err => {
+            alert("Erreur réseau ou JSON invalide");
+            console.error(err);
+        });
+    });
+
+
     // Enregistrement modification
     editForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const formData = new FormData(editForm);
-      const data = {
-        evolution: formData.get('evolution'),
-        idEleve: formData.get('idEleve'),
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    const data = {
+        evolution: formData.get('evolution'), // id_evolution
         avis: formData.get('avis'),
-        note: editModal.dataset.note || 0
-      };
+        note: Number(editModal.dataset.note || 0) // convertit en nombre
+    };
 
-      fetch(`${BASE_URL}/ws/update_evolution`, {
+    fetch(`${BASE_URL}/ws/update_evolution`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      })
+    })
         .then(r => r.json())
         .then(response => {
-          if (response.success) {
+        if (response.success) {
             alert("Évolution mise à jour !");
             editModal.style.display = 'none';
-            document.querySelector(`.student-item[data-student-id="${data.idEleve}"]`).click();
-          } else {
+            document.querySelector(`.student-item[data-student-id="${formData.get('idEleve')}"]`).click();
+        } else {
             alert("Erreur : " + response.message);
-          }
+        }
         })
         .catch(err => {
-          alert("Erreur lors de la mise à jour");
-          console.error(err);
+        alert("Erreur lors de la mise à jour");
+        console.error(err);
         });
     });
+
   });
 </script>
 
