@@ -34,7 +34,7 @@ class FactureController {
         // Infos en-tête
         $pdf->SetFont('Arial', '', 12);
         $pdf->Cell(100, 10, 'Date de la facture: ' . date('d/m/Y'), 0, 0);
-        $pdf->Cell(0, 10, 'N° Facture: SAL-' . str_pad($id_suivi, 5, '0', STR_PAD_LEFT), 0, 1);
+        $pdf->Cell(0, 10, 'Numero Facture: SAL-' . str_pad($id_suivi, 5, '0', STR_PAD_LEFT), 0, 1);
         $pdf->Cell(100, 10, 'Date de paiement: ' . date('d/m/Y', strtotime($data['date_paiement'])), 0, 0);
         $pdf->Cell(0, 10, 'Date d echeance: ' . date('d/m/Y', strtotime($data['date_paiement'] . ' +15 days')), 0, 1);
 

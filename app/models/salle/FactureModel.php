@@ -40,5 +40,4 @@ class FactureModel {
         $stmt = $this->db->prepare("UPDATE {$this->table} SET est_paye = TRUE WHERE id_facture = :id");
         return $stmt->execute([':id' => $id_facture]);
     }
-
 }
