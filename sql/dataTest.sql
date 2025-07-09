@@ -13,6 +13,7 @@ INSERT INTO genre (label) VALUES ('Homme'), ('Femme');
 INSERT INTO admin (nom, prenom, contact, email)
 VALUES ('Admin', 'Principal', '0123456789', 'admin@dojo.com');
 
+
 INSERT INTO login (username, mot_de_passe, role)
 VALUES (
   'superviseur',
@@ -56,4 +57,9 @@ INSERT INTO evolution (id_prof, id_eleve, avis, note, date_evolution) VALUES
 (1, 5, 'Bon potentiel mais travail irrégulier', 2, '2025-05-05'),
 (3, 1, 'Très créatif, excellente approche des problèmes', 4, '2025-06-06'),
 (1, 3, 'Doit revoir certaines bases en sciences', 3, '2025-07-07');
+
+
+
+INSERT INTO gestion_taxe (taux_tva, date_application)
+VALUES (20.00, '2024-07-09 08:00:00');
 
