@@ -210,7 +210,6 @@
     </div>
     
     <!-- Scripts -->
-    <script src="<?= Flight::base() ?>/public/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
     <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
     <script src="<?= Flight::base() ?>/public/assets/extensions/jquery/jquery.min.js"></script>
