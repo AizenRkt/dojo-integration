@@ -45,13 +45,13 @@ Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']
 
 
 // Routes existantes pour les salaires
-Flight::route('GET /gestion/finance/salaires', function() {
-    $controller = new SalaireController();
-    $controller->index();
-});
-
+// Flight::route('GET /gestion/finance/salaires', function() {
+//     $controller = new SalaireController();
+//     $controller->index();
+// });
 
 // page professeur
+$Controller = new Controller();
 $router->get('/prof', [ $Controller, 'professeurSidebar' ]);
 $router->get('/evolution', [ $Controller, 'evolution' ]);
 $router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
@@ -84,20 +84,20 @@ Flight::route('POST /api/salaires/payer', function() {
     $controller->payerSalaire();
 });
 
-Flight::route('PUT /api/salaires/config', function() {
-    $controller = new SalaireController();
-    $controller->modifierConfigurationSalaire();
-});
+// Flight::route('PUT /api/salaires/config', function() {
+//     $controller = new SalaireController();
+//     $controller->modifierConfigurationSalaire();
+// });
 
-Flight::route('GET /api/employes/recherche', function() {
-    $controller = new SalaireController();
-    $controller->rechercherEmployes();
-});
+// Flight::route('GET /api/employes/recherche', function() {
+//     $controller = new SalaireController();
+//     $controller->rechercherEmployes();
+// });
 
-Flight::route('GET /api/salaires/statistiques', function() {
-    $controller = new SalaireController();
-    $controller->getStatistiques();
-});
+// Flight::route('GET /api/salaires/statistiques', function() {
+//     $controller = new SalaireController();
+//     $controller->getStatistiques();
+// });
 
 
 // Add these routes to your routes.php file:
