@@ -410,35 +410,35 @@
 
     // Enregistrement modification
     editForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const formData = new FormData(editForm);
-      const data = {
-        evolution: formData.get('evolution'),
-        idEleve: formData.get('idEleve'),
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    const data = {
+        evolution: formData.get('evolution'), // id_evolution
         avis: formData.get('avis'),
-        note: editModal.dataset.note || 0
-      };
+        note: Number(editModal.dataset.note || 0) // convertit en nombre
+    };
 
-      fetch(`${BASE_URL}/ws/update_evolution`, {
+    fetch(`${BASE_URL}/ws/update_evolution`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      })
+    })
         .then(r => r.json())
         .then(response => {
-          if (response.success) {
+        if (response.success) {
             alert("Évolution mise à jour !");
             editModal.style.display = 'none';
-            document.querySelector(`.student-item[data-student-id="${data.idEleve}"]`).click();
-          } else {
+            document.querySelector(`.student-item[data-student-id="${formData.get('idEleve')}"]`).click();
+        } else {
             alert("Erreur : " + response.message);
-          }
+        }
         })
         .catch(err => {
-          alert("Erreur lors de la mise à jour");
-          console.error(err);
+        alert("Erreur lors de la mise à jour");
+        console.error(err);
         });
     });
+
   });
 </script>
 

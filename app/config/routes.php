@@ -445,19 +445,14 @@ Flight::route('GET /ws/evolution/@id', function($id) {
     }
 });
 
-Flight::route('POST /ws/update_evolution', function(){
-    $data = Flight::request()->data->getData();
+Flight::route('POST /ws/update_evolution', function() {
+    $params = Flight::request()->data->getData();
+    $profId = 1; // ou adapte selon ton système
     $model = new EvolutionModel();
-
-    $prof = 1; // Remplace par l’ID du professeur connecté si tu as une session
-    $result = $model->updateEvolution($prof, $data);
-
-    if ($result) {
-        Flight::json(['success' => true, 'message' => 'Évolution mise à jour avec succès']);
-    } else {
-        Flight::json(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
-    }
+    $ok = $model->updateEvolution($profId, $params);
+    Flight::json(['success' => $ok]);
 });
+
 Flight::route('GET /ws/delete_evolution/@id', function($id){
     $model = new EvolutionModel(); // adapte selon ton modèle
     $result = $model->deleteEvolution($id);
