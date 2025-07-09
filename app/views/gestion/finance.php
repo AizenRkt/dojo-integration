@@ -845,14 +845,18 @@
                 }
 
                 historique.forEach(paiement => {
+                    console.log(paiement);
                     const row = document.createElement('tr');
-                    row.innerHTML = `
+                            row.innerHTML = `
                                 <td>${formatDate(paiement.date_paiement)}</td>
                                 <td>${getMoisNom(paiement.mois_a_payer)} ${paiement.annee_a_payer}</td>
                                 <td>${formatMontant(paiement.montant)}</td>
                                 <td><span class="badge bg-info">${capitalizeFirst(paiement.mode_paiement)}</span></td>
                                 <td>${paiement.remarques || '-'}</td>
+                                <td><a href="<?= Flight::base() ?>/facture/salaire/${paiement.id_suivi_salaire}" class="btn btn-sm btn-primary" target="_blank">Facturer</a></td>
+                            
                             `;
+
                     tbody.appendChild(row);
                 });
             }// Charger les configurations de salaires au chargement de la page

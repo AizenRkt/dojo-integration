@@ -3,23 +3,32 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo">
-                    <a href="<?= Flight::base() ?>/"><img style="width: 250px; height:auto" src="<?= Flight::base() ?>/public/img/logo.png" alt="logo" srcset=""></a>
+                    <a href="<?= Flight::base() ?>/"><img style="width: 250px; height:auto" src="<?= Flight::base() ?>/public/assets/static/images/logo/logo.png" alt="logo" srcset=""></a>
                 </div>
             </div>
         </div>
         <div class="sidebar-menu">
-            <ul class="menu"> 
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/materiel-salle" class='sidebar-link'>
+            <ul class="menu">
+                <li class="sidebar-title">suivi</li> 
+                <li class="sidebar-item  has-sub">
+                    <a href="#" class="sidebar-link">
                         <i class="bi bi-box-seam"></i>
-                        <span>suivi matériel et salle</span>
+                        <span>matériel et salle</span>                    
                     </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/declaration-accident" class='sidebar-link'>
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>déclaration accident</span>
-                    </a>
+                    <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
+                        <li class="submenu-item  ">
+                            <a href="<?= Flight::base() ?>/materiel" class="submenu-link">matériel</a>
+                        </li>
+                        <li class="submenu-item  ">
+                            <a href="<?= Flight::base() ?>/stock" class="submenu-link">stock matériel</a>
+                        </li>
+                        <li class="submenu-item  ">
+                            <a href="<?= Flight::base() ?>/suivi-salle" class="submenu-link">suivi salle</a>
+                        </li>
+                        <li class="submenu-item  ">
+                            <a href="<?= Flight::base() ?>/facturation/liste" class="submenu-link">facturation</a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/pointage-professeur" class='sidebar-link'>
@@ -27,28 +36,31 @@
                         <span>pointage professeur</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/inscription-eleve" class='sidebar-link'>
-                        <i class="bi bi-person-plus-fill"></i>
-                        <span>inscription élève</span>
-                    </a>
-                </li>
 
-                <!-- <li class="sidebar-item  has-sub">
+                <li class="sidebar-item  has-sub">
                     <a href="#" class="sidebar-link">
-                        <i class="bi bi-table"></i>
-                        <span>Table des suivis</span>
+                        <i class="bi bi-person"></i>
+                        <span>élève</span>
                     </a>
                 
                     <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
                         <li class="submenu-item  ">
-                            <a href="<?= Flight::base() ?>/liste/District" class="submenu-link">districtes</a>
+                            <a href="<?= Flight::base() ?>/eleves" class="submenu-link">liste</a>
                         </li>
                         <li class="submenu-item  ">
-                            <a href="<?= Flight::base() ?>/liste/Commune" class="submenu-link">communes</a>
+                            <a href="<?= Flight::base() ?>/eleves/create" class="submenu-link">inscription</a>
                         </li>
+
                     </ul>
-                </li>   -->
+                </li>
+
+                <li class="sidebar-title">connexion</li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/logout" class='sidebar-link'>
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>déconnexion</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
