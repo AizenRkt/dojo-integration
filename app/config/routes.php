@@ -250,7 +250,6 @@ $router->post('/tarif/update/abonnement', [ $abonnement, 'updateTarifAbonnement'
 $router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
 
 
-$router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 
 
@@ -341,6 +340,8 @@ $router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
 // EDT
 $router->get('/calendrier', [$calendrierController, 'afficherMois']);
 $router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);
+$router->get('/edt', [ $calendrierController, 'afficherMoisComplet2' ]);
+$router->get('/edt/details', [$calendrierController, 'detailsJour']);
 
 
 // abonnement 
