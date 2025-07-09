@@ -63,6 +63,12 @@
                         <span>finance</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/abonnements" class='sidebar-link'>
+                        <i class="bi bi-bank"></i>
+                        <span>gestion abonnement</span>
+                    </a>
+                </li>
         
                 <li class="sidebar-item  has-sub">
                     <a href="#" class="sidebar-link">

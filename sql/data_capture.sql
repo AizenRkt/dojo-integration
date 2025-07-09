@@ -31,6 +31,10 @@ INSERT INTO eleve (nom, prenom, date_naissance, adresse, contact, id_genre) VALU
 ('Fidy', 'Ketaka', '2011-11-11', 'Antsirabe', '0341000017', 2),
 ('Mamy', 'Tahina', '2010-01-02', 'Antananarivo', '0341000018', 1),
 ('Lalao', 'Voahirana', '2008-05-29', 'Toliara', '0341000019', 2),
+('Solo', 'Tina', '2009-09-18', 'Fianarantsoa', '0341000020', 1),
+('Solo', 'Tina', '2009-09-18', 'Fianarantsoa', '0341000020', 1),
+('Solo', 'Tina', '2009-09-18', 'Fianarantsoa', '0341000020', 1),
+('Solo', 'Tina', '2009-09-18', 'Fianarantsoa', '0341000020', 1),
 ('Solo', 'Tina', '2009-09-18', 'Fianarantsoa', '0341000020', 1);
 
 -- 4. Insertion des cours
@@ -97,8 +101,10 @@ INSERT INTO ecolage (id_eleve, montant, date_paiement, mois, annee, statut) VALU
 (16, 50000, '2025-07-01', 7, 2025, 'paye'),
 (17, 50000, '2025-07-01', 7, 2025, 'paye'),
 (18, 50000, '2025-07-01', 7, 2025, 'paye'),
-(19, 50000, '2025-07-01', 7, 2025, 'non paye'),
-(20, 50000, '2025-07-01', 7, 2025, 'annule');
+(19, 50000, '2025-07-01', 7, 2025, 'paye'),
+(20, 50000, '2025-07-01', 7, 2025, 'paye'),
+(21, 50000, '2025-07-01', 7, 2025, 'non paye'),
+(22, 50000, '2025-07-01', 7, 2025, 'annule');
 
 -- 8. Abonnements (en supposant que id_club = id_eleve ici)
 INSERT INTO abonnement (id_club, jour, mois, annee, actif) VALUES

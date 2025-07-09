@@ -1,219 +1,162 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Modifier Abonnement</title>
-  <style>
-    :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #e74c3c;
-      --accent-color: #f39c12;
-      --light-color: #ecf0f1;
-      --dark-color: #1a1a1a;
-      --success-color: #27ae60;
-    }
+        <html lang="fr">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Modifier Abonnement - Self Defense</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+          <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+          <link rel="shortcut icon" href="<?= Flight::base() ?>/public/assets/compiled/svg/favicon.svg" type="image/x-icon">
+          <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/app.css">
+          <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/iconly.css">
+        </head>
+        <body>
+        <div id="app">
+            <?= Flight::menuAdmin()?>
+            <div id="main">
+              <div class="particles" id="particles"></div>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+              <div class="container">
+                <div class="header">
+                  <h1><i class="fas fa-edit"></i> Modifier Abonnement</h1>
+                  <p class="subtitle">
+                    <i class="fas fa-shield-alt"></i>
+                    Modifier les informations de l'abonnement #<?= $abonnement['id_abonnement'] ?>
+                  </p>
+                </div>
 
-    body {
-      background-color: #f5f5f5;
-      color: var(--dark-color);
-      line-height: 1.6;
-      padding: 20px;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
-                        url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-    }
+                <?php if (isset($message)): ?>
+                  <div class="alert-container">
+                    <div class="message alert <?= strpos($message, 'réussie') !== false ? 'alert-success' : 'alert-error' ?>">
+                      <i class="fas <?= strpos($message, 'réussie') !== false ? 'fa-check-circle' : 'fa-exclamation-triangle' ?>"></i>
+                      <?= $message ?>
+                    </div>
+                  </div>
+                <?php endif; ?>
 
-    h2 {
-      color: var(--primary-color);
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2.2rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      position: relative;
-      padding-bottom: 10px;
-    }
+                <div class="form-container">
+                  <form method="post" action="<?= Flight::base() ?>/abonnement/update/<?= $abonnement['id_abonnement'] ?>" class="subscription-form">
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label for="id_club" class="form-label">
+                          <i class="fas fa-dumbbell"></i> ID Club :
+                        </label>
+                        <input type="number" id="id_club" name="id_club" class="form-input" value="<?= $abonnement['id_club'] ?>" required>
+                      </div>
 
-    h2::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 3px;
-      background-color: var(--secondary-color);
-    }
+                      <div class="form-group">
+                        <label for="jour" class="form-label">
+                          <i class="fas fa-calendar-day"></i> Jour :
+                        </label>
+                        <input type="number" id="jour" name="jour" class="form-input" value="<?= $abonnement['jour'] ?>" min="1" max="31" required>
+                      </div>
 
-    form {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 30px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border-top: 5px solid var(--secondary-color);
-    }
+                      <div class="form-group">
+                        <label for="mois" class="form-label">
+                          <i class="fas fa-calendar-alt"></i> Mois :
+                        </label>
+                        <input type="number" id="mois" name="mois" class="form-input" value="<?= $abonnement['mois'] ?>" min="1" max="12" required>
+                      </div>
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
+                      <div class="form-group">
+                        <label for="annee" class="form-label">
+                          <i class="fas fa-calendar-year"></i> Année :
+                        </label>
+                        <input type="number" id="annee" name="annee" class="form-input" value="<?= $abonnement['annee'] ?? date('Y') ?>" min="<?= date('Y') ?>" required>
+                      </div>
 
-    input[type="number"],
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-      transition: border 0.3s;
-    }
+                      <div class="form-group">
+                        <label for="actif" class="form-label">
+                          <i class="fas fa-toggle-on"></i> Statut :
+                        </label>
+                        <select id="actif" name="actif" class="form-select">
+                          <option value="true" <?= $abonnement['actif'] ? 'selected' : '' ?>>
+                            <i class="fas fa-check"></i> Actif
+                          </option>
+                          <option value="false" <?= !$abonnement['actif'] ? 'selected' : '' ?>>
+                            <i class="fas fa-times"></i> Inactif
+                          </option>
+                        </select>
+                      </div>
+                    </div>
 
-    input[type="number"]:focus,
-    input[type="text"]:focus,
-    select:focus {
-      border-color: var(--accent-color);
-      outline: none;
-    }
+                    <div class="form-actions">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Mettre à jour
+                      </button>
 
-    button[type="submit"] {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+                      <a href="<?= Flight::base() ?>/abonnements" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour à la liste
+                      </a>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
 
-    button[type="submit"]:hover {
-      background-color: #c0392b;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+        <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+        <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
+        <script>
+          // Création d'un effet de particules flottantes
+          function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            if (!particlesContainer) return;
 
-    a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: all 0.3s;
-      font-weight: 600;
-    }
+            const particleCount = 30;
 
-    a:hover {
-      background-color: #1a252f;
-      transform: translateY(-2px);
-    }
+            for (let i = 0; i < particleCount; i++) {
+              const particle = document.createElement('div');
+              particle.className = 'particle';
+              particle.style.left = Math.random() * 100 + '%';
+              particle.style.animationDelay = Math.random() * 15 + 's';
+              particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+              particlesContainer.appendChild(particle);
+            }
+          }
 
-    p {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1.1rem;
-    }
+          // Animation d'apparition du formulaire
+          function animateForm() {
+            const formContainer = document.querySelector('.form-container');
+            if (formContainer) {
+              formContainer.style.opacity = '0';
+              formContainer.style.transform = 'translateY(30px)';
+              setTimeout(() => {
+                formContainer.style.transition = 'all 0.8s ease';
+                formContainer.style.opacity = '1';
+                formContainer.style.transform = 'translateY(0)';
+              }, 300);
+            }
+          }
 
-    /* Animation pour les boutons */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
+          // Validation en temps réel
+          function setupFormValidation() {
+            const form = document.querySelector('.subscription-form');
+            const inputs = form.querySelectorAll('input, select');
 
-    button[type="submit"]:hover,
-    a:hover {
-      animation: pulse 0.5s ease-in-out;
-    }
+            inputs.forEach(input => {
+              input.addEventListener('blur', function() {
+                if (this.checkValidity()) {
+                  this.classList.add('valid');
+                  this.classList.remove('invalid');
+                } else {
+                  this.classList.add('invalid');
+                  this.classList.remove('valid');
+                }
+              });
+            });
+          }
 
-    /* Style spécifique pour la page d'annulation */
-    body.annulation {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
-                        url('https://images.unsplash.com/photo-1517438322307-e67111335449?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-    }
-
-    /* Style pour les messages */
-    .message {
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 4px;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    .success {
-      background-color: rgba(46, 204, 113, 0.2);
-      color: var(--success-color);
-      border-left: 4px solid var(--success-color);
-    }
-
-    .error {
-      background-color: rgba(231, 76, 60, 0.2);
-      color: var(--secondary-color);
-      border-left: 4px solid var(--secondary-color);
-    }
-    /* Votre CSS existant */
-    .btn-retour {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: all 0.3s;
-      font-weight: 600;
-    }
-
-    .btn-retour:hover {
-      background-color: #1a252f;
-      transform: translateY(-2px);
-    }
-  </style>
-</head> 
-<body>
-
-  <h2>Modifier Abonnement</h2>
-
-  <form method="post" action="<?= Flight::base() ?>/abonnement/update/<?= $abonnement['id_abonnement'] ?>">
-    <label>ID Club :</label>
-    <input type="number" name="id_club" value="<?= $abonnement['id_club'] ?>" required><br>
-
-    <label>Jour :</label>
-    <input type="number" name="jour" value="<?= $abonnement['jour'] ?>" required><br>
-
-    <label>Mois :</label>
-    <input type="number" name="mois" value="<?= $abonnement['mois'] ?>" required><br>
-
-    <label>Année :</label>
-    <input type="number" name="annee" value="<?= $abonnement['annee'] ?? date('Y') ?>" required><br>
-
-    <label>Actif :</label>
-    <select name="actif">
-      <option value="true" <?= $abonnement['actif'] ? 'selected' : '' ?>>Oui</option>
-      <option value="false" <?= !$abonnement['actif'] ? 'selected' : '' ?>>Non</option>
-    </select><br><br>
-
-    <button type="submit">Mettre à jour</button>
-  </form>
- <a href="<?= Flight::base() ?>/abonnements" class="btn-retour">← Retour à la liste</a>
-</body>
-</html>
+          // Initialisation
+          document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            animateForm();
+            setupFormValidation();
+          });
+        </script>
+        </body>
+        </html>

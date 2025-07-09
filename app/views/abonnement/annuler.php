@@ -1,204 +1,143 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Annuler Abonnement</title>
-  <style>
-    :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #e74c3c;
-      --accent-color: #f39c12;
-      --light-color: #ecf0f1;
-      --dark-color: #1a1a1a;
-      --success-color: #27ae60;
-    }
+            <html lang="fr">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Annuler Abonnement - Self Defense</title>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+              <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+              <link rel="shortcut icon" href="<?= Flight::base() ?>/public/assets/compiled/svg/favicon.svg" type="image/x-icon">
+              <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/app.css">
+              <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/iconly.css">
+            </head>
+            <body>
+            <div id="app">
+                <?= Flight::menuAdmin()?>
+                <div id="main">
+                  <div class="particles" id="particles"></div>
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+                  <div class="container">
+                    <div class="header">
+                      <h1><i class="fas fa-ban"></i> Annuler Abonnement</h1>
+                      <p class="subtitle">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Confirmation d'annulation de l'abonnement #<?= $abonnement['id_abonnement'] ?>
+                      </p>
+                    </div>
 
-    body {
-      background-color: #f5f5f5;
-      color: var(--dark-color);
-      line-height: 1.6;
-      padding: 20px;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
-                        url('https://images.unsplash.com/photo-1547347298-4074fc3086f0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-    }
+                    <?php if (isset($message)): ?>
+                      <div class="alert-container">
+                        <div class="message alert <?= strpos($message, 'réussie') !== false ? 'alert-success' : 'alert-error' ?>">
+                          <i class="fas <?= strpos($message, 'réussie') !== false ? 'fa-check-circle' : 'fa-exclamation-triangle' ?>"></i>
+                          <?= $message ?>
+                        </div>
+                      </div>
+                    <?php endif; ?>
 
-    h2 {
-      color: var(--primary-color);
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2.2rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      position: relative;
-      padding-bottom: 10px;
-    }
+                    <div class="confirmation-container">
+                      <div class="confirmation-card">
+                        <div class="confirmation-icon">
+                          <i class="fas fa-question-circle"></i>
+                        </div>
 
-    h2::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 3px;
-      background-color: var(--secondary-color);
-    }
+                        <div class="confirmation-content">
+                          <h3>Confirmation d'annulation</h3>
+                          <p class="confirmation-text">
+                            Voulez-vous vraiment annuler cet abonnement n°<strong><?= $abonnement['id_abonnement'] ?></strong> ?
+                          </p>
 
-    form {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 30px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border-top: 5px solid var(--secondary-color);
-    }
+                          <div class="subscription-details">
+                            <div class="detail-item">
+                              <i class="fas fa-dumbbell"></i>
+                              <span>Club ID: <?= $abonnement['id_club'] ?></span>
+                            </div>
+                            <div class="detail-item">
+                              <i class="fas fa-calendar"></i>
+                              <span>Date: <?= $abonnement['jour'] ?>/<?= $abonnement['mois'] ?>/<?= $abonnement['annee'] ?? date('Y') ?></span>
+                            </div>
+                            <div class="detail-item">
+                              <i class="fas fa-check-circle"></i>
+                              <span>Statut: <?= $abonnement['actif'] ? 'Actif' : 'Inactif' ?></span>
+                            </div>
+                          </div>
+                        </div>
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
+                        <div class="form-container">
+                          <form method="post" action="<?= Flight::base() ?>/abonnement/annuler/<?= $abonnement['id_abonnement'] ?>" class="confirmation-form">
+                            <div class="form-actions confirmation-actions">
+                              <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-ban"></i>
+                                Oui, annuler l'abonnement
+                              </button>
 
-    input[type="number"],
-    input[type="text"],
-    select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-      transition: border 0.3s;
-    }
+                              <a href="<?= Flight::base() ?>/abonnements" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Non, retour à la liste
+                              </a>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
 
-    input[type="number"]:focus,
-    input[type="text"]:focus,
-    select:focus {
-      border-color: var(--accent-color);
-      outline: none;
-    }
+            <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+            <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
+            <script>
+              // Création d'un effet de particules flottantes
+              function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                if (!particlesContainer) return;
 
-    button[type="submit"] {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+                const particleCount = 30;
 
-    button[type="submit"]:hover {
-      background-color: #c0392b;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+                for (let i = 0; i < particleCount; i++) {
+                  const particle = document.createElement('div');
+                  particle.className = 'particle';
+                  particle.style.left = Math.random() * 100 + '%';
+                  particle.style.animationDelay = Math.random() * 15 + 's';
+                  particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                  particlesContainer.appendChild(particle);
+                }
+              }
 
-    a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: all 0.3s;
-      font-weight: 600;
-    }
+              // Animation d'apparition du contenu
+              function animateConfirmation() {
+                const confirmationCard = document.querySelector('.confirmation-card');
+                if (confirmationCard) {
+                  confirmationCard.style.opacity = '0';
+                  confirmationCard.style.transform = 'scale(0.9) translateY(30px)';
+                  setTimeout(() => {
+                    confirmationCard.style.transition = 'all 0.8s ease';
+                    confirmationCard.style.opacity = '1';
+                    confirmationCard.style.transform = 'scale(1) translateY(0)';
+                  }, 300);
+                }
+              }
 
-    a:hover {
-      background-color: #1a252f;
-      transform: translateY(-2px);
-    }
+              // Effet de pulsation sur l'icône
+              function animateIcon() {
+                const icon = document.querySelector('.confirmation-icon i');
+                if (icon) {
+                  setInterval(() => {
+                    icon.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                      icon.style.transform = 'scale(1)';
+                    }, 200);
+                  }, 2000);
+                }
+              }
 
-    p {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1.1rem;
-    }
-
-    /* Animation pour les boutons */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    button[type="submit"]:hover,
-    a:hover {
-      animation: pulse 0.5s ease-in-out;
-    }
-
-    /* Style spécifique pour la page d'annulation */
-    body.annulation {
-      background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), 
-                        url('https://images.unsplash.com/photo-1517438322307-e67111335449?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-    }
-
-    /* Style pour les messages */
-    .message {
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 4px;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    .success {
-      background-color: rgba(46, 204, 113, 0.2);
-      color: var(--success-color);
-      border-left: 4px solid var(--success-color);
-    }
-
-    .error {
-      background-color: rgba(231, 76, 60, 0.2);
-      color: var(--secondary-color);
-      border-left: 4px solid var(--secondary-color);
-    }
-    /* Votre CSS existant */
-    .btn-retour {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      transition: all 0.3s;
-      font-weight: 600;
-    }
-
-    .btn-retour:hover {
-      background-color: #1a252f;
-      transform: translateY(-2px);
-    }
-  </style>
-</head>
-<body>
-
-  <h2>Annulation de l'abonnement</h2>
-
-  <p>Voulez-vous vraiment annuler cet abonnement n°<?= $abonnement['id_abonnement'] ?> ?</p>
-
-  <form method="post" action="<?= Flight::base() ?>/abonnement/annuler/<?= $abonnement['id_abonnement'] ?>">
-    <button type="submit">Oui, annuler</button>
-    <a href="<?= Flight::base() ?>/abonnements" style="margin-left:10px;">Annuler</a>
-  </form>
- <a href="<?= Flight::base() ?>/abonnements" class="btn-retour">← Retour à la liste</a>
-</body>
-</html>
+              // Initialisation
+              document.addEventListener('DOMContentLoaded', function() {
+                createParticles();
+                animateConfirmation();
+                animateIcon();
+              });
+            </script>
+            </body>
+            </html>
