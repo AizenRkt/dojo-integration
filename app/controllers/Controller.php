@@ -9,6 +9,7 @@ use app\models\TarifEcolageModel\TarifEcolageModel;
 use app\models\individu\LoginModel;
 use app\models\evolution\EvolutionModel;
 use app\models\GroupeModels\GroupeModel;
+use app\models\individu\EleveModel;
 
 use Flight;
 

@@ -55,14 +55,19 @@ class PresenceModel
         $stmt->execute(['id_seances' => $id_seances]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-//maka eleves absents entre deux dates
+    //maka eleves absents entre deux dates
     public function getAbsentByDate($date_debut, $date_fin) {
-        $sql = "SELECT DISTINCT id_eleve 
-                FROM {$this->table} 
-                WHERE present = FALSE 
-                AND id_seances IN (
-                    SELECT id_seances FROM seances_cours WHERE date BETWEEN :date_debut AND :date_fin
-                )";
+                $sql = "SELECT DISTINCT 
+                            e.nom,
+                            e.prenom,
+                            COUNT(p.id_presence) AS nb_absences  
+                        FROM presence AS p 
+                        JOIN eleve AS e ON p.id_eleve = e.id_eleve
+                        AND p.id_seances IN (
+                            SELECT id_seances 
+                            FROM seances_cours 
+                            WHERE date BETWEEN :date_debut AND :date_fin
+                        ) GROUP BY e.nom, e.prenom";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'date_debut' => $date_debut,
@@ -107,4 +112,106 @@ class PresenceModel
         $seanceDateTime = new \DateTime($seance['date'] . ' ' . $seance['heure_debut']);
         return $now < $seanceDateTime;
     }
+    public function getAbsencesEleves() {
+    $sql = "
+        SELECT 
+            e.id_eleve,
+            e.nom,
+            e.prenom,
+            COUNT(CASE WHEN p.present = FALSE THEN 1 END) AS nb_absences
+        FROM eleve AS e
+        LEFT JOIN presence AS p ON p.id_eleve = e.id_eleve
+        GROUP BY e.id_eleve, e.nom, e.prenom
+        ORDER BY nb_absences DESC
+        ";
+    
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+//public function getAbsenceDetailsForStudent($idEleve, $dateDebut, $dateFin) {
+//    $sql = "
+//        SELECT
+//            sc.date,
+//            c.label AS cours,
+//            p.remarque
+//        FROM
+//            presence p
+//        JOIN
+//            seances_cours sc ON p.id_seances = sc.id_seances
+//        JOIN
+//            cours c ON sc.id_cours = c.id_cours
+//        WHERE
+//            p.id_eleve = :idEleve
+//            AND p.present = false
+//        ORDER BY
+//            sc.date
+//    ";
+//
+//    $params = ['id_eleve' => $idEleve];
+//
+//    // Add date filters if provided
+//    if ($dateDebut && $dateFin) {
+//        $sql = "
+//            SELECT
+//                sc.date,
+//                c.label AS cours,
+//                p.remarque
+//            FROM
+//                presence p
+//            JOIN
+//                seances_cours sc ON p.id_seances = sc.id_seances
+//            JOIN
+//                cours c ON sc.id_cours = c.id_cours
+//            WHERE
+//                p.id_eleve = :id_eleve
+//                AND p.present = false
+//                AND sc.date BETWEEN :date_debut AND :date_fin
+//            ORDER BY
+//                sc.date
+//        ";
+//        $params['date_debut'] = $dateDebut;
+//        $params['date_fin'] = $dateFin;
+//    }
+//
+//    $stmt = $this->db->prepare($sql);
+//    $stmt->execute($params);
+//
+//    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+//}
+
+    public function getAbsenceDetailsForStudent($idEleve, $dateDebut = null, $dateFin = null) {
+        $sql = "
+            SELECT 
+                sc.date,
+                c.label AS cours,
+                p.remarque
+            FROM 
+                presence p
+            JOIN 
+                seances_cours sc ON p.id_seances = sc.id_seances
+            JOIN 
+                cours c ON sc.id_cours = c.id_cours
+            WHERE 
+                p.id_eleve = :id_eleve
+                AND p.present = false
+        ";
+
+        $params = ['id_eleve' => $idEleve];
+
+        if ($dateDebut && $dateFin) {
+            $sql .= " AND sc.date BETWEEN :date_debut AND :date_fin";
+            $params['date_debut'] = $dateDebut;
+            $params['date_fin'] = $dateFin;
+        }
+
+        $sql .= " ORDER BY sc.date";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
+

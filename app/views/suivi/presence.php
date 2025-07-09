@@ -7,6 +7,7 @@
   <link rel="shortcut icon" href="<?= Flight::base() ?>/public/assets/compiled/svg/favicon.svg" type="image/x-icon" />
   <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/app.css" />
   <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/iconly.css" />
+  <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
     .user-type-btn.active {
@@ -14,20 +15,16 @@
       color: #fff !important;
       border-color: var(--bs-primary) !important;
     }
-
     .user-type-btn {
       margin-right: 0.5rem;
     }
-
     .person-item.active {
       border: 2px solid var(--bs-primary);
       background-color: #e9f1ff;
     }
-
     .card-body .form-label {
       font-weight: 500;
     }
-
     .card .card-header h5 {
       margin-bottom: 0;
     }
@@ -53,101 +50,63 @@
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                  <button class="btn btn-outline-primary user-type-btn active" data-type="eleve">
-                    <i class="fas fa-user-graduate me-1"></i> Élève
-                  </button>
-                  <button class="btn btn-outline-primary user-type-btn" data-type="professeur">
-                    <i class="fas fa-chalkboard-teacher me-1"></i> Prof
-                  </button>
-                  <button class="btn btn-outline-primary user-type-btn" data-type="superviseur">
-                    <i class="fas fa-user-tie me-1"></i> Superviseur
-                  </button>
+                  <h5 class="mb-0">Recherche par période</h5>
                 </div>
               </div>
 
               <div class="card-body">
                 <div class="row mb-4">
-                  <div class="col-md-3">
-                    <label for="date-debut" class="form-label">Date début</label>
-                    <input type="date" id="date-debut" class="form-control" value="2025-06-01" />
+                  <div class="col-md-4">
+                    <label for="date-debut" class="form-label">Date de début</label>
+                    <input type="date" class="form-control" id="date-debut" name="date_debut">
                   </div>
-                  <div class="col-md-3">
-                    <label for="date-fin" class="form-label">Date fin</label>
-                    <input type="date" id="date-fin" class="form-control" value="2025-06-24" />
+                  <div class="col-md-4">
+                    <label for="date-fin" class="form-label">Date de fin</label>
+                    <input type="date" class="form-control" id="date-fin" name="date_fin">
                   </div>
-                  <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-success w-100">
-                      <i class="fas fa-search me-1"></i> Appliquer
+                  <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-success">
+                      <i class="fas fa-search"></i> Rechercher
                     </button>
                   </div>
                 </div>
 
                 <div class="row g-4">
-                  <div class="col-lg-8">
+                  <div class="col-md-6">
                     <div class="card">
-                      <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 id="list-title">Liste des Élèves</h5>
-                        <div class="text-success fw-bold">
-                          <span id="total-people">4</span> personnes
-                        </div>
+                      <div class="card-header">
+                        <h6 class="mb-0">Liste des élèves (<span id="total-people">0</span>)</h6>
                       </div>
-                      <div class="card-body" style="max-height: 450px; overflow-y: auto">
-                        <div class="table-responsive">
-                          <table class="table table-hover" id="table1">
-                            <thead>
-                              <tr>
-                                <th>nom</th>
-                                <th>nombre d'absences</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>Patrick</td>
-                                <td>5</td>
-                              </tr>
-                              <tr>
-                                <td>Dylan</td>
-                                <td>5</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                      <div class="card-body">
+                        <table id="absences-table" class="table table-striped">
+                          <thead>
+                            <tr>
+                              <th>Nom</th>
+                              <th>Nombre d'absences</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tbody-absences">
+                            <!-- Rows will be filled by JS -->
+                          </tbody>
+                        </table>
+                        <button class="btn btn-success" type="button">Rechercher</button>
                       </div>
                     </div>
                   </div>
 
-                  <div class="col-lg-4">
+                  <div class="col-md-6">
                     <div class="card">
                       <div class="card-header">
-                        <h5>Détails de présence</h5>
-                        <div class="text-primary fw-bold selected-person-name">Marie Dubois</div>
+                        <h6 class="mb-0">Détails d'absence - <span class="selected-person-name">Sélectionnez un élève</span></h6>
                       </div>
-                      <div class="card-body details-content">
-                        <!-- Élève -->
-                        <div class="detail-section eleve-details">
-                          <div class="mb-3">
-                            <h6><i class="fas fa-calendar-times me-2"></i>Jours d'absence</h6>
-                            <ul class="list-group list-group-flush">
-                              <li class="list-group-item">15 Juin 2025</li>
-                              <li class="list-group-item">18 Juin 2025</li>
-                            </ul>
-                          </div>
-                          <div class="mb-3">
-                            <h6><i class="fas fa-fist-raised me-2"></i>Cours ratés</h6>
-                            <ul class="list-group list-group-flush">
-                              <li class="list-group-item">Self Defense - 15/06</li>
-                              <li class="list-group-item">Judo - 18/06</li>
-                            </ul>
-                          </div>
+                      <div class="card-body">
+                        <div id="absence-details">
+                          <p class="text-muted">Veuillez sélectionner un élève pour voir les détails de ses absences.</p>
                         </div>
-
-                        <div class="detail-section professeur-details d-none">Détails professeur...</div>
-                        <div class="detail-section superviseur-details d-none">Détails superviseur...</div>
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -162,39 +121,119 @@
   <script src="<?= Flight::base() ?>/public/assets/extensions/jquery/jquery.min.js"></script>
   <script src="<?= Flight::base() ?>/public/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
   <script src="<?= Flight::base() ?>/public/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-  <script src="<?= Flight::base() ?>/public/assets/static/js/pages/datatables.js"></script>
 
   <script>
-    const userTypeBtns = document.querySelectorAll('.user-type-btn');
-    const listTitle = document.getElementById('list-title');
-    const detailSections = document.querySelectorAll('.detail-section');
+    let dataTable;
 
-    userTypeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        userTypeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const type = btn.dataset.type;
-        detailSections.forEach(sec => sec.classList.add('d-none'));
-        const active = document.querySelector(`.${type}-details`);
-        if (active) active.classList.remove('d-none');
+    // Fonction pour initialiser DataTable
+    function initDataTable() {
+      if ($.fn.DataTable.isDataTable('#absences-table')) {
+        $('#absences-table').DataTable().destroy();
+      }
 
-        switch (type) {
-          case 'eleve':
-            listTitle.textContent = 'Liste des Élèves';
-            break;
-          case 'professeur':
-            listTitle.textContent = 'Liste des Professeurs';
-            break;
-          case 'superviseur':
-            listTitle.textContent = 'Liste des Superviseurs';
-            break;
-        }
+      dataTable = $('#absences-table').DataTable({
+        language: {
+          url: 'https://cdn.datatables.net/plug-ins/1.11.5/i18n/fr-FR.json'
+        },
+        pageLength: 10,
+        searching: true,
+        ordering: true,
+        info: true,
+        paging: true
       });
+    }
+
+    // Gestion du clic sur le bouton "Rechercher"
+    document.querySelector(".btn.btn-success").addEventListener("click", function () {
+      fetch(`/api/suivi-presence/absences`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            // Détruire le DataTable existant s'il existe
+            // Destroy DataTable before updating rows
+            if ($.fn.DataTable.isDataTable('#absences-table')) {
+              $('#absences-table').DataTable().destroy();
+            }
+
+            // Update tbody
+            const tbody = document.getElementById("tbody-absences");
+            tbody.innerHTML = "";
+            res.data.forEach(eleve => {
+              const tr = document.createElement("tr");
+              tr.className = "person-item";
+              tr.dataset.id = eleve.id_eleve;
+              tr.innerHTML = `
+                <td>${eleve.nom} ${eleve.prenom}</td>
+                <td>${eleve.nb_absences}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+
+            // Re-initialize DataTable after DOM update
+            initDataTable();
+            attachRowClickEvents();
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erreur réseau.");
+        });
     });
 
-    function switchToSupervisor() {
-      window.location.href = 'suivi-materiel.html';
+    // Fonction pour attacher les événements de clic sur les lignes
+    function attachRowClickEvents() {
+      document.querySelectorAll('.person-item').forEach(row => {
+        row.addEventListener('click', function() {
+          document.querySelectorAll('.person-item').forEach(r => r.classList.remove('active'));
+          this.classList.add('active');
+
+          const idEleve = this.dataset.id;
+          const nom = this.cells[0].textContent;
+
+          document.querySelector('.selected-person-name').textContent = nom;
+          loadAbsenceDetails(idEleve);
+        });
+      });
     }
+
+    // Fonction pour charger les détails d'absence
+    function loadAbsenceDetails(idEleve) {
+      const dateDebut = document.getElementById('date-debut').value;
+      const dateFin = document.getElementById('date-fin').value;
+
+      fetch(`/api/suivi-presence/details?id_eleve=${idEleve}&date_debut=${dateDebut}&date_fin=${dateFin}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Date</th><th>Cours</th><th>Remarque</th></tr></thead><tbody>';
+
+            if (res.details.length > 0) {
+              res.details.forEach(detail => {
+                html += `<tr>
+                  <td>${detail.date}</td>
+                  <td>${detail.cours}</td>
+                  <td>${detail.remarque || '-'}</td>
+                </tr>`;
+              });
+            } else {
+              html += '<tr><td colspan="3" class="text-center text-muted">Aucune absence trouvée</td></tr>';
+            }
+
+            html += '</tbody></table></div>';
+            document.getElementById('absence-details').innerHTML = html;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('absence-details').innerHTML = '<p class="text-danger">Erreur lors du chargement des détails</p>';
+        });
+    }
+
+    // Initialisation au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+      initDataTable();
+      attachRowClickEvents();
+    });
   </script>
 </body>
 </html>

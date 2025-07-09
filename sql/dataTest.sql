@@ -32,8 +32,7 @@ INSERT INTO login (username, mot_de_passe, role)
 VALUES (
   'admin',
   'mdp2',
-  'admin',
-  3
+  'admin'
 );
 
 INSERT INTO personnel (nom, prenom, date_naissance, adresse, contact, id_genre, type_personnel)

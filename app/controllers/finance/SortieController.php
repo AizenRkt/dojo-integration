@@ -280,10 +280,9 @@ class SortieController {
                 return;
             }
 
-            // Get current admin ID from session
-            $idAdmin = $_SESSION['admin']['id_admin'] ?? null;
+            $idAdmin = $_SESSION['role'] ?? null;
 
-            if (!$idAdmin) {
+            if ($idAdmin != 'admin') {
                 Flight::json([
                     'success' => false,
                     'message' => 'Administrateur non identifié'
@@ -302,7 +301,7 @@ class SortieController {
             $stmt = Flight::db()->prepare($query);
             $result = $stmt->execute([
                 $data->statut,
-                $idAdmin,
+                $_SESSION['user']['id_login'],
                 $id
             ]);
 

@@ -435,10 +435,9 @@ Flight::route('POST /ws/evaluation_add', function(){
     Flight::json(['success' => $ok]);
 });
 
-
-
-
-
+Flight::route('GET /suivi-presence', ['app\\controllers\\presence\\PresenceController', 'showSuiviPresence']);
+Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\PresenceController', 'getAbsencesData']);
+Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
 
 //// Genre
 //$router->get('/api/genres', [ $genreController, 'getAll' ]);
