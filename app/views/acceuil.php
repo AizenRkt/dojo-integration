@@ -51,23 +51,6 @@
                                 jQuery Datatable
                             </h5>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table" id="table1">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Nom du cours</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
                     </div>
 
                 </section>

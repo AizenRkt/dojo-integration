@@ -150,11 +150,11 @@
                                     <div class="col-md-6">
                                         <select class="form-select" id="coursSelect">
                                             <option value="">-- Sélectionner un cours --</option>
-                                            <option value="1">Karaté débutant - Lundi 17h00</option>
-                                            <option value="2">Judo intermédiaire - Mardi 18h30</option>
-                                            <option value="3">Aikido avancé - Mercredi 19h00</option>
-                                            <option value="4">Taekwondo tous niveaux - Jeudi 18h00</option>
-                                            <option value="5">Karaté enfants - Samedi 10h00</option>
+                                            <option value="1">Karaté</option>
+                                            <option value="2">Judo</option>
+                                            <option value="3">Aikido</option>
+                                            <option value="4">Taekwondo</option>
+                                            <option value="5">Karaté enfants</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 text-md-end mt-3 mt-md-0">
@@ -181,14 +181,7 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between">
                                 <h4 class="font-outfit">Liste des élèves</h4>
-                                <div>
-                                    <select class="form-select" id="filterGroup">
-                                        <option value="">Tous les groupes</option>
-                                        <option value="debutant">Groupe débutant</option>
-                                        <option value="intermediaire">Groupe intermédiaire</option>
-                                        <option value="avance">Groupe avancé</option>
-                                    </select>
-                                </div>
+
                             </div>
                             <div class="card-body">
                                 <div id="alertContainer"></div>
@@ -197,16 +190,12 @@
                                         <thead>
                                             <tr>
                                                 <th>Élève</th>
-                                                <th>Groupe</th>
-                                                <th>Ceinture</th>
                                                 <th>Présence</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr class="course-1 course-5">
                                                 <td>Rakoto Jean</td>
-                                                <td>Débutant</td>
-                                                <td>Blanche</td>
                                                 <td>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="presence1" id="present1" value="present" checked>
@@ -220,7 +209,6 @@
                                             </tr>
                                             <tr class="course-2">
                                                 <td>Randriamahefa Marie</td>
-                                                <td>Intermédiaire</td>
                                                 <td>Jaune</td>
                                                 <td>
                                                     <div class="form-check form-check-inline">
@@ -235,8 +223,6 @@
                                             </tr>
                                             <tr class="course-3">
                                                 <td>Rakotozafy Pierre</td>
-                                                <td>Avancé</td>
-                                                <td>Marron</td>
                                                 <td>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="presence3" id="present3" value="present" checked>
@@ -250,8 +236,6 @@
                                             </tr>
                                             <tr class="course-2 course-4">
                                                 <td>Andrianaivo Sophie</td>
-                                                <td>Intermédiaire</td>
-                                                <td>Orange</td>
                                                 <td>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="presence4" id="present4" value="present" checked>
@@ -265,8 +249,6 @@
                                             </tr>
                                             <tr class="course-3 course-4">
                                                 <td>Randriamanana Paul</td>
-                                                <td>Avancé</td>
-                                                <td>Noire</td>
                                                 <td>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="presence5" id="present5" value="present">
@@ -304,45 +286,12 @@
             document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('fr-FR', options);
             
             // Données des cours (simulées)
-            const courses = {
-                '1': {
-                    name: 'Karaté débutant',
-                    time: 'Lundi 17h00 - 18h30',
-                    group: 'Groupe débutant',
-                    date: currentDate.toLocaleDateString('fr-FR', options)
-                },
-                '2': {
-                    name: 'Judo intermédiaire',
-                    time: 'Mardi 18h30 - 20h00',
-                    group: 'Groupe intermédiaire',
-                    date: currentDate.toLocaleDateString('fr-FR', options)
-                },
-                '3': {
-                    name: 'Aikido avancé',
-                    time: 'Mercredi 19h00 - 20h30',
-                    group: 'Groupe avancé',
-                    date: currentDate.toLocaleDateString('fr-FR', options)
-                },
-                '4': {
-                    name: 'Taekwondo tous niveaux',
-                    time: 'Jeudi 18h00 - 19h30',
-                    group: 'Tous groupes',
-                    date: currentDate.toLocaleDateString('fr-FR', options)
-                },
-                '5': {
-                    name: 'Karaté enfants',
-                    time: 'Samedi 10h00 - 11h30',
-                    group: 'Groupe enfants',
-                    date: currentDate.toLocaleDateString('fr-FR', options)
-                }
-            };
+
             
             // Sélection du cours
             const coursSelect = document.getElementById('coursSelect');
-            const courseInfo = document.getElementById('courseInfo');
             const courseName = document.getElementById('courseName');
             const courseTime = document.getElementById('courseTime');
-            const courseGroup = document.getElementById('courseGroup');
             const courseDate = document.getElementById('courseDate');
             const rows = document.querySelectorAll('#presenceTable tbody tr');
             
