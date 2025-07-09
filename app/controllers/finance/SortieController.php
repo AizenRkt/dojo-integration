@@ -280,10 +280,9 @@ class SortieController {
                 return;
             }
 
-            // Get current admin ID from session
-            $idAdmin = $_SESSION['admin']['id_admin'] ?? null;
+            $idAdmin = $_SESSION['role'] ?? null;
 
-            if (!$idAdmin) {
+            if ($idAdmin != 'admin') {
                 Flight::json([
                     'success' => false,
                     'message' => 'Administrateur non identifié'
@@ -294,6 +293,7 @@ class SortieController {
             $query = "
                 UPDATE suivi_depense 
                 SET id_statut = ?, 
+                    validee = TRUE,
                     id_admin_validateur = ?,
                     date_validation = CURRENT_TIMESTAMP
                 WHERE id_depense = ?
@@ -302,23 +302,22 @@ class SortieController {
             $stmt = Flight::db()->prepare($query);
             $result = $stmt->execute([
                 $data->statut,
-                $idAdmin,
+                $_SESSION['user']['id_login'],
                 $id
             ]);
 
             if ($result) {
-                // Log the status change in history table if it exists
                 $historyQuery = "
                     INSERT INTO historique_statut_sortie 
-                    (id_depense, id_statut, id_admin, commentaire, date_changement)
-                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    (id_depense, nouveau_statut , id_admin, commentaire, date_changement,ancien_statut )
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP,1)
                 ";
 
                 $historyStmt = Flight::db()->prepare($historyQuery);
                 $historyStmt->execute([
                     $id,
                     $data->statut,
-                    $idAdmin,
+                    $_SESSION['user']['id_login'],
                     $data->commentaire ?? null
                 ]);
 

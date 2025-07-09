@@ -437,7 +437,7 @@ Flight::route('POST /ws/evaluation_add', function(){
 Flight::route('GET /ws/evolution/@id', function($id) {
     $model = new EvolutionModel();
     $evolution = $model->getEvolutionById($id);
-
+  
     if ($evolution) {
         Flight::json($evolution);
     } else {
@@ -465,6 +465,9 @@ Flight::route('GET /ws/delete_evolution/@id', function($id){
 
 
 
+Flight::route('GET /suivi-presence', ['app\\controllers\\presence\\PresenceController', 'showSuiviPresence']);
+Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\PresenceController', 'getAbsencesData']);
+Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
 
 
 //// Genre

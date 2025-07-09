@@ -32,70 +32,62 @@
             <div class="page-content">
                 <section class="row">
                     <div class="col-12">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h4 class="card-title">Total Clients</h4>
-                                    <h2>56</h2>
-                                </div>
-                                <div class="btn-group">
-                                    <button id="barBtn" class="btn btn-outline-primary active">Bar</button>
-                                    <button id="lineBtn" class="btn btn-outline-primary">Line</button>
-                                    <button id="doughnutBtn" class="btn btn-outline-primary">Doughnut</button>
-                                </div>
-                                <div>
-                                    <span><i class="fas fa-calendar-alt me-2"></i>Jun 17, 2024</span>
-                                    <span class="mx-2"><i class="fas fa-arrow-right"></i></span>
-                                    <span>Jun 22, 2025</span>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <!-- Légende -->
-                                <div class="d-flex gap-4 mb-3" id="main-legend">
-                                    <div><span class="badge bg-info me-2">&nbsp;</span>Homme</div>
-                                    <div><span class="badge bg-primary me-2">&nbsp;</span>Femme</div>
-                                </div>
-
-                                <!-- Graphiques -->
-                                <div style="height: 400px;" id="bar-line-chart-area">
-                                    <canvas id="myChart"></canvas>
-                                </div>
-
-                                <!-- Doughnut -->
-                                <div id="doughnut-chart-section" class="row" style="display: none;">
-                                    <div class="col-md-6">
-                                        <canvas id="doughnutChartCanvas"></canvas>
+                        <?php if(isset($message)) { ?>
+                            <p><?= $message ?></p>
+                        <?php } ?>
+                        <?php if(!isset($message)) { ?>
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="card-title">Total Élèves</h4>
+                                        <h2><?= $totalEleves ?></h2>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="progress-group mb-4">
-                                            <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Homme (20-60 ans)</div><div>22%</div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-info" style="width: 22%;"></div>
-                                            </div>
+                                    <div class="btn-group">
+                                        <button id="barBtn" class="btn btn-outline-primary active">Bar</button>
+                                        <button id="lineBtn" class="btn btn-outline-primary">Line</button>
+                                        <button id="doughnutBtn" class="btn btn-outline-primary">Doughnut</button>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <!-- Légende -->
+                                    <div class="d-flex gap-4 mb-3" id="main-legend">
+                                        <div><span class="badge bg-info me-2">&nbsp;</span>Homme</div>
+                                        <div><span class="badge bg-primary me-2">&nbsp;</span>Femme</div>
+                                    </div>
+
+                                    <!-- Graphiques -->
+                                    <div style="height: 400px;" id="bar-line-chart-area">
+                                        <canvas id="myChart"></canvas>
+                                    </div>
+
+                                    <!-- Doughnut -->
+                                    <div id="doughnut-chart-section" class="row" style="display: none;">
+                                        <div class="col-md-6">
+                                            <canvas id="doughnutChartCanvas"></canvas>
                                         </div>
-                                        <div class="progress-group mb-4">
-                                            <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Femme (20-50 ans)</div><div>71%</div>
+                                        <div class="col-md-6">
+                                            <div class="progress-group mb-4">
+                                                <div class="progress-group-header d-flex justify-content-between">
+                                                    <div>Homme</div><div><?= $pourcentageHomme ?>%</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-info" style="width: <?= $pourcentageHomme ?>%;"></div>
+                                                </div>
                                             </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-primary" style="width: 71%;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="progress-group mb-4">
-                                            <div class="progress-group-header d-flex justify-content-between">
-                                                <div>Enfants (5-10 ans)</div><div>17%</div>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-secondary" style="width: 17%;"></div>
+                                            <div class="progress-group mb-4">
+                                                <div class="progress-group-header d-flex justify-content-between">
+                                                    <div>Femme</div><div><?= $pourcentageFemme ?>%</div>
+                                                </div>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-info" style="width: <?= $pourcentageFemme ?>%;"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div> <!-- end card-body -->
-                        </div> <!-- end card -->
+                                </div> <!-- end card-body -->
+                            </div> <!-- end card -->
+                        <?php } ?>
                     </div>
                 </section>
             </div>
@@ -105,100 +97,99 @@
     const barLineCtx = document.getElementById('myChart').getContext('2d');
     const doughnutCtx = document.getElementById('doughnutChartCanvas').getContext('2d');
     let myChart;
+    <?php if(!isset($message)) { ?> 
+        const ageGenreRawData = <?= $ageGenreData ?>;
+        const genreCounts = <?= $genreData ?>;
 
-    const barData = {
-        labels: ['10-12', '16-18', '20-30', '30-40', '40-60'],
-        datasets: [{
-            label: 'Femme',
-            data: [28, 12, 20, 25, 15],
-            backgroundColor: '#4db6ac'
-        }, {
-            label: 'Homme',
-            data: [20, 15, 35, 8, 12],
-            backgroundColor: '#80deea'
-        }]
-    };
+        const labels = [...new Set(ageGenreRawData.map(item => item.age_range))];
 
-    const lineData = {
-        labels: ['10-12', '16-18', '20-30', '30-40', '40-60'],
-        datasets: [{
-            label: 'Femme',
-            data: [5, 15, 25, 20, 8],
-            borderColor: '#4db6ac',
-            backgroundColor: 'transparent',
-            tension: 0.4
-        }, {
-            label: 'Homme',
-            data: [18, 40, 15, 28, 10],
-            borderColor: '#80deea',
-            backgroundColor: 'transparent',
-            tension: 0.4
-        }]
-    };
+        const femmes = labels.map(label =>
+            (ageGenreRawData.find(d => d.age_range === label && d.genre === 'Femme') || {}).total || 0
+        );
+        const hommes = labels.map(label =>
+            (ageGenreRawData.find(d => d.age_range === label && d.genre === 'Homme') || {}).total || 0
+        );
 
-    const doughnutData = {
-        labels: ['Homme', 'Femme', 'Enfants'],
-        datasets: [{
-            data: [22, 71, 17],
-            backgroundColor: ['#4db6ac', '#80deea', '#a7c5c6'],
-            borderWidth: 0,
-            cutout: '70%'
-        }]
-    };
+        const doughnutData = {
+            labels: genreCounts.map(d => d.label),
+            datasets: [{
+                data: genreCounts.map(d => d.total),
+                backgroundColor: ['#435ebe', '#0dcaf0', '#a7c5c6'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        };
 
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-            y: { beginAtZero: true, ticks: { color: '#888' }, grid: { color: '#ccc' } },
-            x: { ticks: { color: '#888' }, grid: { display: false } }
+        const barData = {
+            labels: labels,
+            datasets: [
+                { label: 'Femme', data: femmes, backgroundColor: '#435ebe' },
+                { label: 'Homme', data: hommes, backgroundColor: '#0dcaf0' }
+            ]
+        };
+
+        const lineData = {
+            labels: labels,
+            datasets: [
+                { label: 'Femme', data: femmes, borderColor: '#435ebe', backgroundColor: 'transparent', tension: 0.4 },
+                { label: 'Homme', data: hommes, borderColor: '#0dcaf0', backgroundColor: 'transparent', tension: 0.4 }
+            ]
+        };
+
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { color: '#888' }, grid: { color: '#ccc' } },
+                x: { ticks: { color: '#888' }, grid: { display: false } }
+            }
+        };
+
+        function createChart(type, data) {
+            if (myChart) myChart.destroy();
+            document.getElementById('bar-line-chart-area').style.display = 'block';
+            document.getElementById('doughnut-chart-section').style.display = 'none';
+            document.getElementById('main-legend').style.display = 'flex';
+            myChart = new Chart(barLineCtx, { type, data, options: commonOptions });
         }
-    };
 
-    function createChart(type, data) {
-        if (myChart) myChart.destroy();
-        document.getElementById('bar-line-chart-area').style.display = 'block';
-        document.getElementById('doughnut-chart-section').style.display = 'none';
-        document.getElementById('main-legend').style.display = 'flex';
-        myChart = new Chart(barLineCtx, { type, data, options: commonOptions });
-    }
+        function createDoughnutChart() {
+            if (myChart) myChart.destroy();
+            document.getElementById('bar-line-chart-area').style.display = 'none';
+            document.getElementById('doughnut-chart-section').style.display = 'flex';
+            document.getElementById('main-legend').style.display = 'none';
+            myChart = new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: doughnutData,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
 
-    function createDoughnutChart() {
-        if (myChart) myChart.destroy();
-        document.getElementById('bar-line-chart-area').style.display = 'none';
-        document.getElementById('doughnut-chart-section').style.display = 'flex';
-        document.getElementById('main-legend').style.display = 'none';
-        myChart = new Chart(doughnutCtx, {
-            type: 'doughnut',
-            data: doughnutData,
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        document.getElementById('barBtn').addEventListener('click', () => {
+            createChart('bar', barData);
+            setActiveButton('barBtn');
         });
-    }
 
-    document.getElementById('barBtn').addEventListener('click', () => {
+        document.getElementById('lineBtn').addEventListener('click', () => {
+            createChart('line', lineData);
+            setActiveButton('lineBtn');
+        });
+
+        document.getElementById('doughnutBtn').addEventListener('click', () => {
+            createDoughnutChart();
+            setActiveButton('doughnutBtn');
+        });
+
+        function setActiveButton(btnId) {
+            ['barBtn', 'lineBtn', 'doughnutBtn'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            document.getElementById(btnId).classList.add('active');
+        }
+
         createChart('bar', barData);
-        setActiveButton('barBtn');
-    });
-
-    document.getElementById('lineBtn').addEventListener('click', () => {
-        createChart('line', lineData);
-        setActiveButton('lineBtn');
-    });
-
-    document.getElementById('doughnutBtn').addEventListener('click', () => {
-        createDoughnutChart();
-        setActiveButton('doughnutBtn');
-    });
-
-    function setActiveButton(btnId) {
-        ['barBtn', 'lineBtn', 'doughnutBtn'].forEach(id => {
-            document.getElementById(id).classList.remove('active');
-        });
-        document.getElementById(btnId).classList.add('active');
-    }
-
-    createChart('bar', barData);
+    <?php } ?>
 </script>
 <script src="<?= Flight::base() ?>/public/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>

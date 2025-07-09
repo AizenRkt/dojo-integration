@@ -54,16 +54,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="valeur" class="form-label">Statut</label>
-                                                    <select class="form-select" id="valeur" name="valeur" required>
-                                                        <option value="" disabled selected>-- Statut --</option>
-                                                        <option value="demande">Demande</option>
-                                                        <option value="confirme">Confirmé</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            <input type="hidden" value="demande" name="valeur">
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
