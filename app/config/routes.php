@@ -231,6 +231,9 @@ $router->get('/abonnement', [ $Controller, 'abonnement' ]);
 
 // Statistiques des sorties
 $sortieStatController = new \app\controllers\statistique\SortieStatController();
+$router->get('/statistiques/sorties', [ $sortieStatController, 'index' ]);
+$router->get('/api/stats/sorties/categorie', [ $sortieStatController, 'getStatsByCategorie' ]);
+$router->get('/api/stats/sorties/statut', [ $sortieStatController, 'getStatsByStatut' ]);
 $router->get('/api/stats/sorties/motif', [ $sortieStatController, 'getStatsByMotif' ]);
 $router->get('/api/stats/sorties/periode', [ $sortieStatController, 'getStatsByPeriode' ]);
 
