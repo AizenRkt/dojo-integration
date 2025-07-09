@@ -251,7 +251,7 @@ class ReservationModel {
         $db = Flight::db();
         $resultats = [];
 
-        $jour = intval((new \DateTime($date))->format('w')); // 0 = dimanche, 1 = lundi, etc.
+        $jour = intval((new \DateTime($date))->format('w')); // 0 = dimanche, 1 = lundi
         $mois = intval((new \DateTime($date))->format('n'));
         $annee = intval((new \DateTime($date))->format('Y'));
 
@@ -262,6 +262,8 @@ class ReservationModel {
                 a.id_club,
                 c.nom_responsable AS club_nom,
                 c.discipline,
+                c.contact,
+                c.nombre,
                 NULL AS heure_debut,
                 NULL AS heure_fin,
                 'abonnement' AS type
@@ -292,6 +294,8 @@ class ReservationModel {
                 r.heure_fin,
                 c.nom_responsable AS club_nom,
                 c.discipline,
+                c.contact,
+                c.nombre,
                 'reservation' AS type
             FROM reservation r
             JOIN club_groupe c ON r.id_club = c.id
@@ -307,7 +311,5 @@ class ReservationModel {
 
         return $resultats;
     }
-
-
 
 }

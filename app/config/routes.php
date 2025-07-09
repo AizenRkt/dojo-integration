@@ -338,7 +338,8 @@ $router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
 // EDT
 $router->get('/calendrier', [$calendrierController, 'afficherMois']);
 $router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);
-$router->get('/edt', [ $calendrierController, 'afficherSemaine' ]);
+$router->get('/edt', [ $calendrierController, 'afficherMoisComplet2' ]);
+$router->get('/edt/details', [$calendrierController, 'detailsJour']);
 
 
 // abonnement 

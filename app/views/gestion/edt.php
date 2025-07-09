@@ -2,34 +2,41 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Emploi du temps - Semaine <?= $semaine ?>/<?= $annee ?></title>
+    <title>Emploi du temps mensuel</title>
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/assets/compiled/css/app.css">
-    <link rel="stylesheet" href="<?= Flight::base() ?>/public/css/gestion/edt.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        .calendar {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .calendar-header, .calendar-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .day-name, .calendar-day {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .calendar-day {
+            min-height: 100px;
+            position: relative;
+        }
+        .calendar-day.other-month {
+            background-color: #f0f0f0;
+        }
         .time-slot {
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            background: #f4f4f4;
-            cursor: pointer;
-            border-left: 5px solid #6c757d;
-        }
-        .slot-empty {
-            font-style: italic;
-            color: #999;
-            padding: 5px;
-        }
-        #hoverBubble {
-            position: absolute;
-            display: none;
-            background: white;
             border: 1px solid #ccc;
-            padding: 8px;
-            border-radius: 8px;
-            z-index: 9999;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-            font-size: 0.9em;
-            max-width: 300px;
+            border-left: 4px solid #0d6efd;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        .time-slot:hover {
+            background-color: #e9ecef;
         }
     </style>
 </head>
@@ -37,106 +44,107 @@
 <div id="app">
     <?= Flight::menuAdmin() ?>
     <div id="main">
-        <main class="dashboard">
-            <div class="schedule-dashboard">
-                <div class="schedule-header">
-                    <div class="week-navigation">
-                        <a class="btn btn-secondary" href="?semaine=<?= $semaine - 1 ?>&annee=<?= $annee ?>">← Semaine précédente</a>
-                        <h2 class="ms-3 me-3">Semaine <?= $semaine ?> - <?= $annee ?></h2>
-                        <a class="btn btn-secondary" href="?semaine=<?= $semaine + 1 ?>&annee=<?= $annee ?>">Semaine suivante →</a>
+        <div class="container mt-4">
+            <h3 class="mb-4">Emploi du temps - <?= DateTime::createFromFormat('!m', $mois)->format('F') ?> <?= $annee ?></h3>
+
+            <div class="d-flex justify-content-between mb-3">
+                <a class="btn btn-outline-secondary" href="?mois=<?= $mois == 1 ? 12 : $mois - 1 ?>&annee=<?= $mois == 1 ? $annee - 1 : $annee ?>">← Mois précédent</a>
+                <a class="btn btn-outline-secondary" href="?mois=<?= $mois == 12 ? 1 : $mois + 1 ?>&annee=<?= $mois == 12 ? $annee + 1 : $annee ?>">Mois suivant →</a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <div class="day-name">Lun</div>
+                            <div class="day-name">Mar</div>
+                            <div class="day-name">Mer</div>
+                            <div class="day-name">Jeu</div>
+                            <div class="day-name">Ven</div>
+                            <div class="day-name">Sam</div>
+                            <div class="day-name">Dim</div>
+                        </div>
+                        <div class="calendar-body">
+                            <?php
+                            $firstDay = new DateTime("$annee-$mois-01");
+                            $startDay = clone $firstDay;
+                            $weekday = (int)$firstDay->format('N');
+                            $startDay->modify('-' . ($weekday - 1) . ' days');
+                            $daysShown = 42;
+
+                            for ($i = 0; $i < $daysShown; $i++):
+                                $currentDate = clone $startDay;
+                                $currentDate->modify("+$i days");
+                                $dayStr = $currentDate->format('Y-m-d');
+                                $dayNum = $currentDate->format('j');
+                                $inMonth = (int)$currentDate->format('n') === $mois;
+                                $jourSemaine = (int)$currentDate->format('w');
+
+                                $groupe = null;
+                                if (!empty($calendrier[$dayStr])) {
+                                    foreach ($calendrier[$dayStr] as $item) {
+                                        if (!empty($item['groupe'])) {
+                                            $groupe = $item['groupe'];
+                                            break;
+                                        }
+                                    }
+                                }
+                            ?>
+                            <div class="calendar-day <?= $inMonth ? '' : 'other-month' ?>"
+                                 onclick="loadDetails('<?= $dayStr ?>'<?= ($jourSemaine == 3 || $jourSemaine == 6) && $groupe ? ", '$groupe'" : '' ?>)">
+                                <div><strong><?= $dayNum ?></strong></div>
+                                <?php if (!empty($calendrier[$dayStr])): ?>
+                                    <?php foreach ($calendrier[$dayStr] as $item): ?>
+                                        <div class="time-slot">
+                                            <div><strong><?= htmlspecialchars($item['heure_debut'] ?? '') ?> - <?= htmlspecialchars($item['heure_fin'] ?? '') ?></strong></div>
+                                            <div><?= htmlspecialchars($item['cours'] ?? $item['club_nom'] ?? 'Activité') ?></div>
+                                            <?php if (!empty($item['groupe'])): ?>
+                                                <div>Groupe <?= htmlspecialchars($item['groupe']) ?></div>
+                                            <?php endif; ?>
+                                            <!-- Professeur retiré de l'affichage du calendrier -->
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                            <?php endfor; ?>
+                        </div>
                     </div>
                 </div>
 
-                <div class="days-header d-flex">
-                    <?php
-                    $start = new DateTime();
-                    $start->setISODate($annee, $semaine);
-                    $jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-                    for ($j = 0; $j < 7; $j++):
-                        $jourDate = clone $start;
-                        $jourDate->modify("+$j days");
-                        ?>
-                        <div class="day-header flex-fill text-center">
-                            <h3><?= $jours[$j] ?></h3>
-                            <span><?= $jourDate->format('d M') ?></span>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Détails du jour</h5>
+                            <div class="text-muted" id="selectedDate">Sélectionnez une date</div>
                         </div>
-                    <?php endfor; ?>
-                </div>
-
-                <div class="schedule-grid d-flex">
-                    <?php for ($j = 0; $j < 7; $j++):
-                        $dateObj = clone $start;
-                        $dateObj->modify("+$j days");
-                        $date = $dateObj->format('Y-m-d');
-                        $jourSemaine = $dateObj->format('w'); // 3 = mercredi, 6 = samedi
-                        ?>
-                        <div class="day-schedule flex-fill p-2 border-start">
-                            <?php if (!empty($calendrier[$date])): ?>
-                                <?php foreach ($calendrier[$date] as $item): ?>
-                                    <?php
-                                    $estSeance = isset($item['cours']);
-                                    $estMercrediOuSamedi = in_array($jourSemaine, [3, 6]);
-                                    $groupe = $item['groupe'] ?? null;
-                                    ?>
-                                    <div class="time-slot"
-                                         <?= ($estSeance && $estMercrediOuSamedi && $groupe) ? 'onmouseenter="loadDetails(this)" onmouseleave="hideBubble()"' : '' ?>
-                                         <?= ($estSeance && $estMercrediOuSamedi && $groupe) ? 'data-url="'.Flight::base().'/calendrier/details?date=' . $date . '&groupe=' . $groupe . '"' : '' ?>>
-                                        <div><strong><?= htmlspecialchars($item['heure_debut'] ?? '—') ?> - <?= htmlspecialchars($item['heure_fin'] ?? '—') ?></strong></div>
-                                        <div><?= htmlspecialchars($item['cours'] ?? $item['club_nom'] ?? 'Activité') ?></div>
-                                        <?php if ($estSeance && $groupe): ?>
-                                            <div>Groupe <?= htmlspecialchars($groupe) ?></div>
-                                        <?php endif; ?>
-                                        <?php if (!empty($item['prof_nom'])): ?>
-                                            <div>Prof : <?= htmlspecialchars($item['prof_nom']) ?> <?= htmlspecialchars($item['prof_prenom']) ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="slot-empty">Aucune activité</div>
-                            <?php endif; ?>
+                        <div class="card-body" id="detailsContent">
+                            <p class="text-muted">Cliquez sur un jour pour voir les détails.</p>
                         </div>
-                    <?php endfor; ?>
+                    </div>
                 </div>
             </div>
-        </main>
+
+        </div>
     </div>
 </div>
 
-<div id="hoverBubble"></div>
-
 <script>
-    const bubble = document.getElementById('hoverBubble');
+    function loadDetails(date, groupe = null) {
+        document.getElementById('selectedDate').innerText = date;
 
-    function loadDetails(elem) {
-        const url = elem.getAttribute('data-url');
-        if (!url) return;
+        let url = "<?= Flight::base() ?>/edt/details?date=" + date;
+        if (groupe !== null) {
+            url += "&groupe=" + encodeURIComponent(groupe);
+        }
 
         fetch(url)
-            .then(r => r.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const body = doc.querySelector('.card-body');
-                if (body) {
-                    const titre = document.createElement('div');
-                    titre.innerHTML = '<strong>Les élèves du groupe</strong><hr>';
-                    bubble.innerHTML = '';
-                    bubble.appendChild(titre);
-                    bubble.appendChild(body);
-                    bubble.style.display = 'block';
-                }
-
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('detailsContent').innerHTML = data.html || "<p class='text-muted'>Aucune donnée</p>";
+            })
+            .catch(() => {
+                document.getElementById('detailsContent').innerHTML = "<p class='text-danger'>Erreur lors du chargement.</p>";
             });
-
-        elem.addEventListener('mousemove', e => {
-            bubble.style.left = e.pageX + 15 + 'px';
-            bubble.style.top = e.pageY + 15 + 'px';
-        });
-    }
-
-    function hideBubble() {
-        bubble.style.display = 'none';
-        bubble.innerHTML = '';
     }
 </script>
 </body>

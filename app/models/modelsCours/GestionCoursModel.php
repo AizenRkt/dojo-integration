@@ -297,4 +297,24 @@ class GestionCoursModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getElevesDuGroupe($groupe, $mois = null, $annee = null) {
+        if ($mois === null) $mois = date('n');
+        if ($annee === null) $annee = date('Y');
+
+        $stmt = $this->pdo->prepare("
+            SELECT e.nom, e.prenom
+            FROM gestion_groupe g
+            JOIN eleve e ON g.id_eleve = e.id_eleve
+            WHERE g.groupe = :groupe AND g.mois = :mois AND g.annee = :annee
+            ORDER BY e.nom, e.prenom
+        ");
+        $stmt->execute([
+            ':groupe' => $groupe,
+            ':mois' => $mois,
+            ':annee' => $annee
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
