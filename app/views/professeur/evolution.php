@@ -247,67 +247,8 @@
 
 <script>
   const BASE_URL = "<?= Flight::base() ?>";
-</script>
-<script>
-document.getElementById('searchStudent').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const studentItems = document.querySelectorAll('#studentsList .student-item');
 
-    studentItems.forEach(item => {
-        const fullName = item.textContent.toLowerCase();
-        if (fullName.includes(searchTerm)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const studentItems = document.querySelectorAll('.student-item');
-    const historique = document.getElementById('historiqueList');
-    const selectedInput = document.getElementById('selectedStudentId');
-    const nameEl = document.getElementById('studentName');
-    const commentEl = document.getElementById('commentaire');
-
-    studentItems.forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
-            studentItems.forEach(i=>i.classList.remove('active'));
-            item.classList.add('active');
-            const id = item.dataset.studentId;
-            selectedInput.value = id;
-
-            fetch(`${BASE_URL}/ws/evaluations/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur '+r.status))
-                .then(data => {
-                    historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
-                    data.forEach(ev => {
-                        const stars = '★'.repeat(ev.note)+'☆'.repeat(5-ev.note);
-                        historique.innerHTML += `
-                            <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6>${new Date(ev.date_evolution).toLocaleDateString()}</h6>
-                                    <small class="star">${stars}</small>
-                                </div><small>${ev.avis}</small>
-                            </li>`;
-
-                    });
-
-                    if (data[0]) {
-                        document.getElementById("studentName").textContent = data[0].nom + data[0].prenom || "Nom inconnu";
-                        document.getElementById("studentInscrit").textContent = "Inscrit depuis : " + new Date(data[0].date_inscription).toLocaleDateString();
-                    }
-                })
-                .catch(err => {
-                    historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
-                    console.error(err);
-                });
-
-        });
-    });
-});
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const studentItems = document.querySelectorAll('.student-item');
     const historique = document.getElementById('historiqueList');
     const selectedInput = document.getElementById('selectedStudentId');
@@ -316,108 +257,191 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentEl = document.getElementById('commentaire');
     const starRating = document.getElementById('starRating');
     const saveBtn = document.getElementById('saveEvaluationBtn');
-    let currentNote = 0;
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editEvolutionForm');
+    const editStarRating = document.getElementById('editStarRating');
 
-    function updateStars(note) {
-        const stars = starRating.querySelectorAll('span.star');
-        stars.forEach(star => {
-            star.classList.toggle('active', Number(star.dataset.value) <= note);
-        });
+    let currentNote = 0;
+    let editNote = 0;
+
+    function updateStars(container, note) {
+      const stars = container.querySelectorAll('.star');
+      stars.forEach(star => {
+        star.classList.toggle('active', Number(star.dataset.value) <= note);
+      });
     }
 
+    // Étoiles - formulaire principal
     starRating.querySelectorAll('span.star').forEach(star => {
-        star.addEventListener('click', () => {
-            currentNote = Number(star.dataset.value);
-            updateStars(currentNote);
-        });
-        star.addEventListener('mouseover', () => {
-            updateStars(Number(star.dataset.value));
-        });
-        star.addEventListener('mouseout', () => {
-            updateStars(currentNote);
-        });
+      star.addEventListener('click', () => {
+        currentNote = Number(star.dataset.value);
+        updateStars(starRating, currentNote);
+      });
+      star.addEventListener('mouseover', () => {
+        updateStars(starRating, Number(star.dataset.value));
+      });
+      star.addEventListener('mouseout', () => {
+        updateStars(starRating, currentNote);
+      });
     });
 
+    // Étoiles - formulaire modification
+    editStarRating.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', () => {
+        const note = Number(star.dataset.value);
+        editNote = (editNote === note) ? 0 : note;
+        updateStars(editStarRating, editNote);
+        editModal.dataset.note = editNote;
+      });
+
+      star.addEventListener('mouseover', () => {
+        updateStars(editStarRating, Number(star.dataset.value));
+      });
+
+      star.addEventListener('mouseout', () => {
+        updateStars(editStarRating, editNote);
+      });
+    });
+
+    // Clic élève
     studentItems.forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        studentItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
 
-            studentItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
+        const id = item.dataset.studentId;
+        selectedInput.value = id;
+        currentNote = 0;
+        updateStars(starRating, 0);
+        commentEl.value = '';
 
-            const id = item.dataset.studentId;
-            selectedInput.value = id;
-
-            currentNote = 0;
-            updateStars(0);
-            commentEl.value = '';
-
-            fetch(`${BASE_URL}/ws/evaluations/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-                .then(data => {
-                    historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
-                    data.forEach(ev => {
-                        const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
-                        historique.innerHTML += `
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="mb-0">${new Date(ev.date_evolution).toLocaleDateString()}</h6>
-                                        <div class="d-flex align-items-center">
-                                            <small class="star me-3">${'★'.repeat(ev.note)}${'☆'.repeat(5 - ev.note)}</small>
-                                            <i class="fas fa-pen text-primary me-2 edit-eval" title="Modifier" data-id="${ev.id_evolution}"></i>
-                                            <i class="fas fa-trash text-danger delete-eval" title="Supprimer" data-id="${ev.id_evolution}"></i>
-                                        </div>
-                                    </div>
-                                    <small>${ev.avis}</small>
-                                </div>
-                            </li>`;
-                    });
-                })
-                .catch(err => {
-                    historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
-                    console.error(err);
-                });
-
-            fetch(`${BASE_URL}/ws/evaluation_last/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-                .then(data => {
-                    currentNote = 0;
-                    updateStars(0);
-                    commentEl.value = '';
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-
-                nameEl.textContent = item.querySelector('h5').textContent;
-                inscritEl.textContent = '';
-                });
+        fetch(`${BASE_URL}/ws/evaluations/${id}`)
+          .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+          .then(data => {
+            historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
+            data.forEach(ev => {
+              const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
+              historique.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <h6 class="mb-0">${new Date(ev.date_evolution).toLocaleDateString()}</h6>
+                      <div class="d-flex align-items-center">
+                        <small class="star me-3">${stars}</small>
+                        <i class="fas fa-pen text-primary me-2 edit-eval" title="Modifier" data-id="${ev.id_evolution}"></i>
+                        <i class="fas fa-trash text-danger delete-eval" title="Supprimer" data-id="${ev.id_evolution}"></i>
+                      </div>
+                    </div>
+                    <small>${ev.avis}</small>
+                  </div>
+                </li>`;
             });
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('delete-eval')) {
-                    const idEvolution = e.target.dataset.id;
-                    if (confirm("Voulez-vous vraiment supprimer cette évolution ?")) {
-                        fetch(`${BASE_URL}/ws/delete_evolution/${idEvolution}`, {
-            method: 'GET' // si tu restes en GET
-        })
-        .then(r => r.json()) // attention, ici JSON.parse attend une réponse 100% JSON
-        .then(data => {
-            if (data.success) {
+          })
+          .catch(err => {
+            historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
+            console.error(err);
+          });
+
+        nameEl.textContent = item.querySelector('h5').textContent;
+        inscritEl.textContent = '';
+      });
+    });
+
+    // Recherche
+    document.getElementById('searchStudent').addEventListener('input', function () {
+      const searchTerm = this.value.toLowerCase();
+      document.querySelectorAll('#studentsList .student-item').forEach(item => {
+        const fullName = item.textContent.toLowerCase();
+        item.style.display = fullName.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    // Modifier + supprimer
+    document.addEventListener('click', function (e) {
+      // Supprimer
+      if (e.target.classList.contains('delete-eval')) {
+        const idEvolution = e.target.dataset.id;
+        const idEleve = selectedInput.value;
+
+        if (confirm("Voulez-vous vraiment supprimer cette évolution ?")) {
+          fetch(`${BASE_URL}/ws/delete_evolution/${idEvolution}`)
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
                 alert("Suppression réussie !");
-            } else {
+                document.querySelector(`.student-item[data-student-id="${idEleve}"]`).click();
+              } else {
                 alert("Erreur : " + data.message);
-            }
+              }
+            })
+            .catch(err => {
+              alert("Erreur réseau ou JSON invalide");
+              console.error(err);
+            });
+        }
+      }
+
+      // Modifier
+      if (e.target.classList.contains('edit-eval')) {
+        const idEvolution = e.target.dataset.id;
+        fetch(`${BASE_URL}/ws/evolution/${idEvolution}`)
+          .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+          .then(data => {
+            document.getElementById('editIdEvolution').value = data.id;
+            document.getElementById('editIdEleve').value = data.id_eleve;
+            document.getElementById('editAvis').value = data.avis;
+            editNote = data.note;
+            editModal.dataset.note = data.note;
+            updateStars(editStarRating, data.note);
+            editModal.style.display = 'flex';
+          })
+          .catch(err => {
+            alert("Erreur lors du chargement des données de l'évolution");
+            console.error(err);
+          });
+      }
+
+      // Annuler
+      if (e.target.id === 'cancelEdit') {
+        editModal.style.display = 'none';
+      }
+    });
+
+    // Enregistrement modification
+    editForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(editForm);
+      const data = {
+        evolution: formData.get('evolution'),
+        idEleve: formData.get('idEleve'),
+        avis: formData.get('avis'),
+        note: editModal.dataset.note || 0
+      };
+
+      fetch(`${BASE_URL}/ws/update_evolution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(r => r.json())
+        .then(response => {
+          if (response.success) {
+            alert("Évolution mise à jour !");
+            editModal.style.display = 'none';
+            document.querySelector(`.student-item[data-student-id="${data.idEleve}"]`).click();
+          } else {
+            alert("Erreur : " + response.message);
+          }
         })
         .catch(err => {
-            alert("Erreur réseau ou JSON invalide");
-            console.error(err);
+          alert("Erreur lors de la mise à jour");
+          console.error(err);
         });
-            }
-        }
     });
-});
-
+  });
 </script>
+
+
 </body>
 </html>

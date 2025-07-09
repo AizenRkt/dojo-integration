@@ -60,7 +60,7 @@ class EvolutionModel {
     public function getEvolutionById($id) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("SELECT id_evolution AS id, id_eleve, note, avis FROM evolution WHERE id_evolution = ?");
+            $stmt = $db->prepare("SELECT id_evolution, id_eleve, note, avis FROM evolution WHERE id_evolution = ?");
             $stmt->execute([$id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -92,7 +92,7 @@ class EvolutionModel {
 
     public static function getHistoriqueEvaluations($id_eleve) {
         $db = Flight::db();
-        $stmt = $db->prepare("SELECT nom, prenom, date_inscription, note, avis, date_evolution FROM evolution JOIN eleve ON eleve.id_eleve = evolution.id_eleve WHERE evolution.id_eleve = ? ORDER BY date_evolution DESC");
+        $stmt = $db->prepare("SELECT id_evolution, nom, prenom, date_inscription, note, avis, date_evolution FROM evolution JOIN eleve ON eleve.id_eleve = evolution.id_eleve WHERE evolution.id_eleve = ? ORDER BY date_evolution DESC");
         $stmt->execute([$id_eleve]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
