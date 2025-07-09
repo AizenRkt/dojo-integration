@@ -53,8 +53,8 @@ INSERT INTO evolution (id_prof, id_eleve, avis, note, date_evolution) VALUES
 (1, 2, 'Des progrès notables, peut encore améliorer la concentration', 4, '2025-02-02'),
 (3, 3, 'Excellent en maths, doit travailler son français', 3, '2025-03-03'),
 (3, 4, 'Participation active en cours, résultats en hausse', 4, '2025-04-04'),
-(1, 5, 'Bon potentiel mais travail irrégulier', 2, '2025-05-05'),
-(3, 1, 'Très créatif, excellente approche des problèmes', 4, '2025-06-06'),
+(1, 1, 'Bon potentiel mais travail irrégulier', 2, '2025-05-05'),
+(3, 2, 'Très créatif, excellente approche des problèmes', 4, '2025-06-06'),
 (1, 3, 'Doit revoir certaines bases en sciences', 3, '2025-07-07');
 
 

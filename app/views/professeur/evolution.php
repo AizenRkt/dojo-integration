@@ -92,7 +92,38 @@
             color: #ffc107;
             font-size: 1.2em;
         }
-
+        .edit-eval,
+        .delete-eval {
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .edit-eval:hover {
+            color: #0d6efd;
+        }
+        .delete-eval:hover {
+            color: #dc3545;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-card {
+            background: #fff;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -114,7 +145,8 @@
                         </div>
                         <div class="card-body">
                             <div class="list-group" id="studentsList">
-                                <?php foreach($eleve as $e) : ?>
+                                <?php if($eleve != null) {
+                                    foreach($eleve as $e) : ?>
                                     <a href="#" class="list-group-item list-group-item-action student-item" data-student-id="<?= $e['id_eleve'] ?>">
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
@@ -123,7 +155,10 @@
                                             </small>
                                         </div>
                                     </a>
-                                <?php endforeach; ?>
+                                <?php endforeach; } ?>
+                                <?php if($eleve == null) { ?>
+                                    <p>Aucune &eacute;volution trouv&eacute;e</p>
+                                <?php } ?>
                             </div>
                         </div>
                     </div>
@@ -146,9 +181,11 @@
                                                 <input type="hidden" id="selectedStudentId" value="">
                                                 <div class="mb-3">
                                                     <div class="star-rating" id="starRating">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <span class="star" data-value="<?= $i ?>">★</span>
-                                                    <?php endfor; ?>
+                                                        <label>Cliquez sur les &eacute;toiles</label>
+                                                        </br>
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <span class="star" data-value="<?= $i ?>">★</span>
+                                                        <?php endfor; ?>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
@@ -179,68 +216,39 @@
         </div>
     </div>  
 </div>
+<div id="editModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+        <h5>Modifier l’évolution</h5>
+        <form id="editEvolutionForm">
+            <input type="hidden" name="evolution" id="editIdEvolution">
+            <input type="hidden" name="idEleve" id="editIdEleve">
+
+            <div class="mb-2">
+                <label>Note :</label>
+                <div id="editStarRating" class="star-rating">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <span class="star" data-value="<?= $i ?>">★</span>
+                    <?php endfor; ?>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label for="editAvis">Avis :</label>
+                <textarea class="form-control" name="avis" id="editAvis" rows="3"></textarea>
+            </div>
+
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-secondary me-2" id="cancelEdit">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
   const BASE_URL = "<?= Flight::base() ?>";
-</script>
-<script>
-document.getElementById('searchStudent').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    const studentItems = document.querySelectorAll('#studentsList .student-item');
 
-    studentItems.forEach(item => {
-        const fullName = item.textContent.toLowerCase();
-        if (fullName.includes(searchTerm)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const studentItems = document.querySelectorAll('.student-item');
-    const historique = document.getElementById('historiqueList');
-    const selectedInput = document.getElementById('selectedStudentId');
-    const nameEl = document.getElementById('studentName');
-    const commentEl = document.getElementById('commentaire');
-
-    studentItems.forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
-            studentItems.forEach(i=>i.classList.remove('active'));
-            item.classList.add('active');
-            const id = item.dataset.studentId;
-            selectedInput.value = id;
-
-            fetch(`${BASE_URL}/ws/evaluations/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur '+r.status))
-                .then(data => {
-                    historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
-                    data.forEach(ev => {
-                        const stars = '★'.repeat(ev.note)+'☆'.repeat(5-ev.note);
-                        historique.innerHTML += `
-                            <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6>${new Date(ev.date_evolution).toLocaleDateString()}</h6>
-                                    <small class="star">${stars}</small>
-                                </div><small>${ev.avis}</small>
-                            </li>`;
-                    });
-
-                    if (data[0]) {
-                        document.getElementById("studentName").textContent = data[0].nom + data[0].prenom || "Nom inconnu";
-                        document.getElementById("studentInscrit").textContent = "Inscrit depuis : " + new Date(data[0].date_inscription).toLocaleDateString();
-                    }
-                })
-                .catch(err => {
-                    historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
-                    console.error(err);
-                });
-
-        });
-    });
-});
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     const studentItems = document.querySelectorAll('.student-item');
     const historique = document.getElementById('historiqueList');
     const selectedInput = document.getElementById('selectedStudentId');
@@ -249,116 +257,191 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentEl = document.getElementById('commentaire');
     const starRating = document.getElementById('starRating');
     const saveBtn = document.getElementById('saveEvaluationBtn');
-    let currentNote = 0;
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editEvolutionForm');
+    const editStarRating = document.getElementById('editStarRating');
 
-    // ✅ Fonction pour mettre à jour l’affichage des étoiles
-    function updateStars(note) {
-        const stars = starRating.querySelectorAll('span.star');
-        stars.forEach(star => {
-            star.classList.toggle('active', Number(star.dataset.value) <= note);
-        });
+    let currentNote = 0;
+    let editNote = 0;
+
+    function updateStars(container, note) {
+      const stars = container.querySelectorAll('.star');
+      stars.forEach(star => {
+        star.classList.toggle('active', Number(star.dataset.value) <= note);
+      });
     }
 
-    // ⭐ Gestion des clics et survols sur les étoiles
+    // Étoiles - formulaire principal
     starRating.querySelectorAll('span.star').forEach(star => {
-        star.addEventListener('click', () => {
-            currentNote = Number(star.dataset.value);
-            updateStars(currentNote);
-        });
-        star.addEventListener('mouseover', () => {
-            updateStars(Number(star.dataset.value));
-        });
-        star.addEventListener('mouseout', () => {
-            updateStars(currentNote);
-        });
+      star.addEventListener('click', () => {
+        currentNote = Number(star.dataset.value);
+        updateStars(starRating, currentNote);
+      });
+      star.addEventListener('mouseover', () => {
+        updateStars(starRating, Number(star.dataset.value));
+      });
+      star.addEventListener('mouseout', () => {
+        updateStars(starRating, currentNote);
+      });
     });
 
-    // 🎯 Clic sur un élève
+    // Étoiles - formulaire modification
+    editStarRating.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', () => {
+        const note = Number(star.dataset.value);
+        editNote = (editNote === note) ? 0 : note;
+        updateStars(editStarRating, editNote);
+        editModal.dataset.note = editNote;
+      });
+
+      star.addEventListener('mouseover', () => {
+        updateStars(editStarRating, Number(star.dataset.value));
+      });
+
+      star.addEventListener('mouseout', () => {
+        updateStars(editStarRating, editNote);
+      });
+    });
+
+    // Clic élève
     studentItems.forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        studentItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
 
-            studentItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
+        const id = item.dataset.studentId;
+        selectedInput.value = id;
+        currentNote = 0;
+        updateStars(starRating, 0);
+        commentEl.value = '';
 
-            const id = item.dataset.studentId;
-            selectedInput.value = id;
+        fetch(`${BASE_URL}/ws/evaluations/${id}`)
+          .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+          .then(data => {
+            historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
+            data.forEach(ev => {
+              const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
+              historique.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <h6 class="mb-0">${new Date(ev.date_evolution).toLocaleDateString()}</h6>
+                      <div class="d-flex align-items-center">
+                        <small class="star me-3">${stars}</small>
+                        <i class="fas fa-pen text-primary me-2 edit-eval" title="Modifier" data-id="${ev.id_evolution}"></i>
+                        <i class="fas fa-trash text-danger delete-eval" title="Supprimer" data-id="${ev.id_evolution}"></i>
+                      </div>
+                    </div>
+                    <small>${ev.avis}</small>
+                  </div>
+                </li>`;
+            });
+          })
+          .catch(err => {
+            historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
+            console.error(err);
+          });
 
-            // 🎯 Réinitialisation du formulaire
-            currentNote = 0;
-            updateStars(0);
-            commentEl.value = '';
-
-            // 📜 Chargement de l’historique
-            fetch(`${BASE_URL}/ws/evaluations/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-                .then(data => {
-                    historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
-                    data.forEach(ev => {
-                        const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
-                        historique.innerHTML += `
-                            <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6>${new Date(ev.date_evolution).toLocaleDateString()}</h6>
-                                    <small class="star">${stars}</small>
-                                </div><small>${ev.avis}</small>
-                            </li>`;
-                    });
-                })
-                .catch(err => {
-                    historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
-                    console.error(err);
-                });
-
-            // 📥 Chargement de la dernière note
-            fetch(`${BASE_URL}/ws/evaluation_last/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-                .then(data => {
-                    currentNote = 0;
-                    updateStars(0);
-                    commentEl.value = '';
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-
-            // 🧑 Mise à jour nom élève
-            nameEl.textContent = item.querySelector('h5').textContent;
-            inscritEl.textContent = '';
-        });
+        nameEl.textContent = item.querySelector('h5').textContent;
+        inscritEl.textContent = '';
+      });
     });
 
-    // ✅ Enregistrement de l’évaluation
-    saveBtn.addEventListener('click', () => {
-        const id_eleve = selectedInput.value;
-        const avis = commentEl.value.trim();
+    // Recherche
+    document.getElementById('searchStudent').addEventListener('input', function () {
+      const searchTerm = this.value.toLowerCase();
+      document.querySelectorAll('#studentsList .student-item').forEach(item => {
+        const fullName = item.textContent.toLowerCase();
+        item.style.display = fullName.includes(searchTerm) ? '' : 'none';
+      });
+    });
 
-        if (!id_eleve || currentNote === 0) {
-            alert("Veuillez sélectionner un élève et une note.");
-            return;
-        }
+    // Modifier + supprimer
+    document.addEventListener('click', function (e) {
+      // Supprimer
+      if (e.target.classList.contains('delete-eval')) {
+        const idEvolution = e.target.dataset.id;
+        const idEleve = selectedInput.value;
 
-        fetch(`${BASE_URL}/ws/evaluation_add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id_eleve: id_eleve,
-                note: currentNote,
-                avis: avis
+        if (confirm("Voulez-vous vraiment supprimer cette évolution ?")) {
+          fetch(`${BASE_URL}/ws/delete_evolution/${idEvolution}`)
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                alert("Suppression réussie !");
+                document.querySelector(`.student-item[data-student-id="${idEleve}"]`).click();
+              } else {
+                alert("Erreur : " + data.message);
+              }
             })
-        })
-        .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
-        .then(resp => {
-            alert("Évaluation enregistrée !");
-            document.querySelector('.student-item.active').click(); // recharge l’élève
+            .catch(err => {
+              alert("Erreur réseau ou JSON invalide");
+              console.error(err);
+            });
+        }
+      }
+
+      // Modifier
+      if (e.target.classList.contains('edit-eval')) {
+        const idEvolution = e.target.dataset.id;
+        fetch(`${BASE_URL}/ws/evolution/${idEvolution}`)
+          .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+          .then(data => {
+            document.getElementById('editIdEvolution').value = data.id;
+            document.getElementById('editIdEleve').value = data.id_eleve;
+            document.getElementById('editAvis').value = data.avis;
+            editNote = data.note;
+            editModal.dataset.note = data.note;
+            updateStars(editStarRating, data.note);
+            editModal.style.display = 'flex';
+          })
+          .catch(err => {
+            alert("Erreur lors du chargement des données de l'évolution");
+            console.error(err);
+          });
+      }
+
+      // Annuler
+      if (e.target.id === 'cancelEdit') {
+        editModal.style.display = 'none';
+      }
+    });
+
+    // Enregistrement modification
+    editForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(editForm);
+      const data = {
+        evolution: formData.get('evolution'),
+        idEleve: formData.get('idEleve'),
+        avis: formData.get('avis'),
+        note: editModal.dataset.note || 0
+      };
+
+      fetch(`${BASE_URL}/ws/update_evolution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(r => r.json())
+        .then(response => {
+          if (response.success) {
+            alert("Évolution mise à jour !");
+            editModal.style.display = 'none';
+            document.querySelector(`.student-item[data-student-id="${data.idEleve}"]`).click();
+          } else {
+            alert("Erreur : " + response.message);
+          }
         })
         .catch(err => {
-            alert("Erreur lors de l'enregistrement !");
-            console.error(err);
+          alert("Erreur lors de la mise à jour");
+          console.error(err);
         });
     });
-});
-
+  });
 </script>
+
+
 </body>
 </html>
