@@ -92,7 +92,38 @@
             color: #ffc107;
             font-size: 1.2em;
         }
-
+        .edit-eval,
+        .delete-eval {
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .edit-eval:hover {
+            color: #0d6efd;
+        }
+        .delete-eval:hover {
+            color: #dc3545;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-card {
+            background: #fff;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -146,9 +177,11 @@
                                                 <input type="hidden" id="selectedStudentId" value="">
                                                 <div class="mb-3">
                                                     <div class="star-rating" id="starRating">
-                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <span class="star" data-value="<?= $i ?>">★</span>
-                                                    <?php endfor; ?>
+                                                        <label>Cliquez sur les &eacute;toiles</label>
+                                                        </br>
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <span class="star" data-value="<?= $i ?>">★</span>
+                                                        <?php endfor; ?>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
@@ -179,6 +212,35 @@
         </div>
     </div>  
 </div>
+<div id="editModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+        <h5>Modifier l’évolution</h5>
+        <form id="editEvolutionForm">
+            <input type="hidden" name="evolution" id="editIdEvolution">
+            <input type="hidden" name="idEleve" id="editIdEleve">
+
+            <div class="mb-2">
+                <label>Note :</label>
+                <div id="editStarRating" class="star-rating">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <span class="star" data-value="<?= $i ?>">★</span>
+                    <?php endfor; ?>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label for="editAvis">Avis :</label>
+                <textarea class="form-control" name="avis" id="editAvis" rows="3"></textarea>
+            </div>
+
+            <div class="text-end mt-3">
+                <button type="button" class="btn btn-secondary me-2" id="cancelEdit">Annuler</button>
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
   const BASE_URL = "<?= Flight::base() ?>";
 </script>
@@ -225,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <small class="star">${stars}</small>
                                 </div><small>${ev.avis}</small>
                             </li>`;
+
                     });
 
                     if (data[0]) {
@@ -251,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveBtn = document.getElementById('saveEvaluationBtn');
     let currentNote = 0;
 
-    // ✅ Fonction pour mettre à jour l’affichage des étoiles
     function updateStars(note) {
         const stars = starRating.querySelectorAll('span.star');
         stars.forEach(star => {
@@ -259,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ⭐ Gestion des clics et survols sur les étoiles
     starRating.querySelectorAll('span.star').forEach(star => {
         star.addEventListener('click', () => {
             currentNote = Number(star.dataset.value);
@@ -273,7 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 🎯 Clic sur un élève
     studentItems.forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
@@ -284,12 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = item.dataset.studentId;
             selectedInput.value = id;
 
-            // 🎯 Réinitialisation du formulaire
             currentNote = 0;
             updateStars(0);
             commentEl.value = '';
 
-            // 📜 Chargement de l’historique
             fetch(`${BASE_URL}/ws/evaluations/${id}`)
                 .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
                 .then(data => {
@@ -297,11 +355,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     data.forEach(ev => {
                         const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
                         historique.innerHTML += `
-                            <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6>${new Date(ev.date_evolution).toLocaleDateString()}</h6>
-                                    <small class="star">${stars}</small>
-                                </div><small>${ev.avis}</small>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="mb-0">${new Date(ev.date_evolution).toLocaleDateString()}</h6>
+                                        <div class="d-flex align-items-center">
+                                            <small class="star me-3">${'★'.repeat(ev.note)}${'☆'.repeat(5 - ev.note)}</small>
+                                            <i class="fas fa-pen text-primary me-2 edit-eval" title="Modifier" data-id="${ev.id_evolution}"></i>
+                                            <i class="fas fa-trash text-danger delete-eval" title="Supprimer" data-id="${ev.id_evolution}"></i>
+                                        </div>
+                                    </div>
+                                    <small>${ev.avis}</small>
+                                </div>
                             </li>`;
                     });
                 })
@@ -310,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(err);
                 });
 
-            // 📥 Chargement de la dernière note
             fetch(`${BASE_URL}/ws/evaluation_last/${id}`)
                 .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
                 .then(data => {
@@ -322,13 +386,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(err);
                 });
 
-            // 🧑 Mise à jour nom élève
             nameEl.textContent = item.querySelector('h5').textContent;
             inscritEl.textContent = '';
         });
     });
 
-    // ✅ Enregistrement de l’évaluation
     saveBtn.addEventListener('click', () => {
         const id_eleve = selectedInput.value;
         const avis = commentEl.value.trim();
@@ -354,6 +416,66 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => {
             alert("Erreur lors de l'enregistrement !");
+            console.error(err);
+        });
+    });
+    // 🎯 Référence du modal et de son formulaire
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editEvolutionForm');
+    const editNote = document.getElementById('editNote');
+    const editAvis = document.getElementById('editAvis');
+    const editId = document.getElementById('editIdEvolution');
+    const editEleve = document.getElementById('editIdEleve');
+    const cancelEdit = document.getElementById('cancelEdit');
+
+    // ✅ Quand on clique sur une icône ✏️
+    document.querySelectorAll('.edit-eval').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            fetch(`${BASE_URL}/ws/evaluation_get/${id}`)
+                .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
+                .then(data => {
+                    editId.value = data.id;
+                    editEleve.value = data.id_eleve;
+                    editNote.value = data.note;
+                    editAvis.value = data.avis;
+                    editModal.style.display = 'flex';
+                })
+                .catch(err => {
+                    alert("Erreur lors du chargement !");
+                    console.error(err);
+                });
+        });
+    });
+
+    // 🛑 Annuler l'édition
+    cancelEdit.addEventListener('click', () => {
+        editModal.style.display = 'none';
+    });
+
+    // ✅ Soumettre la modification
+    editForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const payload = {
+            evolution: editId.value,
+            idEleve: editEleve.value,
+            note: editNote.value,
+            avis: editAvis.value
+        };
+
+        fetch(`${BASE_URL}/ws/updateEvolution`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+        .then(() => {
+            alert("Évaluation modifiée !");
+            editModal.style.display = 'none';
+            document.querySelector('.student-item.active').click();
+        })
+        .catch(err => {
+            alert("Erreur lors de la modification !");
             console.error(err);
         });
     });

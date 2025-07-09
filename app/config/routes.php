@@ -431,7 +431,11 @@ Flight::route('POST /ws/evaluation_add', function(){
     $ok = EvolutionModel::insertEvaluation($id_prof, $id_eleve, $note, $avis);
     Flight::json(['success' => $ok]);
 });
-
+Flight::route('GET /ws/evaluation_get/@id', function($id){
+    $model = new EvolutionModel(); 
+    $data = $model->getEvolutionById($id);
+    Flight::json($data);
+});
 
 
 
