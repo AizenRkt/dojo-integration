@@ -19,6 +19,7 @@ use app\controllers\individu\EleveController;
 use app\controllers\individu\GenreController;
 use app\controllers\individu\ProfController;
 use app\controllers\individu\SuperviseurController;
+use app\controllers\EvolutionController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
@@ -26,6 +27,7 @@ use app\controllers\TarifClubController\TarifClubController;
 use app\controllers\TarifEcolageController\TarifEcolageController;
 use app\controllers\FactureController;
 use app\models\TarifClubModel\TarifClubModel;
+use app\models\evolution\EvolutionModel;
 use flight\Engine;
 use flight\net\Router;
 
@@ -413,6 +415,28 @@ Flight::route('GET /historique-garde/delete/@id', ['app\\controllers\\salle\\His
 
 $dashboardController = new  DashboardController();
 Flight::route('GET /dashboard', [$dashboardController, 'index']);
+
+Flight::route('GET /ws/evaluations/@id', function($id){
+    $data = EvolutionModel::getHistoriqueEvaluations($id);
+    Flight::json($data);
+});
+Flight::route('GET /ws/evaluation_last/@id', function($id){
+    $data = EvolutionModel::getLastEvaluation($id);
+    Flight::json($data ?: []);
+});
+Flight::route('POST /ws/evaluation_add', function(){
+    $data = Flight::request()->data->getData();
+    $id_prof = 1; // À adapter selon ta session/professeur connecté
+    $id_eleve = $data['id_eleve'];
+    $note = $data['note'];
+    $avis = $data['avis'];
+
+    $ok = EvolutionModel::insertEvaluation($id_prof, $id_eleve, $note, $avis);
+    Flight::json(['success' => $ok]);
+});
+
+
+
 
 
 
