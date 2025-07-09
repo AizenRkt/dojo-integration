@@ -26,7 +26,15 @@ CREATE TABLE genre (
   id_genre SERIAL PRIMARY KEY,
   label VARCHAR
 );
-
+CREATE TABLE login (
+  id_login SERIAL PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  mot_de_passe TEXT NOT NULL,
+  role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'prof', 'superviseur')),
+  -- id_personnel INTEGER REFERENCES personnel(id_personnel) ON DELETE CASCADE,
+  actif BOOLEAN DEFAULT TRUE,
+  date_creation TIMESTAMP DEFAULT NOW()
+);
 CREATE TABLE personnel (
       id_personnel SERIAL PRIMARY KEY,
       nom VARCHAR NOT NULL,
@@ -359,7 +367,7 @@ CREATE TABLE suivi_depense (
        date_depense TIMESTAMP NOT NULL DEFAULT NOW(),
        mode_paiement mode_paiement NOT NULL,
        validee BOOLEAN DEFAULT FALSE,
-       id_admin_validateur INTEGER REFERENCES admin(id_admin),
+       id_admin_validateur INTEGER REFERENCES login(id_login),
        date_validation TIMESTAMP,
        id_stock_materiel INTEGER REFERENCES stock_materiel(id_suivi),
 
@@ -426,7 +434,7 @@ CREATE TABLE historique_statut_sortie (
   ancien_statut INTEGER REFERENCES statut_sortie(id_statut),
   nouveau_statut INTEGER REFERENCES statut_sortie(id_statut),
   date_changement TIMESTAMP DEFAULT NOW(),
-  id_admin INTEGER REFERENCES admin(id_admin),
+  id_admin INTEGER REFERENCES login(id_login),
   commentaire TEXT
 );
 
@@ -455,15 +463,7 @@ INSERT INTO statut_sortie (libelle, couleur) VALUES
      ('ANNULE', 'secondary'),
      ('EN COURS', 'info');
 
-CREATE TABLE login (
-  id_login SERIAL PRIMARY KEY,
-  username VARCHAR(100) UNIQUE NOT NULL,
-  mot_de_passe TEXT NOT NULL,
-  role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'prof', 'superviseur')),
-  -- id_personnel INTEGER REFERENCES personnel(id_personnel) ON DELETE CASCADE,
-  actif BOOLEAN DEFAULT TRUE,
-  date_creation TIMESTAMP DEFAULT NOW()
-);
+
 
 
 CREATE TYPE role_utilisateur AS ENUM ('admin', 'prof', 'superviseur');
