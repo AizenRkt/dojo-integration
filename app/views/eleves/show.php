@@ -26,7 +26,7 @@
                             <i class="bi bi-arrow-left me-1"></i>
                             Retour
                         </a>
-                        <a href="/eleves/create" class="btn btn-primary">
+                        <a href="<?= Flight::base() ?>/eleves/create" class="btn btn-primary">
                             <i class="bi bi-plus-circle me-1"></i>
                             Nouvel Élève
                         </a>
