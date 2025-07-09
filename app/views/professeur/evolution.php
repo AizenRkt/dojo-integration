@@ -352,12 +352,41 @@
     });
 
     // Recherche
+    // document.getElementById('searchStudent').addEventListener('input', function () {
+    //   const searchTerm = this.value.toLowerCase();
+    //   document.querySelectorAll('#studentsList .student-item').forEach(item => {
+    //     const fullName = item.textContent.toLowerCase();
+    //     item.style.display = fullName.includes(searchTerm) ? '' : 'none';
+    //   });
+    // });
+
+    // Enhanced search functionality
     document.getElementById('searchStudent').addEventListener('input', function () {
-      const searchTerm = this.value.toLowerCase();
-      document.querySelectorAll('#studentsList .student-item').forEach(item => {
-        const fullName = item.textContent.toLowerCase();
-        item.style.display = fullName.includes(searchTerm) ? '' : 'none';
-      });
+        const searchTerm = this.value.toLowerCase().trim();
+        const studentItems = document.querySelectorAll('#studentsList .student-item');
+        let visibleCount = 0;
+
+        studentItems.forEach(item => {
+            const nameElement = item.querySelector('h5');
+            if (nameElement) {
+                const fullName = nameElement.textContent.toLowerCase();
+                const isVisible = fullName.includes(searchTerm);
+                item.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            }
+        });
+
+        // Show "no results" message if no students match
+        const noResultsMsg = document.getElementById('noResultsMsg');
+        if (noResultsMsg) noResultsMsg.remove();
+
+        if (visibleCount === 0 && searchTerm !== '') {
+            const noResults = document.createElement('div');
+            noResults.id = 'noResultsMsg';
+            noResults.className = 'text-muted p-3 text-center';
+            noResults.textContent = 'Aucun élève trouvé';
+            document.getElementById('studentsList').appendChild(noResults);
+        }
     });
 
     // Modifier + supprimer
