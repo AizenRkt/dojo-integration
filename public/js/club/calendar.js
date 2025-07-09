@@ -68,22 +68,21 @@ function generateCalendar(year, month) {
 
         const dayData = scheduleData[dateString];
 
-        if (dayData) {
-            dayElement.classList.add(`day-${dayData.status}`);
+if (dayData && dayData.status) {
+    dayElement.classList.add(dayData.status); // status is already day-full, day-partial, etc.
+}
 
-            if (dayData.status === 'partial' && dayData.available && dayData.available.length > 0) {
-                const notification = document.createElement('div');
-                notification.className = 'availability-notification';
-                notification.innerHTML = '<i class="bi bi-plus"></i>';
-                notification.onclick = (e) => {
-                    e.stopPropagation();
-                    showAvailableSlots(dateString);
-                };
-                dayElement.appendChild(notification);
-            }
-        } else {
-            dayElement.classList.add('day-free');
-        }
+
+
+if (status === 'partial') {
+    const notification = document.createElement('div');
+    notification.onclick = (e) => {
+        e.stopPropagation();
+        showAvailableSlots(dateString);
+    };
+    dayElement.appendChild(notification);
+}
+
 
         dayElement.innerHTML += `<span class="day-number">${date.getDate()}</span>`;
         dayElement.onclick = (e) => {
@@ -248,6 +247,19 @@ function updateCalendar() {
     }
     generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 }
+
+function classifyDayStatus(reservationsForDay) {
+    const TOTAL_SLOTS = 8; // adjust to your real number of total daily slots
+
+    if (!reservationsForDay || reservationsForDay.length === 0) {
+        return 'free'; // Green
+    } else if (reservationsForDay.length >= TOTAL_SLOTS) {
+        return 'full'; // Red
+    } else {
+        return 'partial'; // Yellow
+    }
+}
+
 
 // Export des fonctions globales
 window.changeMonth = changeMonth;
