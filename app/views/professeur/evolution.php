@@ -306,27 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
     });
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('delete-eval')) {
-            const id = e.target.dataset.id;
-            console.log("ID à supprimer :", id);
-            if (confirm("Voulez-vous vraiment supprimer cette évaluation ?")) {
-                fetch(`${BASE_URL}/ws/evaluation_delete/${id}`, {
-                    method: 'GET'
-                })
-                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-                .then(resp => {
-                    alert("Évaluation supprimée !");
-                    document.querySelector('.student-item.active').click(); 
-                })
-                .catch(err => {
-                    alert("Erreur lors de la suppression !");
-                    console.error(err);
-                });
-            }
-        }
-    });
-
 });
 document.addEventListener('DOMContentLoaded', () => {
     const studentItems = document.querySelectorAll('.student-item');
@@ -411,38 +390,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(err);
                 });
 
-            nameEl.textContent = item.querySelector('h5').textContent;
-            inscritEl.textContent = '';
-        });
-    });
-
-    saveBtn.addEventListener('click', () => {
-        const id_eleve = selectedInput.value;
-        const avis = commentEl.value.trim();
-
-        if (!id_eleve || currentNote === 0) {
-            alert("Veuillez sélectionner un élève et une note.");
-            return;
-        }
-
-        fetch(`${BASE_URL}/ws/evaluation_add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id_eleve: id_eleve,
-                note: currentNote,
-                avis: avis
-            })
+                nameEl.textContent = item.querySelector('h5').textContent;
+                inscritEl.textContent = '';
+                });
+            });
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('delete-eval')) {
+                    const idEvolution = e.target.dataset.id;
+                    if (confirm("Voulez-vous vraiment supprimer cette évolution ?")) {
+                        fetch(`${BASE_URL}/ws/delete_evolution/${idEvolution}`, {
+            method: 'GET' // si tu restes en GET
         })
-        .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
-        .then(resp => {
-            alert("Évaluation enregistrée !");
-            document.querySelector('.student-item.active').click(); 
+        .then(r => r.json()) // attention, ici JSON.parse attend une réponse 100% JSON
+        .then(data => {
+            if (data.success) {
+                alert("Suppression réussie !");
+            } else {
+                alert("Erreur : " + data.message);
+            }
         })
         .catch(err => {
-            alert("Erreur lors de l'enregistrement !");
+            alert("Erreur réseau ou JSON invalide");
             console.error(err);
         });
+            }
+        }
     });
 });
 

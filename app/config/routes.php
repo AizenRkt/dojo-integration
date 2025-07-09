@@ -439,10 +439,14 @@ Flight::route('POST /ws/evaluation_add', function(){
 //     $data = $model->getEvolutionById($id);
 //     Flight::json($data);
 // });
-Flight::route('GET /ws/evaluation_delete/@id', function($id){
-    $model = new EvolutionModel(); 
+Flight::route('GET /ws/delete_evolution/@id', function($id){
+    $model = new EvolutionModel(); // adapte selon ton modèle
     $result = $model->deleteEvolution($id);
-    Flight::json(['success' => $result]);
+    if ($result) {
+        Flight::json(['success' => true, 'message' => 'Évolution supprimée']);
+    } else {
+        Flight::json(['success' => false, 'message' => 'Erreur lors de la suppression'], 500);
+    }
 });
 
 
