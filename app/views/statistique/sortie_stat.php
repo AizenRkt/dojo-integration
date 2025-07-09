@@ -268,7 +268,6 @@
 <script src="<?= Flight::base() ?>/public/assets/compiled/js/app.js"></script>
 <script src="<?= Flight::base() ?>/public/assets/extensions/jquery/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     // Objets pour stocker nos graphiques
     let categorieChart;
