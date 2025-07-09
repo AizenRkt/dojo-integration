@@ -57,7 +57,7 @@ class PresenceModel
     }
     //maka eleves absents entre deux dates
     public function getAbsentByDate($date_debut, $date_fin) {
-                $sql = "SELECT DISTINCT 
+        $sql = "SELECT DISTINCT 
                             e.nom,
                             e.prenom,
                             COUNT(p.id_presence) AS nb_absences  
@@ -113,7 +113,7 @@ class PresenceModel
         return $now < $seanceDateTime;
     }
     public function getAbsencesEleves() {
-    $sql = "
+        $sql = "
         SELECT 
             e.id_eleve,
             e.nom,
@@ -124,62 +124,12 @@ class PresenceModel
         GROUP BY e.id_eleve, e.nom, e.prenom
         ORDER BY nb_absences DESC
         ";
-    
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute();
-    
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-//public function getAbsenceDetailsForStudent($idEleve, $dateDebut, $dateFin) {
-//    $sql = "
-//        SELECT
-//            sc.date,
-//            c.label AS cours,
-//            p.remarque
-//        FROM
-//            presence p
-//        JOIN
-//            seances_cours sc ON p.id_seances = sc.id_seances
-//        JOIN
-//            cours c ON sc.id_cours = c.id_cours
-//        WHERE
-//            p.id_eleve = :idEleve
-//            AND p.present = false
-//        ORDER BY
-//            sc.date
-//    ";
-//
-//    $params = ['id_eleve' => $idEleve];
-//
-//    // Add date filters if provided
-//    if ($dateDebut && $dateFin) {
-//        $sql = "
-//            SELECT
-//                sc.date,
-//                c.label AS cours,
-//                p.remarque
-//            FROM
-//                presence p
-//            JOIN
-//                seances_cours sc ON p.id_seances = sc.id_seances
-//            JOIN
-//                cours c ON sc.id_cours = c.id_cours
-//            WHERE
-//                p.id_eleve = :id_eleve
-//                AND p.present = false
-//                AND sc.date BETWEEN :date_debut AND :date_fin
-//            ORDER BY
-//                sc.date
-//        ";
-//        $params['date_debut'] = $dateDebut;
-//        $params['date_fin'] = $dateFin;
-//    }
-//
-//    $stmt = $this->db->prepare($sql);
-//    $stmt->execute($params);
-//
-//    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-//}
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function getAbsenceDetailsForStudent($idEleve, $dateDebut = null, $dateFin = null) {
         $sql = "

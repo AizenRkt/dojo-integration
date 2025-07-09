@@ -79,26 +79,26 @@ class PresenceController {
             'total' => count($data)
         ]);
     }
-public function getAbsencesData() {
-    $data = $this->presenceModel->getAbsencesEleves();
-    Flight::json([
-        'success' => true,
-        'data' => $data,
-        'total' => count($data)
-    ]);
-}
+    public function getAbsencesData() {
+        $data = $this->presenceModel->getAbsencesEleves();
+        Flight::json([
+            'success' => true,
+            'data' => $data,
+            'total' => count($data)
+        ]);
+    }
 
-public function getAbsenceDetails() {
-    $idEleve = Flight::request()->query['id_eleve'];
-    $dateDebut = Flight::request()->query['date_debut'];
-    $dateFin = Flight::request()->query['date_fin'];
-    
-    $details = $this->presenceModel->getAbsenceDetailsForStudent($idEleve, $dateDebut, $dateFin);
-    
-    Flight::json([
-        'success' => true,
-        'details' => $details
-    ]);
-}
+    public function getAbsenceDetails() {
+        $idEleve = Flight::request()->query['id_eleve'];
+        $dateDebut = Flight::request()->query['date_debut'];
+        $dateFin = Flight::request()->query['date_fin'];
+
+        $details = $this->presenceModel->getAbsenceDetailsForStudent($idEleve, $dateDebut, $dateFin);
+
+        Flight::json([
+            'success' => true,
+            'details' => $details
+        ]);
+    }
 }
 ?>
