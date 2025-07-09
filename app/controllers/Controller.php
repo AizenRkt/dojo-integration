@@ -6,6 +6,7 @@ use app\controllers\statistique\ReportController;
 use app\models\TarifAbonnementModel\TarifAbonnementModel;
 use app\models\TarifClubModel\TarifClubModel;
 use app\models\TarifEcolageModel\TarifEcolageModel;
+use app\models\individu\EleveModel;
 
 use Flight;
 
@@ -31,19 +32,23 @@ class Controller {
         $eleveModel = new EleveModel();
         $genreData = $eleveModel->countByGenre();
         $ageGenreData = $eleveModel->countByAgeRangeAndGenre();
-        $total = array_sum(array_column($genreData, 'total'));
-        $pourcentageHomme = round(($genreData[0]['total'] / $total) * 100);  
-        $pourcentageFemme = round(($genreData[1]['total'] / $total) * 100);  
-        $pourcentageEnfant = 100 - $pourcentageHomme - $pourcentageFemme;  
-        
-        Flight::render('statistique/demographie', [
-            'totalEleves' => $total,
-            'ageGenreData' => json_encode($ageGenreData),
-            'genreData' => json_encode($genreData),
-            'pourcentageHomme' => $pourcentageHomme,
-            'pourcentageFemme' => $pourcentageFemme,
-            'pourcentageEnfant' => $pourcentageEnfant
-        ]);
+        if($ageGenreData != null) {
+            $total = array_sum(array_column($genreData, 'total'));
+            $pourcentageHomme = round(($genreData[0]['total'] / $total) * 100);  
+            $pourcentageFemme = round(($genreData[1]['total'] / $total) * 100);  
+            $pourcentageEnfant = 100 - $pourcentageHomme - $pourcentageFemme;  
+            Flight::render('statistique/demographie', [
+                'totalEleves' => $total,
+                'ageGenreData' => json_encode($ageGenreData),
+                'genreData' => json_encode($genreData),
+                'pourcentageHomme' => $pourcentageHomme,
+                'pourcentageFemme' => $pourcentageFemme,
+                'pourcentageEnfant' => $pourcentageEnfant
+            ]);
+        } else {
+            $message = "Aucun &eacute;l&egrave;ve trouv&eacute;";
+            Flight::render('statistique/demographie', ['message' => $message]);
+        }
     }
 
     //Controller pour les pages des professeurs
