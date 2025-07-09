@@ -34,12 +34,6 @@
                     </ul>
                 </li>
                 <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/declaration-accident" class='sidebar-link'>
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span>déclaration accident</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/pointage-professeur" class='sidebar-link'>
                         <i class="bi bi-fingerprint"></i>
                         <span>pointage professeur</span>

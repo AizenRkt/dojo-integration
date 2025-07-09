@@ -29,8 +29,8 @@ class DashboardController {
 
         $stats['endommagés'] = $this->getDb()->query("SELECT COUNT(*) FROM suivi_salle WHERE etat = 'endommage'")->fetchColumn();
         $stats['factures'] = $this->getDb()->query("SELECT COUNT(*) FROM facture_materiel")->fetchColumn();
-        $stats['payees'] = $this->getDb()->query("SELECT COUNT(*) FROM facture_materiel WHERE est_paye = true")->fetchColumn();
-        $stats['non_payees'] = $this->getDb()->query("SELECT COUNT(*) FROM facture_materiel WHERE est_paye = false")->fetchColumn();
+        $stats['payees'] = $this->getDb()->query("SELECT COUNT(*) FROM facture_materiel WHERE est_facture = true")->fetchColumn();
+        $stats['non_payees'] = $this->getDb()->query("SELECT COUNT(*) FROM facture_materiel WHERE est_facture = false")->fetchColumn();
 
         $stats['montant_total'] = $this->getDb()->query("SELECT COALESCE(SUM(montant), 0) FROM facture_materiel")->fetchColumn();
 
