@@ -16,24 +16,24 @@
                         <span>évolution</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/emploi_du_temps" class='sidebar-link'>
+                <!-- <li class="sidebar-item">
+                    <a href="/emploi_du_temps" class='sidebar-link'>
                         <i class="bi bi-exclamation-triangle-fill"></i>
                         <span>emploi du temps</span>
                     </a>
-                </li>
+                </li> -->
                 <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/presence_eleve" class='sidebar-link'>
                         <i class="bi bi-fingerprint"></i>
                         <span>présence</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
+                <!-- <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/compte" class='sidebar-link'>
                         <i class="bi bi-person-plus-fill"></i>
                         <span>compte rendu</span>
                     </a>
-                </li>
+                </li> -->
 
                 <li class="sidebar-title">connexion</li>
                 <li class="sidebar-item">

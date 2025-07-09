@@ -17,9 +17,6 @@
                     </a>
                     <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
                         <li class="submenu-item  ">
-                            <a href="<?= Flight::base() ?>/dashboard" class="submenu-link">dashboard</a>
-                        </li>
-                        <li class="submenu-item  ">
                             <a href="<?= Flight::base() ?>/materiel" class="submenu-link">matériel</a>
                         </li>
                         <li class="submenu-item  ">
