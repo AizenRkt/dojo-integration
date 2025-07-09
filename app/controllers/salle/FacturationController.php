@@ -35,7 +35,7 @@ class FacturationController {
             $stmt->execute([':id' => $suivi['id_club']]);
             $destinataire = $stmt->fetchColumn();
         } else {
-            $stmt = $this->getDb()->prepare("SELECT nom, prenom FROM superviseur WHERE id_superviseur = :id");
+            $stmt = $this->getDb()->prepare("SELECT p.nom, p.prenom FROM superviseur s JOIN personnel p ON s.id_superviseur = p.id_personnel WHERE s.id_superviseur = :id");
             $stmt->execute([':id' => $suivi['id_superviseur']]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             $destinataire = $row['nom'] . ' ' . $row['prenom'];
