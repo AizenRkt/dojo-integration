@@ -94,5 +94,5 @@ class SalaireController {
         } catch (Exception $e) {
             Flight::json(['error' => $e->getMessage()], 500);
         }
-    }
+    } 
 }

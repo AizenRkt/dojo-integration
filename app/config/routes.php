@@ -1,5 +1,4 @@
 <?php
-
 //importation de controller
 use app\controllers\Controller;
 use app\controllers\controllersCours\CalendrierController;
@@ -25,6 +24,7 @@ use app\controllers\individu\SuperviseurController;
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
 use app\controllers\TarifClubController\TarifClubController;
 use app\controllers\TarifEcolageController\TarifEcolageController;
+use app\controllers\FactureController;
 use app\models\TarifClubModel\TarifClubModel;
 use flight\Engine;
 use flight\net\Router;
@@ -99,6 +99,8 @@ Flight::route('POST /api/salaires/payer', function() {
 //     $controller->getStatistiques();
 // });
 
+$factureController = new FactureController();
+Flight::route('GET /facture/salaire/@id', [$factureController, 'factureSalaire']);
 
 // Add these routes to your routes.php file:
 
