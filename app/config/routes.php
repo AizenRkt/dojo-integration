@@ -20,6 +20,7 @@ use app\controllers\individu\GenreController;
 use app\controllers\individu\ProfController;
 use app\controllers\individu\SuperviseurController;
 use app\controllers\EvolutionController;
+use app\controllers\EcolageController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
@@ -464,6 +465,7 @@ Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\
 Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
 
 
+
 $abonnementController = new AbonnementController();
 // Liste des abonnements
 Flight::route('GET /abonnements', [$abonnementController, 'index']);
@@ -492,7 +494,35 @@ Flight::route('GET /abonnement/is_active/@id', [$abonnementController, 'isActive
 // Vérifier les jours restants d'un abonnement
 Flight::route('GET /abonnement/days_remaining/@id', [$abonnementController, 'daysRemaining']);
 
-//// Genre
+ //// Genre
 //$router->get('/api/genres', [ $genreController, 'getAll' ]);
+
+
+
+Flight::route('GET /api/ecolage/eleves', function() {
+    $controller = new EcolageController();
+    $controller->getAllEleves();
+});
+
+Flight::route('GET /api/ecolage/eleves/@id', function($id) {
+    $controller = new EcolageController();
+    $controller->getEleveById($id);
+});
+
+Flight::route('GET /api/ecolage/prochain-mois/@id_eleve', function($id_eleve) {
+    $controller = new EcolageController();
+    $controller->getProchainMois($id_eleve);
+});
+
+Flight::route('GET /api/ecolage/reste-a-payer', function() {
+    $controller = new EcolageController();
+    $controller->getResteEcolage();
+});
+
+Flight::route('POST /api/ecolage/payer', function() {
+    $controller = new EcolageController();
+    $controller->payerEcolage();
+});
+
 
 ?>

@@ -48,6 +48,10 @@
                                         <i class="bi bi-cash-stack"></i>
                                         Salaire
                                     </button>
+                                    <button type="button" class="btn btn-warning btn-lg" id="btnEcolage">
+                                        <i class="bi bi-journal-bookmark"></i>
+                                        Écolage
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -463,11 +467,145 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="row" id="sectionEcolage" style="display: none;">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">Gestion des Écolages</h4>
+                                <div class="d-flex gap-2">
+                                    <input type="text" class="form-control" id="searchEleve" placeholder="Rechercher un élève...">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Liste des élèves (Gauche) -->
+                                    <div class="col-md-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5>Liste des élèves</h5>
+                                            <button class="btn btn-sm btn-outline-primary" id="btnRefreshEleves">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        </div>
+                                        <div class="list-group" id="listeEleves">
+                                            <!-- Chargement dynamique via JavaScript -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Détails et paiement -->
+                                    <div class="col-md-8">
+                                        <!-- Message quand aucun élève sélectionné -->
+                                        <div id="noEleveSelected" class="text-center text-muted py-5">
+                                            <i class="bi bi-person-plus fs-1"></i>
+                                            <h5>Sélectionnez un élève</h5>
+                                            <p>Choisissez un élève dans la liste pour gérer ses écolages</p>
+                                        </div>
+
+                                        <!-- Détails de l'élève -->
+                                        <div id="detailsEleve" style="display: none;">
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <h5 class="mb-0" id="nomEleve"></h5>
+                                                    <small class="text-muted" id="infoEleve"></small>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>ID:</strong> <span id="idEleve"></span></p>
+                                                            <p><strong>Date de naissance:</strong> <span id="dateNaissance"></span></p>
+                                                            <p><strong>Contact:</strong> <span id="contactEleve"></span></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Tarif mensuel:</strong> <span id="tarifMensuel"></span></p>
+                                                            <p><strong>Dernier paiement:</strong> <span id="dernierPaiementEleve"></span></p>
+                                                            <p><strong>Statut:</strong> <span id="statutEleve"></span></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Formulaire de paiement -->
+                                            <div class="card mb-3">
+                                                <div class="card-header">
+                                                    <h6>Nouveau paiement</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="formEcolage">
+                                                        <input type="hidden" id="currentEleveId">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="ecolageMois" class="form-label">Mois à payer</label>
+                                                                    <select class="form-select" id="ecolageMois" required>
+                                                                        <!-- Options générées dynamiquement -->
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="ecolageAnnee" class="form-label">Année</label>
+                                                                    <input type="number" class="form-control" id="ecolageAnnee" required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="ecolageMontant" class="form-label">Montant (AR)</label>
+                                                                    <input type="number" class="form-control" id="ecolageMontant" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="ecolageModePaiement" class="form-label">Mode de paiement</label>
+                                                                    <select class="form-select" id="ecolageModePaiement" required>
+                                                                        <option value="espece">Espèce</option>
+                                                                        <option value="virement">Virement</option>
+                                                                        <option value="cheque">Chèque</option>
+                                                                        <option value="mobile_money">Mobile Money</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-grid">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="bi bi-cash-stack"></i> Enregistrer le paiement
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            <!-- Historique des paiements -->
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6>Historique des paiements</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Date</th>
+                                                                    <th>Période</th>
+                                                                    <th>Montant</th>
+                                                                    <th>Mode</th>
+                                                                    <th>Statut</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="historiqueEcolages">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -707,6 +845,7 @@
             config.style.display = config.style.display === 'none' ? 'block' : 'none';
         });
     </script>
+    
     <script>
         // Gestion des salaires
         document.addEventListener('DOMContentLoaded', function() {
@@ -1016,16 +1155,275 @@
             loadEmployes();
         });
     </script>
+
+    <script>
+        // Gestion des écolages
+        document.addEventListener('DOMContentLoaded', function() {
+            let eleves = [];
+            let eleveSelectionne = null;
+
+            // Charger la liste des élèves
+            function loadEleves() {
+                fetch('<?= Flight::base() ?>/api/ecolage/eleves')
+                    .then(response => response.json())
+                    .then(data => {
+                        eleves = data;
+                        updateElevesList();
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Mettre à jour la liste des élèves
+            function updateElevesList() {
+                const liste = document.getElementById('listeEleves');
+                liste.innerHTML = '';
+
+                eleves.forEach((eleve, index) => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action';
+                    item.dataset.eleveId = eleve.id_eleve;
+
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${eleve.nom} ${eleve.prenom}</h6>
+                                <small class="text-muted">${eleve.est_adulte ? 'Adulte' : 'Enfant'}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="fw-bold">${formatMontant(eleve.tarif_ecolage || 0)}</small>
+                            </div>
+                        </div>
+                    `;
+
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectionnerEleve(eleve.id_eleve);
+                    });
+
+                    liste.appendChild(item);
+                });
+            }
+
+            // Sélectionner un élève
+            function selectionnerEleve(id_eleve) {
+                // Mettre à jour l'apparence de la liste
+                document.querySelectorAll('#listeEleves .list-group-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-eleve-id="${id_eleve}"]`).classList.add('active');
+
+                // Charger les détails de l'élève
+                fetch(`<?= Flight::base() ?>/api/ecolage/eleves/${id_eleve}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        eleveSelectionne = data.eleve;
+                        afficherDetailsEleve(data.eleve, data.historique);
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Afficher les détails de l'élève
+            function afficherDetailsEleve(eleve, historique) {
+                document.getElementById('noEleveSelected').style.display = 'none';
+                document.getElementById('detailsEleve').style.display = 'block';
+
+                // Informations de base
+                document.getElementById('nomEleve').textContent = `${eleve.nom} ${eleve.prenom}`;
+                document.getElementById('infoEleve').textContent = `Né(e) le ${formatDate(eleve.date_naissance)} (${eleve.est_adulte ? 'Adulte' : 'Enfant'})`;
+                document.getElementById('idEleve').textContent = `E-${eleve.id_eleve.toString().padStart(3, '0')}`;
+                document.getElementById('dateNaissance').textContent = formatDate(eleve.date_naissance);
+                document.getElementById('contactEleve').textContent = eleve.contact || 'Non renseigné';
+                document.getElementById('tarifMensuel').textContent = formatMontant(eleve.tarif_ecolage || 0);
+                document.getElementById('statutEleve').textContent = eleve.statut || 'Actif';
+
+                // Formulaire
+                document.getElementById('currentEleveId').value = eleve.id_eleve;
+
+                generateEcolageMoisOptions();
+                
+                // Récupérer le prochain mois à payer
+                fetch(`<?= Flight::base() ?>/api/ecolage/prochain-mois/${eleve.id_eleve}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('ecolageMois').value = data.mois;
+                        document.getElementById('ecolageAnnee').value = data.annee;
+                        
+                        // Calculer le reste à payer
+                        fetch(`<?= Flight::base() ?>/api/ecolage/reste-a-payer?id_eleve=${eleve.id_eleve}&mois=${data.mois}&annee=${data.annee}&tarif_total=${eleve.tarif_ecolage}`)
+                            .then(response => response.json())
+                            .then(resteData => {
+                                document.getElementById('ecolageMontant').value = resteData.reste;
+                            });
+                    });
+
+                
+                // Historique des paiements
+                updateHistoriqueEcolages(historique);
+            }
+
+            function generateEcolageMoisOptions() {
+                const select = document.getElementById('ecolageMois');
+                select.innerHTML = '';
+
+                const moisNoms = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+
+                // Ajouter les 12 mois
+                for (let i = 0; i < 12; i++) {
+                    const option = document.createElement('option');
+                    option.value = i + 1; // Les mois vont de 1 à 12
+                    option.textContent = moisNoms[i];
+                    select.appendChild(option);
+                }
+            }
+
+            // Mettre à jour l'historique des écolages
+            function updateHistoriqueEcolages(historique) {
+                const tbody = document.getElementById('historiqueEcolages');
+                tbody.innerHTML = '';
+
+                if (!historique || historique.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Aucun paiement enregistré</td></tr>';
+                    return;
+                }
+
+                historique.forEach(ecolage => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formatDate(ecolage.date_paiement)}</td>
+                        <td>${getMoisNom(ecolage.mois)} ${ecolage.annee}</td>
+                        <td>${formatMontant(ecolage.montant_total)}</td>
+                        <td>${capitalizeFirst(ecolage.mode_paiement)}</td>
+                        <td><span class="badge ${ecolage.statut === 'paye' ? 'bg-success' : 'bg-warning'}">${capitalizeFirst(ecolage.statut)}</span></td>
+                        <td><a href="<?= Flight::base() ?>/facture/ecolage/${ecolage.id_ecolage}" class="btn btn-sm btn-primary" target="_blank">Facture</a></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Soumettre le formulaire de paiement
+            document.getElementById('formEcolage').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    id_eleve: document.getElementById('currentEleveId').value,
+                    mois: document.getElementById('ecolageMois').value,
+                    annee: document.getElementById('ecolageAnnee').value,
+                    montant: document.getElementById('ecolageMontant').value,
+                    mode_paiement: document.getElementById('ecolageModePaiement').value
+                };
+
+                fetch('<?= Flight::base() ?>/api/ecolage/payer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Paiement enregistré avec succès!');
+                            // Recharger les détails pour mettre à jour l'historique
+                            selectionnerEleve(eleveSelectionne.id_eleve);
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors du paiement de l\'écolage');
+                    });
+            });
+
+            // Recherche d'élèves
+            document.getElementById('searchEleve').addEventListener('input', function() {
+                const terme = this.value.toLowerCase();
+
+                if (terme.length === 0) {
+                    updateElevesList();
+                    return;
+                }
+
+                if (terme.length < 2) return;
+
+                const elevesFiltres = eleves.filter(eleve =>
+                    eleve.nom.toLowerCase().includes(terme) ||
+                    eleve.prenom.toLowerCase().includes(terme) ||
+                    eleve.contact?.toLowerCase().includes(terme)
+                );
+
+                const liste = document.getElementById('listeEleves');
+                liste.innerHTML = '';
+
+                elevesFiltres.forEach(eleve => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.className = 'list-group-item list-group-item-action';
+                    item.dataset.eleveId = eleve.id_eleve;
+
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${eleve.nom} ${eleve.prenom}</h6>
+                                <small class="text-muted">${eleve.est_adulte ? 'Adulte' : 'Enfant'}</small>
+                            </div>
+                            <div class="text-end">
+                                <small class="fw-bold">${formatMontant(eleve.tarif_ecolage || 0)}</small>
+                            </div>
+                        </div>
+                    `;
+
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectionnerEleve(eleve.id_eleve);
+                    });
+
+                    liste.appendChild(item);
+                });
+            });
+
+            // Actualiser la liste
+            document.getElementById('btnRefreshEleves').addEventListener('click', loadEleves);
+
+            // Fonctions utilitaires (déjà définies dans votre script)
+            function formatMontant(montant) {
+                return new Intl.NumberFormat('fr-FR').format(montant) + ' AR';
+            }
+
+            function formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('fr-FR');
+            }
+
+            function capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function getMoisNom(numeroMois) {
+                const mois = [
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                ];
+                return mois[numeroMois - 1] || '';
+            }
+        });
+    </script>
+
     <!-- Script pour la navigation entre les sections -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const btnSortie = document.getElementById('btnSortie');
             const btnPaiement = document.getElementById('btnPaiement');
             const btnSalaire = document.getElementById('btnSalaire');
+            const btnEcolage = document.getElementById('btnEcolage');
             
             const sectionSortie = document.getElementById('sectionSortie');
             const sectionPaiement = document.getElementById('sectionPaiement');
             const sectionSalaire = document.getElementById('sectionSalaire');
+            const sectionEcolage = document.getElementById('sectionEcolage');
             
             // Afficher la section Sortie par défaut
             sectionSortie.style.display = 'flex';
@@ -1059,6 +1457,20 @@
                 btnPaiement.classList.remove('active');
                 btnSalaire.classList.add('active');
             });
+
+            btnEcolage.addEventListener('click', function() {
+                sectionSortie.style.display = 'none';
+                sectionPaiement.style.display = 'none';
+                sectionSalaire.style.display = 'none';
+                sectionEcolage.style.display = 'flex';
+                
+                btnSortie.classList.remove('active');
+                btnPaiement.classList.remove('active');
+                btnSalaire.classList.remove('active');
+                btnEcolage.classList.add('active');
+                // loadEleves(); // Charger la liste des élèves
+            });
+
         });
     </script>
 
