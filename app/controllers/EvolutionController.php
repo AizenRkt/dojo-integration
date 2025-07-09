@@ -10,7 +10,7 @@ class EvolutionController {
     public function listElevesEvolution() {
         $evolution = new EvolutionModel(Flight::db());
         $eleves = $evolution->getElevesAvecEtoile();
-        Flight::render('evolution/evolution',['eleve' => $eleves]);
+        Flight::render('professeur/evolution',['eleve' => $eleves]);
     }
 
     public function goToEvolutionForm() {
@@ -99,5 +99,29 @@ class EvolutionController {
             'available_years' => $available_years,
             'selected_year' => $mostRecentYear // On utilise toujours l'année la plus récente par défaut
         ]);
+    }
+
+    public static function getLastEvaluation($id) {
+        $model = new EvolutionModel(Flight::db());
+        $historique = $model->getHistoriqueEleve($id);
+
+        if ($historique && count($historique) > 0) {
+            Flight::json($historique[0]); // renvoie la plus récente
+        } else {
+            Flight::json(['note' => 0, 'avis' => '']);
+        }
+    }
+
+    public static function saveEvaluation() {
+        $data = Flight::request()->data->getData();
+
+        $model = new EvolutionModel(Flight::db());
+        $success = $model->insertEvolution($data);
+
+        if ($success) {
+            Flight::json(['status' => 'ok']);
+        } else {
+            Flight::halt(500, 'Erreur lors de l\'enregistrement');
+        }
     }
 }

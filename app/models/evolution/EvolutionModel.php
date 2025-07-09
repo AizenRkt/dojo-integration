@@ -1,11 +1,11 @@
 <?php
 
-namespace app\models;
+namespace app\models\evolution;
 
 use PDO;
 use PDOException;
 use Exception;
-// use Flight;
+use Flight;
 
 class EvolutionModel {
     private $db;
@@ -32,14 +32,17 @@ class EvolutionModel {
         }
     }
 
-    public function insertEvolution($params) {
-        try {
-            $sql = "INSERT INTO evolution(id_prof,id_eleve,avis,note,date_evolution) VALUES (?,?,?,?,NOW())";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute([$params['prof'], $params['eleve'], $params['avis'], $params['note']]);
-        } catch (PDOException $e) {
-            return null;
-        }
+    public static function getLastEvaluation($id_eleve) {
+        $db = Flight::db();
+        $stmt = $db->prepare("SELECT * FROM evolution WHERE id_eleve = ? ORDER BY date_evolution DESC LIMIT 1");
+        $stmt->execute([$id_eleve]);
+        return $stmt->fetch();
+    }
+
+    public static function insertEvaluation($id_prof, $id_eleve, $note, $avis) {
+        $db = Flight::db();
+        $stmt = $db->prepare("INSERT INTO evolution (id_prof, id_eleve, note, avis, date_evolution) VALUES (?, ?, ?, ?, NOW())");
+        return $stmt->execute([$id_prof, $id_eleve, $note, $avis]);
     }
 
     public function updateEvolution($prof, $params) {
@@ -84,17 +87,12 @@ class EvolutionModel {
         }
     }
 
-    public function getHistoriqueEleve($id) {
-        try {
-            $sql = "SELECT id_evolution, evolution.id_prof as prof, evolution.id_eleve as eleve, eleve.nom as enom, eleve.prenom as epnom, prof.nom as pnom, prof.prenom as ppnom, date_evolution, avis, note
-             FROM evolution JOIN eleve ON eleve.id_eleve = evolution.id_eleve JOIN prof ON prof.id_prof = evolution.id_prof WHERE evolution.id_eleve = ? ORDER BY date_evolution DESC";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([$id]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: null;
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
+    public static function getHistoriqueEvaluations($id_eleve) {
+        $db = Flight::db();
+        $stmt = $db->prepare("SELECT nom, prenom, date_inscription, note, avis, date_evolution FROM evolution JOIN eleve ON eleve.id_eleve = evolution.id_eleve WHERE evolution.id_eleve = ? ORDER BY date_evolution DESC");
+        $stmt->execute([$id_eleve]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
 
     public function getGlobalEvolutionStats($year = null) {
         try {

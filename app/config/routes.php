@@ -20,12 +20,14 @@ use app\controllers\individu\EleveController;
 use app\controllers\individu\GenreController;
 use app\controllers\individu\ProfController;
 use app\controllers\individu\SuperviseurController;
+use app\controllers\EvolutionController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
 use app\controllers\TarifClubController\TarifClubController;
 use app\controllers\TarifEcolageController\TarifEcolageController;
 use app\models\TarifClubModel\TarifClubModel;
+use app\models\evolution\EvolutionModel;
 use flight\Engine;
 use flight\net\Router;
 
@@ -410,6 +412,12 @@ Flight::route('GET /historique-garde/delete/@id', ['app\\controllers\\salle\\His
 
 $dashboardController = new  DashboardController();
 Flight::route('GET /dashboard', [$dashboardController, 'index']);
+
+Flight::route('GET /ws/evaluations/@id', function($id){
+    $data = EvolutionModel::getHistoriqueEvaluations($id);
+    Flight::json($data);
+});
+
 
 
 

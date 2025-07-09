@@ -251,11 +251,14 @@ CREATE TABLE abonnement (
   actif BOOLEAN
 );
 
+-- Velo 09/07/25 -- 
 CREATE TABLE evolution (
-  id_prof INTEGER REFERENCES prof(id_prof) ON DELETE RESTRICT,
-  id_eleve INTEGER REFERENCES eleve(id_eleve) ON DELETE CASCADE,
+  id_evolution SERIAL PRIMARY KEY,
+  id_prof INTEGER REFERENCES prof(id_prof),
+  id_eleve INTEGER REFERENCES eleve(id_eleve),
   avis TEXT,
-  PRIMARY KEY (id_prof, id_eleve)
+  note FLOAT,
+  date_evolution TIMESTAMP
 );
 
 CREATE TABLE tarif_abonnement (

@@ -7,6 +7,7 @@ use app\models\TarifAbonnementModel\TarifAbonnementModel;
 use app\models\TarifClubModel\TarifClubModel;
 use app\models\TarifEcolageModel\TarifEcolageModel;
 use app\models\individu\LoginModel;
+use app\models\evolution\EvolutionModel;
 
 use Flight;
 
@@ -71,7 +72,9 @@ class Controller {
     }
 
     public function evolution() {
-        Flight::render('professeur/evolution');
+        $evolution = new EvolutionModel(Flight::db());
+        $eleves = $evolution->getElevesAvecEtoile();
+        Flight::render('professeur/evolution',['eleve' => $eleves]);
     }
 
     public function emploi_temps() {
