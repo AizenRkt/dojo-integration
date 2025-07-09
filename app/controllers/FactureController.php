@@ -22,6 +22,32 @@ class FactureController {
                 return;
             }
 
+        // Génération du numéro de facture
+        $numero_facture = 'SAL-' . str_pad($id_suivi, 5, '0', STR_PAD_LEFT);
+
+
+        // ===== VÉRIFICATION SI LA FACTURE EXISTE DÉJÀ =====
+        if ($factureModel->factureExists($numero_facture)) {
+            // Si la facture existe déjà, on récupère ses données
+            $existingFacture = $factureModel->getFactureByNumber($numero_facture);
+            $id_facture = $existingFacture['id_facture'];
+        } else {
+            // ===== INSERTION DE LA NOUVELLE FACTURE =====
+            $factureData = [
+                'numero_facture' => $numero_facture,
+                'fournisseur' => $data['nom'] . ' ' . $data['prenom'],
+                'date_facture' => date('Y-m-d', strtotime($data['date_paiement'])),
+                'montant_ttc' => $data['montant'],
+                'id_taxe' => 1, // ID de la taxe 20%
+                'statut_facture' => 'payee',
+                'date_echeance' => date('Y-m-d', strtotime($data['date_paiement'] . ' +15 days')),
+                'notes' => 'Paiement salaire ' . $data['type_employe'] . ' - ' . 
+                          $data['mois_a_payer'] . '/' . $data['annee_a_payer']
+            ];
+
+            $id_facture = $factureModel->insert($factureData);
+        }
+
             // Ici vous générerez le PDF avec les données...
             // Création du PDF
         $pdf = new FPDF();
