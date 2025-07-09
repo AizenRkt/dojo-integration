@@ -145,7 +145,8 @@
                         </div>
                         <div class="card-body">
                             <div class="list-group" id="studentsList">
-                                <?php foreach($eleve as $e) : ?>
+                                <?php if($eleve != null) {
+                                    foreach($eleve as $e) : ?>
                                     <a href="#" class="list-group-item list-group-item-action student-item" data-student-id="<?= $e['id_eleve'] ?>">
                                         <div class="d-flex justify-content-between">
                                             <h5><?= $e['nom'].' '.$e['prenom'] ?></h5>
@@ -154,7 +155,10 @@
                                             </small>
                                         </div>
                                     </a>
-                                <?php endforeach; ?>
+                                <?php endforeach; } ?>
+                                <?php if($eleve == null) { ?>
+                                    <p>Aucune &eacute;volution trouv&eacute;e</p>
+                                <?php } ?>
                             </div>
                         </div>
                     </div>
@@ -302,6 +306,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
     });
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-eval')) {
+            const id = e.target.dataset.id;
+            console.log("ID à supprimer :", id);
+            if (confirm("Voulez-vous vraiment supprimer cette évaluation ?")) {
+                fetch(`${BASE_URL}/ws/evaluation_delete/${id}`, {
+                    method: 'GET'
+                })
+                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+                .then(resp => {
+                    alert("Évaluation supprimée !");
+                    document.querySelector('.student-item.active').click(); 
+                })
+                .catch(err => {
+                    alert("Erreur lors de la suppression !");
+                    console.error(err);
+                });
+            }
+        }
+    });
+
 });
 document.addEventListener('DOMContentLoaded', () => {
     const studentItems = document.querySelectorAll('.student-item');
@@ -412,70 +437,10 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
         .then(resp => {
             alert("Évaluation enregistrée !");
-            document.querySelector('.student-item.active').click(); // recharge l’élève
+            document.querySelector('.student-item.active').click(); 
         })
         .catch(err => {
             alert("Erreur lors de l'enregistrement !");
-            console.error(err);
-        });
-    });
-    // 🎯 Référence du modal et de son formulaire
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('editEvolutionForm');
-    const editNote = document.getElementById('editNote');
-    const editAvis = document.getElementById('editAvis');
-    const editId = document.getElementById('editIdEvolution');
-    const editEleve = document.getElementById('editIdEleve');
-    const cancelEdit = document.getElementById('cancelEdit');
-
-    // ✅ Quand on clique sur une icône ✏️
-    document.querySelectorAll('.edit-eval').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const id = btn.dataset.id;
-            fetch(`${BASE_URL}/ws/evaluation_get/${id}`)
-                .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
-                .then(data => {
-                    editId.value = data.id;
-                    editEleve.value = data.id_eleve;
-                    editNote.value = data.note;
-                    editAvis.value = data.avis;
-                    editModal.style.display = 'flex';
-                })
-                .catch(err => {
-                    alert("Erreur lors du chargement !");
-                    console.error(err);
-                });
-        });
-    });
-
-    // 🛑 Annuler l'édition
-    cancelEdit.addEventListener('click', () => {
-        editModal.style.display = 'none';
-    });
-
-    // ✅ Soumettre la modification
-    editForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const payload = {
-            evolution: editId.value,
-            idEleve: editEleve.value,
-            note: editNote.value,
-            avis: editAvis.value
-        };
-
-        fetch(`${BASE_URL}/ws/updateEvolution`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        })
-        .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
-        .then(() => {
-            alert("Évaluation modifiée !");
-            editModal.style.display = 'none';
-            document.querySelector('.student-item.active').click();
-        })
-        .catch(err => {
-            alert("Erreur lors de la modification !");
             console.error(err);
         });
     });

@@ -8,15 +8,16 @@ use Exception;
 use Flight;
 
 class EvolutionModel {
-    private $db;
+    // private $db;
 
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
+    // public function __construct($db)
+    // {
+    //     $this->db = $db;
+    // }
 
     public function getElevesAvecEtoile() {
         try {
+            $db = Flight::db();
             $sql = "SELECT e.*, ev.* 
             FROM eleve e
             JOIN evolution ev ON e.id_eleve = ev.id_eleve
@@ -25,7 +26,7 @@ class EvolutionModel {
                 FROM evolution
                 GROUP BY id_eleve
             ) latest ON ev.id_eleve = latest.id_eleve AND ev.date_evolution = latest.max_date";
-            $stmt = $this->db->query($sql);
+            $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
@@ -47,8 +48,9 @@ class EvolutionModel {
 
     public function updateEvolution($prof, $params) {
         try {
+            $db = Flight::db();
             $sql = "UPDATE evolution SET id_prof = ?, avis = ?, note = ? WHERE id_evolution = ? ";
-            $stmt = $this->db->prepare($sql);
+            $stmt = $db->prepare($sql);
             return $stmt->execute([$prof, $params['avis'], $params['note'], $params['evolution']]);
         } catch (PDOException $e) {
             return null;
@@ -57,10 +59,10 @@ class EvolutionModel {
 
     public function getEvolutionById($id) {
         try {
-            $sql = "SELECT * FROM evolution WHERE id_evolution = :id";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+            $db = Flight::db();
+            $stmt = $db->prepare("SELECT id_evolution AS id, id_eleve, note, avis FROM evolution WHERE id_evolution = ?");
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return null;
         }
@@ -68,9 +70,10 @@ class EvolutionModel {
 
     public function deleteEvolution($id) {
         try {
+            $db = Flight::db();
             $sql = "DELETE FROM evolution WHERE id_evolution = :id";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute(['id' => $id]);
+            $stmt = $db->prepare($sql);
+            return $stmt->execute([':id' => $id]);
         } catch (PDOException $e) {
             return null;
         }
