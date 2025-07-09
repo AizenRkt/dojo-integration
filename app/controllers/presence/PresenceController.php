@@ -72,5 +72,33 @@ class PresenceController {
     public function annulationPossible($id_seances) {
         return $this->presenceModel->annulationPossible($id_seances);
     }
+    public function showSuiviPresence() {
+        $data = $this->presenceModel->getAbsencesEleves();
+        Flight::render('suivi/presence/suivi', [
+            'data' => $data,
+            'total' => count($data)
+        ]);
+    }
+    public function getAbsencesData() {
+        $data = $this->presenceModel->getAbsencesEleves();
+        Flight::json([
+            'success' => true,
+            'data' => $data,
+            'total' => count($data)
+        ]);
+    }
+
+    public function getAbsenceDetails() {
+        $idEleve = Flight::request()->query['id_eleve'];
+        $dateDebut = Flight::request()->query['date_debut'];
+        $dateFin = Flight::request()->query['date_fin'];
+
+        $details = $this->presenceModel->getAbsenceDetailsForStudent($idEleve, $dateDebut, $dateFin);
+
+        Flight::json([
+            'success' => true,
+            'details' => $details
+        ]);
+    }
 }
 ?>

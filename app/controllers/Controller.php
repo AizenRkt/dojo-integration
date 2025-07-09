@@ -6,6 +6,9 @@ use app\controllers\statistique\ReportController;
 use app\models\TarifAbonnementModel\TarifAbonnementModel;
 use app\models\TarifClubModel\TarifClubModel;
 use app\models\TarifEcolageModel\TarifEcolageModel;
+use app\models\individu\LoginModel;
+use app\models\evolution\EvolutionModel;
+use app\models\GroupeModels\GroupeModel;
 use app\models\individu\EleveModel;
 
 use Flight;
@@ -23,8 +26,41 @@ class Controller {
         Flight::render('template/auth/login');
 
     }
+    public function handleLogin() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+    
+            $user = LoginModel::verifyCredentials($username, $password);
+    
+            if ($user) {
+                // Stocker les informations de l'utilisateur en session
+                $_SESSION['user'] = $user;
+                $_SESSION['role'] = $user['role'];
+                // Rediriger en fonction du rôle
+                switch ($user['role']) {
+                    case 'admin':
+                    case 'superviseur':
+                        Flight::redirect('/acceuil');
+                        break;
+                    case 'prof':
+                        Flight::redirect('/presence');
+                        break;
+                    default:
+                        Flight::redirect('/');
+                }
+            } else {
+                Flight::redirect('/?error=1');
+            }
+        }
+    }
+    
+    public function logout() {
+        session_destroy();
+        Flight::redirect('/');
+    }
     public function signin() {
-        Flight::render('template/auth/signin');
+        Flight::render('template/auth/sigin');
 
     }
 
@@ -57,7 +93,9 @@ class Controller {
     }
 
     public function evolution() {
-        Flight::render('professeur/evolution');
+        $evolution = new EvolutionModel(Flight::db());
+        $eleves = $evolution->getElevesAvecEtoile();
+        Flight::render('professeur/evolution',['eleve' => $eleves]);
     }
 
     public function emploi_temps() {
@@ -140,8 +178,26 @@ class Controller {
     }
 
     public function club() {
-        Flight::render('suivi/club');
-    }
+    $model = new GroupeModel();
+
+    $year = Flight::request()->query->year ?? date('Y');
+    $month = Flight::request()->query->month ?? date('m');
+
+    $scheduleData = $model->getScheduleData($year, $month);
+    $monthlyStats = $model->getMonthlyStats($year, $month);
+    $groupes = $model->getAll();
+
+    $formattedSchedule = $this->formatScheduleForCalendar($scheduleData);
+    
+
+    Flight::render('suivi/club', [
+        'scheduleData' => $formattedSchedule,
+        'monthlyStats' => $monthlyStats,
+        'currentYear' => $year,
+        'currentMonth' => $month,
+        'groupes' => $groupes
+    ]);
+}
 
     // en utilisation
     public function tarif() {
@@ -163,12 +219,62 @@ class Controller {
     }
 
 
-    public function edt() {
-        Flight::render('gestion/edt');
-    }
+    // public function edt() {
+    //     Flight::render('gestion/edt');
+    // }
 
     public function finance() {
         Flight::render('gestion/finance');
     }
+    private function getDayStatus(array $slots, array $available) {
+    if (empty($slots)) {
+        return 'free';  // Libre
+    }
+    if (empty($available)) {
+        return 'full';  // Complet
+    }
+    return 'partial';  // Partiel
+}
+
+private function formatScheduleForCalendar($scheduleData) {
+    $model= new GroupeModel();
+    $formatted = [];
+
+    foreach ($scheduleData as $reservation) {
+        $date = $reservation['date_reserve'];
+
+        if (!isset($formatted[$date])) {
+            $formatted[$date] = [
+                'status' => 'partial',
+                'slots' => [],
+                'available' => []
+            ];
+        }
+
+        $formatted[$date]['slots'][] = [
+            'time' => $reservation['heure_debut'] . ' - ' . $reservation['heure_fin'],
+            'group' => $reservation['group_name'],
+            'discipline' => $reservation['discipline'],
+            'participants' => (int)$reservation['participants']
+        ];
+    }
+
+    foreach ($formatted as $date => &$dayData) {
+        $availability = $model->getDayAvailability($date);
+
+        $dayData['available'] = isset($availability['available']) && is_array($availability['available']) 
+                                ? $availability['available'] 
+                                : [];
+
+        // Ajout du préfixe "day-" ici
+        $status = $this->getDayStatus($dayData['slots'], $dayData['available']);
+        $dayData['status'] = "day-" . $status;
+    }
+
+    return $formatted;
+}
+
+
+
 
 }

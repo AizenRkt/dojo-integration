@@ -28,7 +28,8 @@
         }
 
         .day-free {
-            background-color: #28a745; /* Vert pour totalement libre */
+            background-color: rgb(255, 255, 255); /* blanc */
+            border: 1px solid #28a745; /* bordure verte fine */
         }
 
         /* Classes pour les jours du calendrier */
@@ -189,6 +190,20 @@
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
+
+        .day-partial {
+            background-color: #fff3cd; /* yellow */
+        }
+
+        .day-full {
+            background-color: #f8d7da; /* red */
+        }
+        .calendar-day.day-free {
+    background-color: rgba(40, 167, 69, 0.2); /* Light green for free days */
+    border-color: #28a745;
+}
+
+
     </style>
 </head>
 <body>
@@ -494,9 +509,6 @@
                                 <div class="btn-group btn-group-sm w-100" role="group">
                                     <button type="button" class="btn btn-outline-primary" onclick="editGroup(${group.id})">
                                         <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-info" onclick="viewGroupDetails(${group.id})">
-                                        <i class="bi bi-eye"></i>
                                     </button>
                                     <button type="button" class="btn btn-outline-danger" onclick="deleteGroup(${group.id})">
                                         <i class="bi bi-trash"></i>

@@ -37,8 +37,7 @@ class FactureModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function validerPaiement($id_facture) {
-        $stmt = $this->db->prepare("UPDATE {$this->table} SET est_paye = TRUE WHERE id_facture = :id");
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET est_facture = TRUE WHERE id_facture = :id");
         return $stmt->execute([':id' => $id_facture]);
     }
-
 }
