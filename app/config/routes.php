@@ -417,6 +417,22 @@ Flight::route('GET /ws/evaluations/@id', function($id){
     $data = EvolutionModel::getHistoriqueEvaluations($id);
     Flight::json($data);
 });
+Flight::route('GET /ws/evaluation_last/@id', function($id){
+    $data = EvolutionModel::getLastEvaluation($id);
+    Flight::json($data ?: []);
+});
+Flight::route('POST /ws/evaluation_add', function(){
+    $data = Flight::request()->data->getData();
+    $id_prof = 1; // À adapter selon ta session/professeur connecté
+    $id_eleve = $data['id_eleve'];
+    $note = $data['note'];
+    $avis = $data['avis'];
+
+    $ok = EvolutionModel::insertEvaluation($id_prof, $id_eleve, $note, $avis);
+    Flight::json(['success' => $ok]);
+});
+
+
 
 
 

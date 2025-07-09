@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .star {
-            color: #d0d0d0;
+            color: #d0d0d0; /* gris par défaut */
             font-size: 1.5rem;
             cursor: pointer;
             transition: color 0.2s;
         }
         .star.active {
-            color: #ffb700;
+            color: #ffc107; /* jaune quand active */
         }
         .eleve-card {
             cursor: pointer;
@@ -79,6 +79,20 @@
         .student-item { cursor: pointer; }
         .student-item.active { background-color: #e9ecef; border-left: 3px solid #435ebe; }
         .star { color: #ffc107; font-size: 1.2em; }
+        #starRating .star {
+            color: #d0d0d0; 
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        #starRating .star.active {
+            color: #ffc107; 
+        }
+        .student-item .star {
+            color: #ffc107;
+            font-size: 1.2em;
+        }
+
     </style>
 </head>
 <body>
@@ -93,7 +107,6 @@
         <div class="page-heading"><h3>Évolution des élèves</h3></div>
         <div class="page-content">
             <div class="row">
-                <!-- 🔹 Liste des élèves -->
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
@@ -115,19 +128,16 @@
                         </div>
                     </div>
                 </div>
-                <!-- 🔹 Détails et historique -->
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-body">
                             <div class="profile-header">
-                                <img src="<?= Flight::base() ?>/public/assets/compiled/jpg/1.jpg" width="80" alt="Photo élève">
                                 <div>
                                     <h4 id="studentName"></h4>
                                     <p class="text-muted" id="studentInscrit"></p>
                                 </div>
                             </div>
                             <div class="row">
-                                <!-- Formulaire d'évaluation -->
                                 <div class="col-md-6">
                                     <div class="card shadow-sm">
                                         <div class="card-header"><h5>Évaluation</h5></div>
@@ -135,11 +145,10 @@
                                             <form id="evaluationForm">
                                                 <input type="hidden" id="selectedStudentId" value="">
                                                 <div class="mb-3">
-                                                    <label>Nombre d'étoiles</label>
                                                     <div class="star-rating" id="starRating">
-                                                        <?php for ($i=1;$i<=5;$i++): ?>
-                                                            <span class="star-empty" data-value="<?= $i ?>">★</span>
-                                                        <?php endfor;?>
+                                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                        <span class="star" data-value="<?= $i ?>">★</span>
+                                                    <?php endfor; ?>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
@@ -163,7 +172,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Progression technique si besoin -->
                         </div>
                     </div>
                 </div>
@@ -232,6 +240,125 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+document.addEventListener('DOMContentLoaded', () => {
+    const studentItems = document.querySelectorAll('.student-item');
+    const historique = document.getElementById('historiqueList');
+    const selectedInput = document.getElementById('selectedStudentId');
+    const nameEl = document.getElementById('studentName');
+    const inscritEl = document.getElementById('studentInscrit');
+    const commentEl = document.getElementById('commentaire');
+    const starRating = document.getElementById('starRating');
+    const saveBtn = document.getElementById('saveEvaluationBtn');
+    let currentNote = 0;
+
+    // ✅ Fonction pour mettre à jour l’affichage des étoiles
+    function updateStars(note) {
+        const stars = starRating.querySelectorAll('span.star');
+        stars.forEach(star => {
+            star.classList.toggle('active', Number(star.dataset.value) <= note);
+        });
+    }
+
+    // ⭐ Gestion des clics et survols sur les étoiles
+    starRating.querySelectorAll('span.star').forEach(star => {
+        star.addEventListener('click', () => {
+            currentNote = Number(star.dataset.value);
+            updateStars(currentNote);
+        });
+        star.addEventListener('mouseover', () => {
+            updateStars(Number(star.dataset.value));
+        });
+        star.addEventListener('mouseout', () => {
+            updateStars(currentNote);
+        });
+    });
+
+    // 🎯 Clic sur un élève
+    studentItems.forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+
+            studentItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            const id = item.dataset.studentId;
+            selectedInput.value = id;
+
+            // 🎯 Réinitialisation du formulaire
+            currentNote = 0;
+            updateStars(0);
+            commentEl.value = '';
+
+            // 📜 Chargement de l’historique
+            fetch(`${BASE_URL}/ws/evaluations/${id}`)
+                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+                .then(data => {
+                    historique.innerHTML = data.length ? '' : '<li class="list-group-item">Aucune évaluation.</li>';
+                    data.forEach(ev => {
+                        const stars = '★'.repeat(ev.note) + '☆'.repeat(5 - ev.note);
+                        historique.innerHTML += `
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <h6>${new Date(ev.date_evolution).toLocaleDateString()}</h6>
+                                    <small class="star">${stars}</small>
+                                </div><small>${ev.avis}</small>
+                            </li>`;
+                    });
+                })
+                .catch(err => {
+                    historique.innerHTML = '<li class="list-group-item text-danger">Erreur de chargement</li>';
+                    console.error(err);
+                });
+
+            // 📥 Chargement de la dernière note
+            fetch(`${BASE_URL}/ws/evaluation_last/${id}`)
+                .then(r => r.ok ? r.json() : Promise.reject('Erreur ' + r.status))
+                .then(data => {
+                    currentNote = 0;
+                    updateStars(0);
+                    commentEl.value = '';
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+
+            // 🧑 Mise à jour nom élève
+            nameEl.textContent = item.querySelector('h5').textContent;
+            inscritEl.textContent = '';
+        });
+    });
+
+    // ✅ Enregistrement de l’évaluation
+    saveBtn.addEventListener('click', () => {
+        const id_eleve = selectedInput.value;
+        const avis = commentEl.value.trim();
+
+        if (!id_eleve || currentNote === 0) {
+            alert("Veuillez sélectionner un élève et une note.");
+            return;
+        }
+
+        fetch(`${BASE_URL}/ws/evaluation_add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_eleve: id_eleve,
+                note: currentNote,
+                avis: avis
+            })
+        })
+        .then(r => r.ok ? r.json() : Promise.reject("Erreur " + r.status))
+        .then(resp => {
+            alert("Évaluation enregistrée !");
+            document.querySelector('.student-item.active').click(); // recharge l’élève
+        })
+        .catch(err => {
+            alert("Erreur lors de l'enregistrement !");
+            console.error(err);
+        });
+    });
+});
+
 </script>
 </body>
 </html>
