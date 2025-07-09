@@ -1,7 +1,6 @@
 <?php
 
  namespace app\models\paiement;
-
  use Flight;
  use PDO;
  use Exception;
@@ -64,6 +63,7 @@
      public function getHistoriquePaiements($id_employe) {
          $query = "
              SELECT 
+                id_suivi_salaire,
                  date_paiement,
                  montant,
                  mois_a_payer,
@@ -159,4 +159,5 @@
          $result = $stmt->fetch(PDO::FETCH_ASSOC);
          return $result['count'] > 0;
      }
+
  }
