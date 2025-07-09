@@ -93,7 +93,7 @@ class FacturationController {
         $pdf->AddPage();
         $pdf->SetFont('Arial','B',16);
 
-        $pdf->Cell(0,10,'Facture de matériel endommagé',0,1,'C');
+        $pdf->Cell(0,10,'Facture de materiel endommage',0,1,'C');
         $pdf->Ln(10);
 
         $pdf->SetFont('Arial','',12);
@@ -104,7 +104,7 @@ class FacturationController {
         $pdf->Cell(0,10,$facture['destinataire'],0,1);
 
         $pdf->Ln(10);
-        $pdf->Cell(50,10,'Matériel :',0,0);
+        $pdf->Cell(50,10,'Materiel :',0,0);
         $pdf->Cell(0,10,$item['num_serie'] . ' - ' . $type['label'],0,1);
 
         $pdf->Cell(50,10,'Description :',0,0);
@@ -112,7 +112,7 @@ class FacturationController {
 
         $pdf->Ln(5);
         $pdf->SetFont('Arial','B',12);
-        $pdf->Cell(50,10,'Montant à payer :',0,0);
+        $pdf->Cell(50,10,'Montant a payer :',0,0);
         $pdf->Cell(0,10,number_format($facture['montant'], 2, ',', ' ') . ' Ar',0,1);
 
         $pdf->Output('I', 'facture_'.$facture['id_facture'].'.pdf');

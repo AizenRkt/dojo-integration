@@ -231,7 +231,7 @@ class ReservationModel {
             FROM reservation r
             JOIN club_groupe c ON r.id_club = c.id
             WHERE 
-                r.valeur = 'confirme' AND
+                r.valeur = 'confirme' or r.valeur = 'payee' AND
                 EXTRACT(MONTH FROM r.date_reserve) = :mois AND
                 EXTRACT(YEAR FROM r.date_reserve) = :annee
         ";
@@ -300,7 +300,7 @@ class ReservationModel {
             FROM reservation r
             JOIN club_groupe c ON r.id_club = c.id
             WHERE 
-                r.valeur = 'confirme'
+                r.valeur = 'confirme' or r.valeur = 'payee'
                 AND r.date_reserve = :date
         ";
         $stmt2 = $db->prepare($sqlResa);

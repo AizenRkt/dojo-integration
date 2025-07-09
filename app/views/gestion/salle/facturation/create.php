@@ -19,7 +19,7 @@
 </head>
 <body>
     <div id="app">
-        <?= Flight::menu() ?>
+        <?= Flight::menuAdmin() ?>
         <div id="main">
             <div class="container mt-4">
                 <h2>Facturation de matériel endommagé</h2>

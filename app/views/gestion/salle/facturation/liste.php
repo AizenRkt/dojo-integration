@@ -32,11 +32,6 @@
                             <h3 class="fw-bold mb-1">Suivi des factures</h3>
                             <p class="text-muted">veuillez bien vérifé les infos de paiement</p>
                         </div>
-                        <div class="col-md-6 text-md-end">
-                            <a href="<?= Flight::base() ?>/" class="btn btn-primary">
-                                <i class="bi bi-plus-circle me-1"></i> ajouter une facture
-                            </a>
-                        </div>
                     </div>
                 </div>
 
@@ -71,14 +66,14 @@
                                                 <td><?= number_format($f['montant'], 2, ',', ' ') ?> Ar</td>
                                                 <td><?= htmlspecialchars($f['destinataire']) ?></td>
                                                 <td>
-                                                    <?php if ($f['est_paye']): ?>
+                                                    <?php if ($f['est_facture']): ?>
                                                         <span class="badge bg-success">Payée</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-warning text-dark">En attente</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <?php if (!$f['est_paye']): ?>
+                                                    <?php if (!$f['est_facture']): ?>
                                                         <a href="<?= Flight::base() ?>/facturation/valider/<?= $f['id_facture'] ?>" class="btn btn-sm btn-success">Valider paiement</a>
                                                     <?php else: ?>
                                                         <span class="text-muted">—</span>
