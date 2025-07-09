@@ -22,7 +22,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h3>Détails de l'Élève</h3>
                     <div>
-                        <a href="/eleves" class="btn btn-outline-secondary me-2">
+                        <a href="<?= Flight::base() ?>/eleves" class="btn btn-outline-secondary me-2">
                             <i class="bi bi-arrow-left me-1"></i>
                             Retour
                         </a>
