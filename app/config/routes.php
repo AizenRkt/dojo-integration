@@ -221,9 +221,11 @@ Flight::route('GET /eleves/@id_eleve', [$eleveController, 'show']);
 
 $Controller = new Controller();
 // exemple de base
-$router->get('/', [ $Controller, 'acceuil' ]);
-$router->get('/login', [ $Controller, 'login' ]);
-$router->get('/signin', [ $Controller, 'login' ]);
+$router->get('/acceuil', [ $Controller, 'acceuil' ]);
+$router->get('/', [ $Controller, 'login' ]);
+$router->get('/signin', [ $Controller, 'signin' ]);
+$router->post('/login', [ $Controller, 'handleLogin' ]);
+$router->get('/logout', [ $Controller, 'logout' ]);
 
 // page statistique
 $router->get('/demographie', [ $Controller, 'demographie' ]);
