@@ -12,7 +12,7 @@ use Tracy\Debugger;
 
 // uncomment the following line for MySQL
 // $dsn = 'mysql:host=' . 'localhost' . ';dbname=' . 'coolname' . ';charset=utf8mb4';
-$dsn = 'pgsql:host=' . $config['database']['host'] . ';port=' . $config['database']['port'] . ';dbname=' . $config['database']['dbname'];
+$dsn = 'pgsql:host=' . $config['database']['host'] . ';dbname=' . $config['database']['dbname'];
 
 // uncomment the following line for SQLite
 // $dsn = 'sqlite:' . $config['database']['file_path'];
