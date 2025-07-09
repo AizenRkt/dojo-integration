@@ -1,9 +1,8 @@
 <?php
 
 namespace app\controllers;
-// require_once 'C:\xampp\htdocs\dojo-integration\app\fpdf\fpdf.php'; // Chemin vers la classe FPDF
-require_once __DIR__ . '/../fpdf/fpdf.php';
 
+use app\fpdf\FPDF;
 use app\models\facture\FactureModel;
 use Flight;
 
