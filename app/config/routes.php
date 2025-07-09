@@ -19,6 +19,7 @@ use app\controllers\individu\EleveController;
 use app\controllers\individu\GenreController;
 use app\controllers\individu\ProfController;
 use app\controllers\individu\SuperviseurController;
+use app\controllers\EvolutionController;
 
 // tarif
 use app\controllers\TarifAbonnementController\TarifAbonnementController;
@@ -26,6 +27,7 @@ use app\controllers\TarifClubController\TarifClubController;
 use app\controllers\TarifEcolageController\TarifEcolageController;
 use app\controllers\FactureController;
 use app\models\TarifClubModel\TarifClubModel;
+use app\models\evolution\EvolutionModel;
 use flight\Engine;
 use flight\net\Router;
 
@@ -45,11 +47,18 @@ Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']
 
 
 // Routes existantes pour les salaires
-Flight::route('GET /gestion/finance/salaires', function() {
-    $controller = new SalaireController();
-    $controller->index();
-});
+// Flight::route('GET /gestion/finance/salaires', function() {
+//     $controller = new SalaireController();
+//     $controller->index();
+// });
 
+// page professeur
+$Controller = new Controller();
+$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
+$router->get('/evolution', [ $Controller, 'evolution' ]);
+$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
+$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
+$router->get('/compte', [ $Controller, 'compte' ]);
 
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
@@ -77,20 +86,20 @@ Flight::route('POST /api/salaires/payer', function() {
     $controller->payerSalaire();
 });
 
-Flight::route('PUT /api/salaires/config', function() {
-    $controller = new SalaireController();
-    $controller->modifierConfigurationSalaire();
-});
+// Flight::route('PUT /api/salaires/config', function() {
+//     $controller = new SalaireController();
+//     $controller->modifierConfigurationSalaire();
+// });
 
-Flight::route('GET /api/employes/recherche', function() {
-    $controller = new SalaireController();
-    $controller->rechercherEmployes();
-});
+// Flight::route('GET /api/employes/recherche', function() {
+//     $controller = new SalaireController();
+//     $controller->rechercherEmployes();
+// });
 
-Flight::route('GET /api/salaires/statistiques', function() {
-    $controller = new SalaireController();
-    $controller->getStatistiques();
-});
+// Flight::route('GET /api/salaires/statistiques', function() {
+//     $controller = new SalaireController();
+//     $controller->getStatistiques();
+// });
 
 $factureController = new FactureController();
 Flight::route('GET /facture/salaire/@id', [$factureController, 'factureSalaire']);
@@ -216,9 +225,11 @@ Flight::route('GET /eleves/@id_eleve', [$eleveController, 'show']);
 
 $Controller = new Controller();
 // exemple de base
-$router->get('/', [ $Controller, 'acceuil' ]);
-$router->get('/login', [ $Controller, 'login' ]);
-$router->get('/signin', [ $Controller, 'login' ]);
+$router->get('/acceuil', [ $Controller, 'acceuil' ]);
+$router->get('/', [ $Controller, 'login' ]);
+$router->get('/signin', [ $Controller, 'signin' ]);
+$router->post('/login', [ $Controller, 'handleLogin' ]);
+$router->get('/logout', [ $Controller, 'logout' ]);
 
 // page statistique
 $router->get('/demographie', [ $Controller, 'demographie' ]);
@@ -243,7 +254,6 @@ $router->post('/tarif/update/abonnement', [ $abonnement, 'updateTarifAbonnement'
 $router->post('/tarif/update/club', [ $club, 'updateTarifClub' ]);
 
 
-$router->get('/edt', [ $Controller, 'edt' ]);
 $router->get('/finance', [ $Controller, 'finance' ]);
 
 
@@ -334,6 +344,8 @@ $router->get('/historiqueSeances', [$seancesController, 'historiqueSeances']);
 // EDT
 $router->get('/calendrier', [$calendrierController, 'afficherMois']);
 $router->get('/calendrier/details', [$calendrierController, 'detailsGroupe']);
+$router->get('/edt', [ $calendrierController, 'afficherMoisComplet2' ]);
+$router->get('/edt/details', [$calendrierController, 'detailsJour']);
 
 
 // abonnement 
@@ -403,6 +415,28 @@ Flight::route('GET /historique-garde/delete/@id', ['app\\controllers\\salle\\His
 
 $dashboardController = new  DashboardController();
 Flight::route('GET /dashboard', [$dashboardController, 'index']);
+
+Flight::route('GET /ws/evaluations/@id', function($id){
+    $data = EvolutionModel::getHistoriqueEvaluations($id);
+    Flight::json($data);
+});
+Flight::route('GET /ws/evaluation_last/@id', function($id){
+    $data = EvolutionModel::getLastEvaluation($id);
+    Flight::json($data ?: []);
+});
+Flight::route('POST /ws/evaluation_add', function(){
+    $data = Flight::request()->data->getData();
+    $id_prof = 1; // À adapter selon ta session/professeur connecté
+    $id_eleve = $data['id_eleve'];
+    $note = $data['note'];
+    $avis = $data['avis'];
+
+    $ok = EvolutionModel::insertEvaluation($id_prof, $id_eleve, $note, $avis);
+    Flight::json(['success' => $ok]);
+});
+
+
+
 
 
 

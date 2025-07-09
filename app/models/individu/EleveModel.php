@@ -133,5 +133,52 @@ class EleveModel {
             return false;
         }
     }
+
+    public function countByGenre() {
+        try {
+            $sql = "SELECT g.label, COUNT(*) AS total
+                    FROM eleve e
+                    JOIN genre g ON e.id_genre = g.id_genre
+                    GROUP BY g.label";
+            $db = Flight::db();
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    public function countByAgeRangeAndGenre() {
+        try {
+            $sql = "
+                SELECT
+                    g.label AS genre,
+                    CASE
+                        WHEN age < 10 THEN '0-10'
+                        WHEN age BETWEEN 10 AND 12 THEN '10-12'
+                        WHEN age BETWEEN 16 AND 18 THEN '16-18'
+                        WHEN age BETWEEN 20 AND 30 THEN '20-30'
+                        WHEN age BETWEEN 30 AND 40 THEN '30-40'
+                        WHEN age BETWEEN 40 AND 60 THEN '40-60'
+                        ELSE '60+'
+                    END AS age_range,
+                    COUNT(*) AS total
+                FROM (
+                    SELECT id_genre, DATE_PART('year', AGE(date_naissance)) AS age
+                    FROM eleve
+                ) AS sub
+                JOIN genre g ON sub.id_genre = g.id_genre
+                GROUP BY age_range, g.label
+                ORDER BY age_range, g.label;
+            ";
+            $db = Flight::db();
+            $stmt = $db->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
 }
 

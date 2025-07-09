@@ -7,7 +7,7 @@
 </style>
 
 <div class="container">
-    <h2>FACTURE DE MATÉRIEL ENDOMMAGÉ</h2>
+    <h2>FACTURE DE MATERIEL ENDOMMAGE</h2>
     <p><strong>Date :</strong> <?= date('d/m/Y', strtotime($facture['date'])) ?></p>
     <p><strong>Destinataire :</strong> <?= htmlspecialchars($destinataire) ?></p>
 

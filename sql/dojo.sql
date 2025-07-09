@@ -251,11 +251,14 @@ CREATE TABLE abonnement (
   actif BOOLEAN
 );
 
+-- Velo 09/07/25 -- 
 CREATE TABLE evolution (
-  id_prof INTEGER REFERENCES prof(id_prof) ON DELETE RESTRICT,
-  id_eleve INTEGER REFERENCES eleve(id_eleve) ON DELETE CASCADE,
+  id_evolution SERIAL PRIMARY KEY,
+  id_prof INTEGER REFERENCES prof(id_prof),
+  id_eleve INTEGER REFERENCES eleve(id_eleve),
   avis TEXT,
-  PRIMARY KEY (id_prof, id_eleve)
+  note FLOAT,
+  date_evolution TIMESTAMP
 );
 
 CREATE TABLE tarif_abonnement (
@@ -451,4 +454,17 @@ INSERT INTO statut_sortie (libelle, couleur) VALUES
      ('REFUSE', 'danger'),
      ('ANNULE', 'secondary'),
      ('EN COURS', 'info');
+
+CREATE TABLE login (
+  id_login SERIAL PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  mot_de_passe TEXT NOT NULL,
+  role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'prof', 'superviseur')),
+  -- id_personnel INTEGER REFERENCES personnel(id_personnel) ON DELETE CASCADE,
+  actif BOOLEAN DEFAULT TRUE,
+  date_creation TIMESTAMP DEFAULT NOW()
+);
+
+
+CREATE TYPE role_utilisateur AS ENUM ('admin', 'prof', 'superviseur');
 

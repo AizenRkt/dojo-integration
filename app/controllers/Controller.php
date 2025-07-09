@@ -6,6 +6,8 @@ use app\controllers\statistique\ReportController;
 use app\models\TarifAbonnementModel\TarifAbonnementModel;
 use app\models\TarifClubModel\TarifClubModel;
 use app\models\TarifEcolageModel\TarifEcolageModel;
+use app\models\individu\LoginModel;
+use app\models\evolution\EvolutionModel;
 
 use Flight;
 
@@ -22,13 +24,84 @@ class Controller {
         Flight::render('template/auth/login');
 
     }
+    public function handleLogin() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+    
+            $user = LoginModel::verifyCredentials($username, $password);
+    
+            if ($user) {
+                // Stocker les informations de l'utilisateur en session
+                $_SESSION['user'] = $user;
+                $_SESSION['role'] = $user['role'];
+                // Rediriger en fonction du rôle
+                switch ($user['role']) {
+                    case 'admin':
+                    case 'superviseur':
+                        Flight::redirect('/acceuil');
+                        break;
+                    case 'prof':
+                        Flight::redirect('/presence');
+                        break;
+                    default:
+                        Flight::redirect('/');
+                }
+            } else {
+                Flight::redirect('/?error=1');
+            }
+        }
+    }
+    
+    public function logout() {
+        session_destroy();
+        Flight::redirect('/');
+    }
     public function signin() {
-        Flight::render('template/auth/signin');
+        Flight::render('template/auth/sigin');
 
     }
 
     public function demographie() {
-        Flight::render('statistique/demographie');
+        $eleveModel = new EleveModel();
+        $genreData = $eleveModel->countByGenre();
+        $ageGenreData = $eleveModel->countByAgeRangeAndGenre();
+        $total = array_sum(array_column($genreData, 'total'));
+        $pourcentageHomme = round(($genreData[0]['total'] / $total) * 100);  
+        $pourcentageFemme = round(($genreData[1]['total'] / $total) * 100);  
+        $pourcentageEnfant = 100 - $pourcentageHomme - $pourcentageFemme;  
+        
+        Flight::render('statistique/demographie', [
+            'totalEleves' => $total,
+            'ageGenreData' => json_encode($ageGenreData),
+            'genreData' => json_encode($genreData),
+            'pourcentageHomme' => $pourcentageHomme,
+            'pourcentageFemme' => $pourcentageFemme,
+            'pourcentageEnfant' => $pourcentageEnfant
+        ]);
+    }
+
+    //Controller pour les pages des professeurs
+    public function professeurSidebar() {
+        Flight::render('template/menu/professeurSidebar');
+    }
+
+    public function evolution() {
+        $evolution = new EvolutionModel(Flight::db());
+        $eleves = $evolution->getElevesAvecEtoile();
+        Flight::render('professeur/evolution',['eleve' => $eleves]);
+    }
+
+    public function emploi_temps() {
+        Flight::render('professeur/emploi_temps');
+    }
+
+    public function presence_eleve() {
+        Flight::render('professeur/presence_eleve');
+    }
+
+    public function compte() {
+        Flight::render('professeur/compte');
     }
 
     // en utilisation
@@ -122,9 +195,9 @@ class Controller {
     }
 
 
-    public function edt() {
-        Flight::render('gestion/edt');
-    }
+    // public function edt() {
+    //     Flight::render('gestion/edt');
+    // }
 
     public function finance() {
         Flight::render('gestion/finance');

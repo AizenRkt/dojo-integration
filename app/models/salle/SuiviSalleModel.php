@@ -11,25 +11,27 @@ class SuiviSalleModel {
     }
 
     public function all() {
-        $sql = "
-            SELECT ss.*, 
+    $sql = "
+        SELECT ss.*, 
                m.num_serie, 
                m.id_type, 
-               s.nom AS superviseur_nom, 
-               s.prenom AS superviseur_prenom,
+               pers.nom AS superviseur_nom, 
+               pers.prenom AS superviseur_prenom,
                c.nom_responsable AS nom_club,
                f.id_facture AS facture
 
-            FROM suivi_salle ss
-            JOIN materiel_item m ON ss.id_item = m.id_item
-            JOIN superviseur s ON ss.id_superviseur = s.id_superviseur
-            LEFT JOIN facture_materiel f ON ss.id_suivi_salle = f.id_suivi_salle
-            LEFT JOIN club_groupe c ON ss.id_club = c.id
-            ORDER BY ss.date DESC
-        ";
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+        FROM suivi_salle ss
+        JOIN materiel_item m ON ss.id_item = m.id_item
+        JOIN superviseur s ON ss.id_superviseur = s.id_superviseur
+        JOIN personnel pers ON s.id_superviseur = pers.id_personnel
+        LEFT JOIN facture_materiel f ON ss.id_suivi_salle = f.id_suivi_salle
+        LEFT JOIN club_groupe c ON ss.id_club = c.id
+        ORDER BY ss.date DESC
+    ";
+    $stmt = $this->db->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
     public function create($data) {
         $stmt = $this->db->prepare("

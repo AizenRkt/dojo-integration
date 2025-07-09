@@ -18,33 +18,31 @@
             <div class="col-lg-5 col-12">
                 <div id="auth-left">
                     <div class="auth-logo">
-                        <a href="index.html"><img src="<?= Flight::base() ?>/public/assets/compiled/svg/logo.svg" alt="Logo"></a>
+                        <img style="width: 300px; height:auto" src="<?= Flight::base() ?>/public/assets/static/images/logo/logo.png" alt="logo" srcset="">
                     </div>
                     <h1 class="auth-title">Log in.</h1>
                     <p class="auth-subtitle mb-5">veuillez confirmer votre identité</p>
-
-                    <form action="index.html">
+                    <form action="<?= Flight::base() ?>/login" method="POST">
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="text" class="form-control form-control-xl" placeholder="username">
+                            <input type="text" class="form-control form-control-xl" placeholder="username" name="username" required>
                             <div class="form-control-icon">
                                 <i class="bi bi-person"></i>
                             </div>
                         </div>
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="password" class="form-control form-control-xl" placeholder="password">
+                            <input type="password" class="form-control form-control-xl" placeholder="password" name="password" required>
                             <div class="form-control-icon">
                                 <i class="bi bi-shield-lock"></i>
                             </div>
                         </div>
-                        <div class="form-check form-check-lg d-flex align-items-end">
-                            <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
-                        </div>
-                        <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button>
+                        <?php if (isset($_GET['error'])): ?>
+                        <div class="alert alert-danger">Identifiants incorrects</div>
+                        <?php endif; ?>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button>
                     </form>
                     <div class="text-center mt-5 text-lg fs-4">
-                        <p class="text-gray-600">vous n'avez pas encore de compte? <a href="auth-register.html" class="font-bold">Sign
+                        <p class="text-gray-600">vous n'avez pas encore de compte? <a href="<?= Flight::base() ?>/signin" class="font-bold">Sign
                                 up</a>.</p>
-                        <p><a class="font-bold" href="auth-forgot-password.html">Forgot password?</a>.</p>
                     </div>
                 </div>
             </div>

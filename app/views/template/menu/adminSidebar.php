@@ -3,7 +3,7 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo">
-<!--                    <a href="--><?php //= Flight::base() ?><!--/"><img style="width: 250px; height:auto" src="--><?php //= Flight::base() ?><!--/public/assets/compiled/svg/favicon.svg" alt="logo" srcset=""></a>-->
+                    <a href="<?= Flight::base() ?>/"><img style="width: 250px; height:auto" src="<?= Flight::base() ?>/public/assets/static/images/logo/logo.png" alt="logo" srcset=""></a>
                 </div>
             </div>
         </div>
@@ -121,21 +121,13 @@
                     </a>
                 </li>
 
-                <!-- <li class="sidebar-item  has-sub">
-                    <a href="#" class="sidebar-link">
-                        <i class="bi bi-table"></i>
-                        <span>Table des suivis</span>
+                <li class="sidebar-title">connexion</li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/logout" class='sidebar-link'>
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>déconnexion</span>
                     </a>
-                
-                    <ul class="submenu submenu-closed" style="--submenu-height: 86px;">
-                        <li class="submenu-item  ">
-                            <a href="<?= Flight::base() ?>/liste/District" class="submenu-link">districtes</a>
-                        </li>
-                        <li class="submenu-item  ">
-                            <a href="<?= Flight::base() ?>/liste/Commune" class="submenu-link">communes</a>
-                        </li>
-                    </ul>
-                </li>   -->
+                </li>
             </ul>
         </div>
     </div>

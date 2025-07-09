@@ -11,15 +11,39 @@ class ProfModel {
     }
 
     public function getAll() {
-        $sql = "SELECT * FROM prof ORDER BY nom ASC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    $sql = "SELECT p.id_prof,
+                   pers.nom,
+                   pers.prenom,
+                   pers.date_naissance,
+                   pers.adresse,
+                   pers.contact,
+                   pers.type_personnel,
+                   pers.id_genre
+            FROM prof p
+            JOIN personnel pers ON p.id_prof = pers.id_personnel
+            ORDER BY pers.nom ASC";
+    
+    $stmt = $this->pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
     public function getById($id) {
-        $sql = "SELECT * FROM prof WHERE id_prof = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+    $sql = "SELECT p.id_prof,
+                   pers.nom,
+                   pers.prenom,
+                   pers.date_naissance,
+                   pers.adresse,
+                   pers.contact,
+                   pers.type_personnel,
+                   pers.id_genre
+            FROM prof p
+            JOIN personnel pers ON p.id_prof = pers.id_personnel
+            WHERE p.id_prof = ?";
+    
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 }
