@@ -202,14 +202,20 @@ class GestionCoursModel {
 
             // Séances du jour
             $stmtS = $this->pdo->prepare("
-                SELECT sc.id_seances, c.label AS cours, ph.heure_debut, ph.heure_fin, p.nom, p.prenom
-                FROM seances_cours sc
-                JOIN cours c ON sc.id_cours = c.id_cours
-                JOIN prof p ON sc.id_prof = p.id_prof
-                JOIN plage_horaire ph ON sc.id_plage = ph.id
-                WHERE sc.date = :date
-                ORDER BY ph.heure_debut
-            ");
+    SELECT sc.id_seances,
+           c.label AS cours,
+           ph.heure_debut,
+           ph.heure_fin,
+           pers.nom,
+           pers.prenom
+    FROM seances_cours sc
+    JOIN cours c ON sc.id_cours = c.id_cours
+    JOIN prof p ON sc.id_prof = p.id_prof
+    JOIN personnel pers ON p.id_prof = pers.id_personnel
+    JOIN plage_horaire ph ON sc.id_plage = ph.id
+    WHERE sc.date = :date
+    ORDER BY ph.heure_debut
+");
             $stmtS->execute([':date' => $date]);
             $seances = $stmtS->fetchAll(PDO::FETCH_ASSOC);
 
@@ -275,21 +281,22 @@ class GestionCoursModel {
 
     public function getSeancesParJour($date) {
         $sql = "
-            SELECT 
-                pc.groupe,
-                ph.heure_debut,
-                ph.heure_fin,
-                c.label AS cours,
-                p.nom AS prof_nom,
-                p.prenom AS prof_prenom
-            FROM planification_cours pc
-            JOIN seances_cours sc ON pc.id_seance = sc.id_seances
-            JOIN plage_horaire ph ON sc.id_plage = ph.id
-            JOIN cours c ON sc.id_cours = c.id_cours
-            JOIN prof p ON sc.id_prof = p.id_prof
-            WHERE sc.date = :date
-            ORDER BY ph.heure_debut
-        ";
+    SELECT 
+        pc.groupe,
+        ph.heure_debut,
+        ph.heure_fin,
+        c.label AS cours,
+        pers.nom AS prof_nom,
+        pers.prenom AS prof_prenom
+    FROM planification_cours pc
+    JOIN seances_cours sc ON pc.id_seance = sc.id_seances
+    JOIN plage_horaire ph ON sc.id_plage = ph.id
+    JOIN cours c ON sc.id_cours = c.id_cours
+    JOIN prof p ON sc.id_prof = p.id_prof
+    JOIN personnel pers ON p.id_prof = pers.id_personnel
+    WHERE sc.date = :date
+    ORDER BY ph.heure_debut
+";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':date' => $date]);
