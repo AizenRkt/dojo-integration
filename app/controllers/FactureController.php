@@ -18,7 +18,7 @@ class FactureController {
             $data = $factureModel->getSalaireFactureData($id_suivi);
             
             if (!$data) {
-                Flight::halt(404, json_encode(['error' => 'Paiement de salaire non trouvé']));
+                Flight::halt(404, json_encode(['error' => 'Paiement de salaire non trouve']));
                 return;
             }
 
@@ -36,12 +36,12 @@ class FactureController {
         $pdf->Cell(100, 10, 'Date de la facture: ' . date('d/m/Y'), 0, 0);
         $pdf->Cell(0, 10, 'N° Facture: SAL-' . str_pad($id_suivi, 5, '0', STR_PAD_LEFT), 0, 1);
         $pdf->Cell(100, 10, 'Date de paiement: ' . date('d/m/Y', strtotime($data['date_paiement'])), 0, 0);
-        $pdf->Cell(0, 10, 'Date d\'échéance: ' . date('d/m/Y', strtotime($data['date_paiement'] . ' +15 days')), 0, 1);
+        $pdf->Cell(0, 10, 'Date d echeance: ' . date('d/m/Y', strtotime($data['date_paiement'] . ' +15 days')), 0, 1);
 
         // Infos Employé
         $pdf->Ln(5);
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(0, 10, 'Employé:', 0, 1);
+        $pdf->Cell(0, 10, 'Employe:', 0, 1);
         $pdf->SetFont('Arial', '', 12);
         $pdf->Cell(0, 8, "{$data['nom']} {$data['prenom']}", 0, 1);
         $pdf->Cell(0, 8, "Profession: {$data['type_employe']}", 0, 1);
@@ -80,9 +80,7 @@ class FactureController {
         $pdf->Cell(0, 10, 'Signature : Jean Dupont - Gestionnaire de comptes', 0, 1);
 
         $pdf->Output('I', "facture_salaire_{$id_suivi}.pdf");
-            // Pour l'instant on retourne juste les données en JSON
-            // Flight::json(['success' => true, 'data' => $data]);
-            
+          
         } catch (Exception $e) {
             Flight::halt(500, json_encode(['error' => $e->getMessage()]));
         }
