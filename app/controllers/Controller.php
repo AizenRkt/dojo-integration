@@ -58,7 +58,7 @@ class Controller {
         Flight::redirect('/');
     }
     public function signin() {
-        Flight::render('template/auth/signin');
+        Flight::render('template/auth/sigin');
 
     }
 
@@ -180,9 +180,9 @@ class Controller {
     }
 
 
-    public function edt() {
-        Flight::render('gestion/edt');
-    }
+    // public function edt() {
+    //     Flight::render('gestion/edt');
+    // }
 
     public function finance() {
         Flight::render('gestion/finance');

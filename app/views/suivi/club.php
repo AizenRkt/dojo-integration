@@ -495,9 +495,6 @@
                                     <button type="button" class="btn btn-outline-primary" onclick="editGroup(${group.id})">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button type="button" class="btn btn-outline-info" onclick="viewGroupDetails(${group.id})">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
                                     <button type="button" class="btn btn-outline-danger" onclick="deleteGroup(${group.id})">
                                         <i class="bi bi-trash"></i>
                                     </button>
