@@ -22,6 +22,12 @@
                         <span>abonnement</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/statistiques/sorties" class='sidebar-link'>
+                        <i class="bi bi-graph-up"></i>
+                        <span>statistiques de sortie</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-title">Suivi</li>
                 <li class="sidebar-item">

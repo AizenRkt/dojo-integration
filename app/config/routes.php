@@ -229,6 +229,11 @@ $router->get('/signin', [ $Controller, 'login' ]);
 $router->get('/demographie', [ $Controller, 'demographie' ]);
 $router->get('/abonnement', [ $Controller, 'abonnement' ]);
 
+// Statistiques des sorties
+$sortieStatController = new \app\controllers\statistique\SortieStatController();
+$router->get('/api/stats/sorties/motif', [ $sortieStatController, 'getStatsByMotif' ]);
+$router->get('/api/stats/sorties/periode', [ $sortieStatController, 'getStatsByPeriode' ]);
+
 // page suivi
 $router->get('/presence', [ $Controller, 'presence' ]);
 $router->get('/personnel', [ $Controller, 'personnel' ]);
