@@ -452,3 +452,16 @@ INSERT INTO statut_sortie (libelle, couleur) VALUES
      ('ANNULE', 'secondary'),
      ('EN COURS', 'info');
 
+CREATE TABLE login (
+  id_login SERIAL PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  mot_de_passe TEXT NOT NULL,
+  role VARCHAR(50) NOT NULL CHECK (role IN ('admin', 'prof', 'superviseur')),
+  id_personnel INTEGER REFERENCES personnel(id_personnel) ON DELETE CASCADE,
+  actif BOOLEAN DEFAULT TRUE,
+  date_creation TIMESTAMP DEFAULT NOW()
+);
+
+
+CREATE TYPE role_utilisateur AS ENUM ('admin', 'prof', 'superviseur');
+

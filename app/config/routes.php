@@ -45,18 +45,18 @@ Flight::route('PUT /api/sorties/@id/statut', [$sortieController, 'updateStatut']
 
 
 // Routes existantes pour les salaires
-Flight::route('GET /gestion/finance/salaires', function() {
-    $controller = new SalaireController();
-    // $controller->index();
-});
-
+// Flight::route('GET /gestion/finance/salaires', function() {
+//     $controller = new SalaireController();
+//     $controller->index();
+// });
 
 // page professeur
-// $router->get('/prof', [ $Controller, 'professeurSidebar' ]);
-// $router->get('/evolution', [ $Controller, 'evolution' ]);
-// $router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
-// $router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
-// $router->get('/compte', [ $Controller, 'compte' ]);
+$Controller = new Controller();
+$router->get('/prof', [ $Controller, 'professeurSidebar' ]);
+$router->get('/evolution', [ $Controller, 'evolution' ]);
+$router->get('/emploi_du_temps', [ $Controller, 'emploi_temps' ]);
+$router->get('/presence_eleve', [ $Controller, 'presence_eleve' ]);
+$router->get('/compte', [ $Controller, 'compte' ]);
 
 // Routes pour la gestion des salaires
 Flight::route('GET /api/employes', function() {
@@ -84,20 +84,20 @@ Flight::route('POST /api/salaires/payer', function() {
     $controller->payerSalaire();
 });
 
-Flight::route('PUT /api/salaires/config', function() {
-    $controller = new SalaireController();
-    // $controller->modifierConfigurationSalaire();
-});
+// Flight::route('PUT /api/salaires/config', function() {
+//     $controller = new SalaireController();
+//     $controller->modifierConfigurationSalaire();
+// });
 
-Flight::route('GET /api/employes/recherche', function() {
-    $controller = new SalaireController();
-    // $controller->rechercherEmployes();
-});
+// Flight::route('GET /api/employes/recherche', function() {
+//     $controller = new SalaireController();
+//     $controller->rechercherEmployes();
+// });
 
-Flight::route('GET /api/salaires/statistiques', function() {
-    $controller = new SalaireController();
-    // $controller->getStatistiques();
-});
+// Flight::route('GET /api/salaires/statistiques', function() {
+//     $controller = new SalaireController();
+//     $controller->getStatistiques();
+// });
 
 
 // Add these routes to your routes.php file:
@@ -221,9 +221,11 @@ Flight::route('GET /eleves/@id_eleve', [$eleveController, 'show']);
 
 $Controller = new Controller();
 // exemple de base
-$router->get('/', [ $Controller, 'acceuil' ]);
-$router->get('/login', [ $Controller, 'login' ]);
-$router->get('/signin', [ $Controller, 'login' ]);
+$router->get('/acceuil', [ $Controller, 'acceuil' ]);
+$router->get('/', [ $Controller, 'login' ]);
+$router->get('/signin', [ $Controller, 'signin' ]);
+$router->post('/login', [ $Controller, 'handleLogin' ]);
+$router->get('/logout', [ $Controller, 'logout' ]);
 
 // page statistique
 $router->get('/demographie', [ $Controller, 'demographie' ]);
