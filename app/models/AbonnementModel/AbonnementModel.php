@@ -81,7 +81,7 @@ class AbonnementModel {
         $abonnement = $this->getById($id);
         return $abonnement && $abonnement['actif'];
     }
-
+    
     public function daysRemaining($id) {
         $abonnement = $this->getById($id);
         if ($abonnement && $abonnement['actif']) {

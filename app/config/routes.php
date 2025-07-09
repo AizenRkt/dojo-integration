@@ -31,6 +31,9 @@ use app\models\evolution\EvolutionModel;
 use flight\Engine;
 use flight\net\Router;
 
+//abonnement
+use app\controllers\AbonnementController\AbonnementController;
+
 // Routes pour la gestion des sorties
 $sortieController = new SortieController();
 Flight::route('GET /api/sorties/motifs', [$sortieController, 'getMotifs']);
@@ -477,6 +480,34 @@ Flight::route('GET /suivi-presence', ['app\\controllers\\presence\\PresenceContr
 Flight::route('GET /api/suivi-presence/absences', ['app\\controllers\\presence\\PresenceController', 'getAbsencesData']);
 Flight::route('GET /api/suivi-presence/details', ['app\\controllers\\presence\\PresenceController', 'getAbsenceDetails']);
 
+
+$abonnementController = new AbonnementController();
+// Liste des abonnements
+Flight::route('GET /abonnements', [$abonnementController, 'index']);
+
+// Afficher un abonnement spécifique
+Flight::route('GET /abonnement/show/@id', [$abonnementController, 'show']);
+
+// Créer un abonnement
+Flight::route('GET /abonnement/create', [$abonnementController, 'createForm']);
+Flight::route('POST /abonnement/create', [$abonnementController, 'create']);
+
+// Modifier un abonnement
+Flight::route('GET /abonnement/edit/@id', [$abonnementController, 'editForm']);
+Flight::route('POST /abonnement/update/@id', [$abonnementController, 'update']);
+
+// Supprimer un abonnement
+Flight::route('GET /abonnement/delete/@id', [$abonnementController, 'delete']);
+
+// Annuler un abonnement
+Flight::route('GET /abonnement/annuler/@id', [$abonnementController, 'annulerForm']);
+Flight::route('POST /abonnement/annuler/@id', [$abonnementController, 'annuler']);
+
+// Vérifier si un abonnement est actif
+Flight::route('GET /abonnement/is_active/@id', [$abonnementController, 'isActive']);
+
+// Vérifier les jours restants d'un abonnement
+Flight::route('GET /abonnement/days_remaining/@id', [$abonnementController, 'daysRemaining']);
 
 //// Genre
 //$router->get('/api/genres', [ $genreController, 'getAll' ]);

@@ -6,16 +6,20 @@ use Flight;
 
 class AbonnementController {
 
+    public function createForm() {
+        Flight::render('abonnement/create'); // Vue pour le formulaire de création
+    }
+
     public function index() {
         $abonnements = new AbonnementModel();
         $abonnements = $abonnements->getAll();
-        Flight::render('', ['abonnements' => $abonnements]);
+        Flight::render('abonnement/listes', ['abonnements' => $abonnements]);
     }
 
     public function show($id) {
         $abonnement = new AbonnementModel();
         $abonnement = $abonnement->getById($id);
-        Flight::render('', ['abonnement' => $abonnement]);
+        Flight::render('abonnement/show', ['abonnement' => $abonnement]);
     }
 
 
@@ -29,9 +33,13 @@ class AbonnementController {
             'actif' => $data->actif
         ]);
         $message = $success ? "Création réussie." : "Échec de création.";
-        Flight::render('', ['message' => $message]);
+        Flight::render('abonnement/create', ['message' => $message]);
     }
-
+    public function editForm($id) {
+        $abonnement = new AbonnementModel();
+        $abonnement = $abonnement->getById($id);
+        Flight::render('abonnement/edit', ['abonnement' => $abonnement]); // Vue pour l'édition
+    }
     public function update($id) {
         $data = Flight::request()->data;
         $success = new AbonnementModel();
@@ -47,9 +55,9 @@ class AbonnementController {
     
         if (strpos($success, 'réussie') !== false) {
             $abonnement = $abonnementModel->getById($id);
-            Flight::render('', ['abonnement' => $abonnement, 'message' => $message]);
+            Flight::render('abonnement/edit', ['abonnement' => $abonnement, 'message' => $message]);
         } else {
-            Flight::render('', ['message' => $message]);
+            Flight::render('abonnement/edit', ['message' => $message]);
         }
         }
 
@@ -63,7 +71,7 @@ class AbonnementController {
         }
         if (strpos($success, 'réussie') !== false) {
             $all = $success->getAll();
-            Flight::render('', ['abonnements' => $all, 'message' => $message]);
+            Flight::render('abonnement/listes', ['abonnements' => $all, 'message' => $message]);
         } else {
             Flight::json(['error' => 'Échec de la suppression'], 500);
         }
@@ -79,7 +87,12 @@ class AbonnementController {
             Flight::json(['error' => 'Échec du renouvellement'], 500);
         }
     }
-
+    public function annulerForm($id) {
+        $abonnement = new AbonnementModel();
+        $abonnement = $abonnement->getById($id);
+        Flight::render('abonnement/annuler', ['abonnement' => $abonnement]); // Vue pour confirmation de l'annulation
+    }
+    
     public function annuler($id) {
         $success = new AbonnementModel();
         $success = $success->annuler($id);
@@ -91,7 +104,7 @@ class AbonnementController {
         if (strpos($success, 'réussie') !== false) {
             $message = "Abonnement annulé avec succès.";
             $abonnements = $success->getAll();
-            Flight::render('', ['abonnements' => $abonnements, 'message' => $message]);
+            Flight::render('abonnement/listes', ['abonnements' => $abonnements, 'message' => $message]);
         } else {
             $message = "Échec de l'annulation.";
         }
@@ -100,13 +113,13 @@ class AbonnementController {
     public function rappelAutomatique() {
         $expirants = new AbonnementModel();
         $expirants = $expirants->getExpirationsDans7Jours();
-        Flight::render('', ['abonnements' => $expirants]);
+        Flight::render('abonnement/rappel', ['abonnements' => $expirants]);
     }
     public function proforma($id) {
         $abonnement = new AbonnementModel();
         $facture = $abonnement->generateProforma($id);
         if ($facture) {
-            Flight::render('', ['facture' => $facture]);
+            Flight::render('abonnement/proforma', ['facture' => $facture]);
         } else {
             Flight::json(['error' => 'Abonnement non trouvé'], 404);
         }
