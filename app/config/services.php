@@ -51,7 +51,7 @@ Flight::map('menuAdmin', function () {
                 Flight::render('template/menu/supervisorSidebar');
                 break;
             case 'prof':
-                Flight::render('template/menu/supervisorSidebar');
+                Flight::render('template/menu/professeurSidebar');
                 break;
             default:
                 break;
